@@ -13,7 +13,9 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/mongodb": "^4.0.6",
     "@types/mongoose": "^5.11.96",
     "@types/node": "^22.15.30",
@@ -24,8 +26,10 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.17.0",
     "mongoose": "^8.15.1",
     "mysql2": "^3.14.1",
