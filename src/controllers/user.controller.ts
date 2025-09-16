@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { isEmailExist } from "../db/query";
+import { isEmailExist, createUser } from "../db/query";
 import { SignupRequestBody } from "../types/user.type";
 
 export const signup = async (req: Request, res: Response) => {
@@ -9,8 +9,19 @@ export const signup = async (req: Request, res: Response) => {
     if (exist) {
       return res.status(409).json({ message: "Email already exists" });
     }
-    // TODO: add user
-    return res.status(201).json({ message: "User created successfully" });
+    if (typeof password !== "string") {
+      return res.status(400).json({ message: "Password must be a string" });
+    }
+    const result = await createUser(email, password);
+    const newUser = result.rows[0];
+    const userResponse = {
+      id: newUser.id,
+      email: newUser.email,
+      created_at: newUser.created_at,
+    };
+    return res
+      .status(201)
+      .json({ message: "User created successfully", user: userResponse });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error", error });
   }
