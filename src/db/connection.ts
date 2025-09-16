@@ -12,3 +12,5 @@ const pool = new Pool({
     ca: fs.readFileSync(path.join(__dirname, "../../ca.pem")).toString(),
   },
 });
+
+export default pool;
