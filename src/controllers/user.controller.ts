@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { isEmailExist, createUser } from "../db/query";
-import { SignupRequestBody } from "../types/user.type";
+import { isEmailExist, createUser } from "../db/query.js";
+import { SignupRequestBody } from "../types/user.type.js";
 
 export const signup = async (req: Request, res: Response) => {
   const { email, password } = req.body as SignupRequestBody;

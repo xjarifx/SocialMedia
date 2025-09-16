@@ -1,8 +1,8 @@
-import pool from "./connection";
+import connectionPool from "./connection.js";
 import bcrypt from "bcrypt";
 
 export const isEmailExist = async (email: string): Promise<boolean> => {
-  const result = await pool.query(
+  const result = await connectionPool.query(
     "SELECT 1 FROM users WHERE email = $1 LIMIT 1",
     [email]
   );
@@ -11,7 +11,7 @@ export const isEmailExist = async (email: string): Promise<boolean> => {
 
 export const createUser = async (email: string, password: string) => {
   const hashedPassword = await bcrypt.hash(password, 10);
-  return pool.query("INSERT INTO users (email, password) VALUES ($1, $2)", [
+  return connectionPool.query("INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email", [
     email,
     hashedPassword,
   ]);
