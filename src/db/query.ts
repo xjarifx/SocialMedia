@@ -11,8 +11,16 @@ export const isEmailExist = async (email: string): Promise<boolean> => {
 
 export const createUser = async (email: string, password: string) => {
   const hashedPassword = await bcrypt.hash(password, 10);
-  return connectionPool.query("INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email", [
-    email,
-    hashedPassword,
-  ]);
+  return connectionPool.query(
+    "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
+    [email, hashedPassword]
+  );
+};
+
+export const findUserByEmail = async (email: string) => {
+  const result = await connectionPool.query(
+    "SELECT id, email, password, created_at FROM users WHERE email = $1",
+    [email]
+  );
+  return result.rows.length > 0 ? result.rows[0] : null;
 };
