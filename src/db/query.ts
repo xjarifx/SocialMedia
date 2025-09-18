@@ -24,3 +24,14 @@ export const findUserByEmail = async (email: string) => {
   );
   return result.rows.length > 0 ? result.rows[0] : null;
 };
+
+export const createPost = async (
+  user_id: number,
+  caption: string | undefined,
+  media_url: string | undefined
+) => {
+  return connectionPool.query(
+    "INSERT INTO posts (user_id, caption, media_url, created_at) VALUES ($1, $2, $3, $4) RETURNING id, user_id, caption, media_url, created_at",
+    [user_id, caption, media_url, new Date()]
+  );
+};

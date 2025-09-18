@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { isEmailExist, createUser, findUserByEmail } from "../db/query.js";
-import { AuthRequestBody } from "../types/user.type.js";
-import { isValidEmail, isValidPassword } from "../utils/validation.js";
+import { AuthRequestBody } from "../types/type.js";
+import { isValidEmail, isValidPassword } from "../utils/util.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
