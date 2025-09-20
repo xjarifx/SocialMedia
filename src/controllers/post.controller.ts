@@ -14,7 +14,7 @@ export const createPost = async (req: Request, res: Response) => {
       .status(400)
       .json({ message: "caption or media_url are required." });
   }
-
+  
   try {
     const result = await createPostQuery(user_id, caption, media_url);
     const newPost = result.rows[0];
