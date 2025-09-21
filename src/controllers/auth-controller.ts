@@ -4,13 +4,13 @@ import {
   checkUsernameExists,
   insertUser,
   getUserByEmail,
-} from "../db/query.js";
-import { SignupRequestBody, SigninRequestBody } from "../types/type.js";
+} from "../repositories/user-repository.js";
+import { SignupRequestBody, SigninRequestBody } from "../types/index.js";
 import {
   isValidEmail,
   isValidPassword,
   isValidUsername,
-} from "../utils/util.js";
+} from "../utils/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 

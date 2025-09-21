@@ -2,12 +2,12 @@ import { Router } from "express";
 import {
   handleUserSignin,
   handleUserSignup,
-} from "../controllers/auth.controller.js";
+} from "../controllers/auth-controller.js";
 import {
   handleCreatePost,
   handleDeletePost,
-} from "../controllers/post.controller.js";
-import { authenticateUserToken } from "../middlewares/auth.middleware.js";
+} from "../controllers/post-controller.js";
+import { authenticateUserToken } from "../middlewares/auth-middleware.js";
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { insertPost, deletePostById } from "../db/query.js";
-import { CreatePostRequestBody } from "../types/type.js";
+import { insertPost, deletePostById } from "../repositories/post-repository.js";
+import { CreatePostRequestBody } from "../types/index.js";
 
 export const handleCreatePost = async (req: Request, res: Response) => {
   const userId = req.user?.id;
