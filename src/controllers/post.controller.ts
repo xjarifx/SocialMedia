@@ -1,28 +1,61 @@
 import { Request, Response } from "express";
-import { createPost as createPostQuery } from "../db/query.js";
+import { insertPost, deletePostById } from "../db/query.js";
+import { CreatePostRequestBody } from "../types/type.js";
 
-export const createPost = async (req: Request, res: Response) => {
-  const user_id = req.user?.id;
-  if (!user_id) {
+export const handleCreatePost = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { caption, media_url } = req.body;
+  const { caption, mediaUrl } = req.body as CreatePostRequestBody;
 
-  if (!caption && !media_url) {
+  if (!caption && !mediaUrl) {
     return res
       .status(400)
-      .json({ message: "caption or media_url are required." });
+      .json({ message: "Caption or media URL is required." });
   }
-  
+
   try {
-    const result = await createPostQuery(user_id, caption, media_url);
+    const result = await insertPost(userId, caption, mediaUrl);
     const newPost = result.rows[0];
     res
       .status(201)
       .json({ message: "Post created successfully.", post: newPost });
-  } catch (error) {
-    console.error("Error creating post:", error);
+  } catch (createPostError) {
+    console.error("Error creating post:", createPostError);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const handleDeletePost = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const { postId } = req.params;
+
+  if (!postId) {
+    return res.status(400).json({ message: "Post ID is required." });
+  }
+
+  const postIdNumber = parseInt(postId, 10);
+  if (isNaN(postIdNumber)) {
+    return res.status(400).json({ message: "Invalid post ID." });
+  }
+
+  try {
+    // Deletes a post by its ID and user ID
+    const result = await deletePostById(userId, postIdNumber);
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Post not found or not authorized." });
+    }
+    res.status(200).json({ message: "Post deleted successfully." });
+  } catch (deletePostError) {
+    console.error("Error deleting post:", deletePostError);
     res.status(500).json({ message: "Internal server error." });
   }
 };

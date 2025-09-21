@@ -7,3 +7,8 @@ export function isValidPassword(password: string): boolean {
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
   return passwordRegex.test(password);
 }
+
+export function isValidUsername(username: string): boolean {
+  const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+  return usernameRegex.test(username);
+}

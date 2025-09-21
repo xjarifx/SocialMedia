@@ -1,12 +1,22 @@
 import { Router } from "express";
-import { signin, signup } from "../controllers/auth.controller.js";
-import { createPost } from "../controllers/post.controller.js";
-import { authenticateToken } from "../middlewares/auth.middleware.js";
+import {
+  handleUserSignin,
+  handleUserSignup,
+} from "../controllers/auth.controller.js";
+import {
+  handleCreatePost,
+  handleDeletePost,
+} from "../controllers/post.controller.js";
+import { authenticateUserToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.post("/signup", signup);
-router.post("/signin", signin);
-router.post("/createPost", authenticateToken, createPost);
+// Auth routes
+router.post("/users/signup", handleUserSignup);
+router.post("/users/signin", handleUserSignin);
+
+// Post routes
+router.post("/posts", authenticateUserToken, handleCreatePost);
+router.delete("/posts/:postId", authenticateUserToken, handleDeletePost);
 
 export default router;
