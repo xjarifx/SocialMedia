@@ -1,15 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { AuthenticatedUser } from "../types/index.js";
-
-// Extend Express Request interface to include user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: AuthenticatedUser;
-    }
-  }
-}
+import { AuthenticatedUser } from "../types/user-types.js";
 
 export const authenticateUserToken = (
   req: Request,

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import {
-  handleUserSignin,
-  handleUserSignup,
-} from "../controllers/auth-controller.js";
+  handleUserLogin,
+  handleUserRegistration,
+} from "../controllers/user-controller.js";
 import {
   handleCreatePost,
   handleDeletePost,
@@ -12,8 +12,8 @@ import { authenticateUserToken } from "../middlewares/auth-middleware.js";
 const router = Router();
 
 // Auth routes
-router.post("/users/signup", handleUserSignup);
-router.post("/users/signin", handleUserSignin);
+router.post("/users/register", handleUserRegistration);
+router.post("/users/login", handleUserLogin);
 
 // Post routes
 router.post("/posts", authenticateUserToken, handleCreatePost);

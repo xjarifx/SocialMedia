@@ -5,7 +5,7 @@ import {
   insertUser,
   getUserByEmail,
 } from "../repositories/user-repository.js";
-import { SignupRequestBody, SigninRequestBody } from "../types/index.js";
+import { RegisterRequestBody, LoginRequestBody } from "../types/user-types.js";
 import {
   isValidEmail,
   isValidPassword,
@@ -20,8 +20,8 @@ if (!JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is not defined");
 }
 
-export const handleUserSignup = async (req: Request, res: Response) => {
-  const { email, username, password } = req.body as SignupRequestBody;
+export const handleUserRegistration = async (req: Request, res: Response) => {
+  const { email, username, password } = req.body as RegisterRequestBody;
 
   if (!email || !username || !password) {
     return res
@@ -75,19 +75,20 @@ export const handleUserSignup = async (req: Request, res: Response) => {
         email: newUser.email,
         username: newUser.username,
         createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
       },
     });
   } catch (error) {
     console.error(
-      "Signup error:",
+      "Registration error:",
       error instanceof Error ? error.message : error
     );
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const handleUserSignin = async (req: Request, res: Response) => {
-  const { email, password } = req.body as SigninRequestBody;
+export const handleUserLogin = async (req: Request, res: Response) => {
+  const { email, password } = req.body as LoginRequestBody;
 
   if (!email || !password) {
     return res
@@ -111,7 +112,7 @@ export const handleUserSignin = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
@@ -127,19 +128,20 @@ export const handleUserSignin = async (req: Request, res: Response) => {
     );
 
     return res.status(200).json({
-      message: "Signin successful",
+      message: "Login successful",
       user: {
         id: user.id,
         email: user.email,
         username: user.username,
         createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
       token,
     });
-  } catch (signinError) {
+  } catch (loginError) {
     console.error(
-      "Signin error:",
-      signinError instanceof Error ? signinError.message : signinError
+      "Login error:",
+      loginError instanceof Error ? loginError.message : loginError
     );
     return res.status(500).json({ message: "Internal server error" });
   }

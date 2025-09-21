@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { insertPost, deletePostById } from "../repositories/post-repository.js";
-import { CreatePostRequestBody } from "../types/index.js";
+import { CreatePostRequestBody } from "../types/post-types.js";
 
 export const handleCreatePost = async (req: Request, res: Response) => {
   const userId = req.user?.id;
@@ -8,16 +8,16 @@ export const handleCreatePost = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { caption, mediaUrl } = req.body as CreatePostRequestBody;
+  const { content, mediaUrl } = req.body as CreatePostRequestBody;
 
-  if (!caption && !mediaUrl) {
+  if (!content && !mediaUrl) {
     return res
       .status(400)
-      .json({ message: "Caption or media URL is required." });
+      .json({ message: "Content or media URL is required." });
   }
 
   try {
-    const result = await insertPost(userId, caption, mediaUrl);
+    const result = await insertPost(userId, content, mediaUrl);
     const newPost = result.rows[0];
     res
       .status(201)
