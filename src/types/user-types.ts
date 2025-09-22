@@ -33,7 +33,7 @@ export interface User {
 }
 
 export interface UserWithPassword extends User {
-  passwordHash: string;
+  password: string;
 }
 
 // =============================
@@ -44,6 +44,7 @@ export interface UpdateProfileRequestBody {
   username?: string;
   phone?: string;
   bio?: string;
+  avatarUrl?: string;
   isPrivate?: boolean;
 }
 
@@ -72,8 +73,8 @@ export interface UserProfile {
 
 export interface AuthenticatedUser {
   id: number;
-  email: string;
-  username: string;
+  // email: string;
+  // username: string;
 }
 
 export interface JwtPayload {

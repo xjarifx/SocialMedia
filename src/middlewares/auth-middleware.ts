@@ -1,6 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { AuthenticatedUser } from "../types/user-types.js";
+
+// Validate JWT_SECRET at application startup
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is not defined");
+}
 
 export const authenticateUserToken = (
   req: Request,
@@ -12,17 +17,14 @@ export const authenticateUserToken = (
   if (!accessToken) {
     return res.status(401).json({ message: "Access token is missing." });
   }
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    return res.status(500).json({ message: "JWT secret is not configured." });
-  }
+
   try {
-    const decodedPayload = jwt.verify(accessToken, jwtSecret) as any;
+    const decodedPayload = jwt.verify(accessToken, JWT_SECRET) as any;
 
     req.user = {
       id: decodedPayload.id,
-      email: decodedPayload.email,
-      username: decodedPayload.username,
+      // email: decodedPayload.email,
+      // username: decodedPayload.username,
     };
     next();
   } catch (authenticationError) {
