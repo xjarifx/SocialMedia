@@ -185,7 +185,6 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // frontend has to send all the fields, along with unchanged ones
   const { username, phone, bio, avatarUrl, isPrivate } =
     req.body as UpdateProfileRequestBody;
 
