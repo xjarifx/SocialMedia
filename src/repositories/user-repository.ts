@@ -157,7 +157,7 @@ export const checkIfFollowing = async (
   targetUserId: number
 ): Promise<boolean> => {
   const result = await connectionPool.query(
-    "SELECT 1 FROM followers WHERE follower_id = $1 AND following_id = $2 LIMIT 1",
+    "SELECT 1 FROM follows WHERE follower_id = $1 AND following_id = $2 LIMIT 1",
     [userId, targetUserId]
   );
   return (result.rowCount ?? 0) > 0;
@@ -165,14 +165,14 @@ export const checkIfFollowing = async (
 
 export const insertFollower = async (userId: number, targetUserId: number) => {
   return connectionPool.query(
-    "INSERT INTO followers (follower_id, following_id, created_at) VALUES ($1, $2, $3)",
+    "INSERT INTO follows (follower_id, following_id, created_at) VALUES ($1, $2, $3)",
     [userId, targetUserId, new Date()]
   );
 };
 
 export const deleteFollower = async (userId: number, targetUserId: number) => {
   return connectionPool.query(
-    "DELETE FROM followers WHERE follower_id = $1 AND following_id = $2",
+    "DELETE FROM follows WHERE follower_id = $1 AND following_id = $2",
     [userId, targetUserId]
   );
 };
@@ -181,17 +181,18 @@ export const getFollowers = async (userId: number) => {
   const result = await connectionPool.query(
     `SELECT u.id, u.username, u.avatar_url AS "avatarUrl"
      FROM users u
-     JOIN followers f ON u.id = f.follower_id
+     JOIN follows f ON u.id = f.follower_id
      WHERE f.following_id = $1`,
     [userId]
   );
   return result.rows;
 };
+
 export const getFollowing = async (userId: number) => {
   const result = await connectionPool.query(
     `SELECT u.id, u.username, u.avatar_url AS "avatarUrl"
      FROM users u
-     JOIN followers f ON u.id = f.following_id
+     JOIN follows f ON u.id = f.following_id
      WHERE f.follower_id = $1`,
     [userId]
   );
