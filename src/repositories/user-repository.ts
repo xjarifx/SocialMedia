@@ -176,3 +176,24 @@ export const deleteFollower = async (userId: number, targetUserId: number) => {
     [userId, targetUserId]
   );
 };
+
+export const getFollowers = async (userId: number) => {
+  const result = await connectionPool.query(
+    `SELECT u.id, u.username, u.avatar_url AS "avatarUrl"
+     FROM users u
+     JOIN followers f ON u.id = f.follower_id
+     WHERE f.following_id = $1`,
+    [userId]
+  );
+  return result.rows;
+};
+export const getFollowing = async (userId: number) => {
+  const result = await connectionPool.query(
+    `SELECT u.id, u.username, u.avatar_url AS "avatarUrl"
+     FROM users u
+     JOIN followers f ON u.id = f.following_id
+     WHERE f.follower_id = $1`,
+    [userId]
+  );
+  return result.rows;
+};

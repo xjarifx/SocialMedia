@@ -13,6 +13,8 @@ import {
   checkIfFollowing,
   insertFollower,
   deleteFollower,
+  getFollowers,
+  getFollowing,
 } from "../repositories/user-repository.js";
 import {
   RegisterRequestBody,
@@ -27,6 +29,7 @@ import {
 } from "../utils/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { get } from "http";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -435,14 +438,25 @@ export const handleGetFollowers = async (req: Request, res: Response) => {
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
-  
-  
-
-  res.status(501).json({ message: "Not implemented" });
+  try {
+    const followers = await getFollowers(userId);
+    return res.status(200).json(followers);
+  } catch (error) {
+    console.error("Get followers error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const handleGetFollowing = async (req: Request, res: Response) => {
-  // Implementation here
-  res.status(501).json({ message: "Not implemented" });
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    const following = await getFollowing(userId);
+    return res.status(200).json(following);
+  } catch (error) {
+    console.error("Get following error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
