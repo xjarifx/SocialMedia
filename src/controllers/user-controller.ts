@@ -9,6 +9,10 @@ import {
   getUserByIdWithPassword,
   updateUserProfile,
   updateUserPassword,
+  getUserByUsername,
+  checkIfFollowing,
+  insertFollower,
+  deleteFollower,
 } from "../repositories/user-repository.js";
 import {
   RegisterRequestBody,
@@ -24,7 +28,6 @@ import {
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// Validate JWT_SECRET at application startup
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is not defined");
@@ -188,10 +191,8 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
   const { username, phone, bio, avatarUrl, isPrivate } =
     req.body as UpdateProfileRequestBody;
 
-  // Fetch current user once for validation
   const currentUser = await getUserById(userId);
 
-  // Validation with security checks
   if (username !== undefined) {
     if (typeof username !== "string" || !isValidUsername(username)) {
       return res.status(400).json({
@@ -200,7 +201,6 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if username is already taken by another user
     if (currentUser?.username !== username) {
       const existingUser = await checkUsernameExists(username);
       if (existingUser) {
@@ -219,13 +219,10 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if phone is already taken by another user
     if (phone.length > 0 && currentUser?.phone !== phone) {
       const existingPhone = await checkPhoneExists(phone);
       if (existingPhone) {
-        return res
-          .status(409)
-          .json({ message: "Phone number already exists" });
+        return res.status(409).json({ message: "Phone number already exists" });
       }
     }
   }
@@ -281,7 +278,6 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
   } catch (profileUpdateError) {
     console.error("Profile update error:", profileUpdateError);
 
-    // Handle unique constraint violations
     if (
       profileUpdateError instanceof Error &&
       profileUpdateError.message.includes("duplicate key")
@@ -349,4 +345,104 @@ export const handleChangePassword = async (req: Request, res: Response) => {
     );
     return res.status(500).json({ message: "Internal server error" });
   }
+};
+
+export const handleFollowUser = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const targetUsername = req.params.targetUsername;
+
+  if (!targetUsername || typeof targetUsername !== "string") {
+    return res.status(400).json({ message: "Invalid target username" });
+  }
+
+  try {
+    const targetUser = await getUserByUsername(targetUsername);
+    if (!targetUser) {
+      return res.status(404).json({ message: "Target user not found" });
+    }
+
+    const targetUserId = targetUser.id;
+
+    if (targetUserId === userId) {
+      return res.status(400).json({ message: "You cannot follow yourself" });
+    }
+
+    // might get error, const targetUserId: any, expecting number
+    const isAlreadyFollowing = await checkIfFollowing(userId, targetUserId);
+    if (isAlreadyFollowing) {
+      return res
+        .status(400)
+        .json({ message: "You are already following this user" });
+    }
+
+    await insertFollower(userId, targetUserId);
+
+    return res.status(200).json({ message: "Successfully followed the user" });
+  } catch (error) {
+    console.error("Follow user error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const handleUnfollowUser = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const targetUsername = req.params.targetUsername;
+
+  if (!targetUsername || typeof targetUsername !== "string") {
+    return res.status(400).json({ message: "Invalid target username" });
+  }
+
+  try {
+    const targetUser = await getUserByUsername(targetUsername);
+    if (!targetUser) {
+      return res.status(404).json({ message: "Target user not found" });
+    }
+
+    const targetUserId = targetUser.id;
+    if (targetUserId === userId) {
+      return res.status(400).json({ message: "You cannot unfollow yourself" });
+    }
+    const isFollowing = await checkIfFollowing(userId, targetUserId);
+    if (!isFollowing) {
+      return res
+        .status(400)
+        .json({ message: "You are not following this user" });
+    }
+
+    await deleteFollower(userId, targetUserId);
+
+    return res
+      .status(200)
+      .json({ message: "Successfully unfollowed the user" });
+  } catch (error) {
+    console.error("Unfollow user error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// View followers/following lists
+
+export const handleGetFollowers = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  
+  
+
+  res.status(501).json({ message: "Not implemented" });
+};
+
+export const handleGetFollowing = async (req: Request, res: Response) => {
+  // Implementation here
+  res.status(501).json({ message: "Not implemented" });
 };

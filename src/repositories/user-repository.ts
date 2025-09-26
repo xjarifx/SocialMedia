@@ -143,3 +143,36 @@ export const updateUserPassword = async (
   );
   return result.rows.length > 0 ? result.rows[0] : null;
 };
+
+export const getUserByUsername = async (username: string) => {
+  const result = await connectionPool.query(
+    "SELECT id, email, username, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE username = $1",
+    [username]
+  );
+  return result.rows.length > 0 ? result.rows[0] : null;
+};
+
+export const checkIfFollowing = async (
+  userId: number,
+  targetUserId: number
+): Promise<boolean> => {
+  const result = await connectionPool.query(
+    "SELECT 1 FROM followers WHERE follower_id = $1 AND following_id = $2 LIMIT 1",
+    [userId, targetUserId]
+  );
+  return (result.rowCount ?? 0) > 0;
+};
+
+export const insertFollower = async (userId: number, targetUserId: number) => {
+  return connectionPool.query(
+    "INSERT INTO followers (follower_id, following_id, created_at) VALUES ($1, $2, $3)",
+    [userId, targetUserId, new Date()]
+  );
+};
+
+export const deleteFollower = async (userId: number, targetUserId: number) => {
+  return connectionPool.query(
+    "DELETE FROM followers WHERE follower_id = $1 AND following_id = $2",
+    [userId, targetUserId]
+  );
+};
