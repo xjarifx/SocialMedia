@@ -11,12 +11,12 @@ import {
   handleFollowUser,
 } from "../controllers/user-controller.js";
 import {
-  createPost,
-  editPost,
-  deletePost,
-  // fetchSinglePost,
-  // fetchAllPosts,
-  // fetchUserFeed,
+  handlePostCreation,
+  handlePostUpdate,
+  handlePostDeletion,
+  // handlePostGet,
+  // handleAllPostsGet,
+  // handleUserFeedGet,
 } from "../controllers/post-controller.js";
 import { authenticateUserToken } from "../middlewares/auth-middleware.js";
 
@@ -54,11 +54,11 @@ router.get("/users/following", authenticateUserToken, handleGetFollowing);
 // ===================================================================
 
 // POSTS ROUTES
-router.post("/posts", authenticateUserToken, createPost);
-router.put("/posts/:postId", authenticateUserToken, editPost);
-router.delete("/posts/:postId", authenticateUserToken, deletePost);
-// router.get("/posts/:postId", authenticateUserToken, fetchSinglePost);
-// router.get("/posts", authenticateUserToken, fetchAllPosts);
-// router.get("/users/:userId/feed", authenticateUserToken, fetchUserFeed);
+router.post("/posts", authenticateUserToken, handlePostCreation);
+router.put("/posts/:postId", authenticateUserToken, handlePostUpdate);
+router.delete("/posts/:postId", authenticateUserToken, handlePostDeletion);
+// router.get("/posts/:postId", authenticateUserToken, handlePostGet);
+// router.get("/posts", authenticateUserToken, handleAllPostsGet);
+// router.get("/users/:userId/feed", authenticateUserToken, handleUserFeedGet);
 
 export default router;
