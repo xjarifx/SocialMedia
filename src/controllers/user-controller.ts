@@ -17,11 +17,6 @@ import {
   getFollowing,
 } from "../repositories/user-repository.js";
 import {
-  CreateUserRequestBody,
-  LoginRequestBody,
-  UpdateProfileRequestBody,
-} from "../types/user-types.js";
-import {
   isValidEmail,
   isValidPassword,
   isValidUsername,
@@ -31,7 +26,11 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export const handleUserRegistration = async (req: Request, res: Response) => {
-  const { email, username, password } = req.body as CreateUserRequestBody;
+  const { email, username, password } = req.body as {
+    email: string;
+    username: string;
+    password: string;
+  };
 
   if (!email || !username || !password) {
     return res
@@ -100,7 +99,10 @@ export const handleUserRegistration = async (req: Request, res: Response) => {
 };
 
 export const handleUserLogin = async (req: Request, res: Response) => {
-  const { email, password } = req.body as LoginRequestBody;
+  const { email, password } = req.body as {
+    email: string;
+    password: string;
+  };
 
   if (!email || !password) {
     return res
@@ -192,8 +194,13 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { username, phone, bio, avatarUrl, isPrivate } =
-    req.body as UpdateProfileRequestBody;
+  const { username, phone, bio, avatarUrl, isPrivate } = req.body as {
+    username?: string;
+    phone?: string;
+    bio?: string;
+    avatarUrl?: string;
+    isPrivate?: boolean;
+  };
 
   const currentUser = await getUserById(userId);
 

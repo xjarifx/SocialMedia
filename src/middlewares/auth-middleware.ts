@@ -1,6 +1,20 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+interface AuthenticatedUser {
+  id: number;
+  // email: string;
+  // username: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthenticatedUser;
+    }
+  }
+}
+
 // Validate JWT_SECRET at application startup
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {

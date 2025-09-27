@@ -13,13 +13,16 @@ export const handlePostCreation = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { caption, mediaUrl } = req.body;
+  const { caption, mediaUrl } = req.body as {
+    caption?: string;
+    mediaUrl?: string;
+  };
   if (!caption && !mediaUrl) {
     return res.status(400).json({ message: "Caption or media is required" });
   }
 
   try {
-    const createdPost = await insertPost(userId, caption, mediaUrl);
+    const createdPost = await insertPost(userId, caption || "", mediaUrl || "");
     return res
       .status(201)
       .json({ message: "Post created successfully", post: createdPost });
@@ -58,12 +61,19 @@ export const handlePostUpdate = async (req: Request, res: Response) => {
     return res.status(403).json({ message: "Forbidden" });
   }
 
-  const { caption, mediaUrl } = req.body;
+  const { caption, mediaUrl } = req.body as {
+    caption?: string;
+    mediaUrl?: string;
+  };
   if (!caption && !mediaUrl) {
     return res.status(400).json({ message: "Caption or media is required" });
   }
   try {
-    const updatedPost = await updatePostById(postIdNumber, caption, mediaUrl);
+    const updatedPost = await updatePostById(
+      postIdNumber,
+      caption || "",
+      mediaUrl || ""
+    );
     return res
       .status(200)
       .json({ message: "Post updated successfully", post: updatedPost });
