@@ -2,29 +2,29 @@ import connectionPool from "../db/connection.js";
 import bcrypt from "bcrypt";
 
 export const checkEmailExists = async (email: string): Promise<boolean> => {
-  const result = await connectionPool.query(
+  const emailCheckResult = await connectionPool.query(
     "SELECT 1 FROM users WHERE email = $1 LIMIT 1",
     [email]
   );
-  return (result.rowCount ?? 0) > 0;
+  return (emailCheckResult.rowCount ?? 0) > 0;
 };
 
 export const checkUsernameExists = async (
   username: string
 ): Promise<boolean> => {
-  const result = await connectionPool.query(
+  const usernameCheckResult = await connectionPool.query(
     "SELECT 1 FROM users WHERE username = $1 LIMIT 1",
     [username]
   );
-  return (result.rowCount ?? 0) > 0;
+  return (usernameCheckResult.rowCount ?? 0) > 0;
 };
 
 export const checkPhoneExists = async (phone: string): Promise<boolean> => {
-  const result = await connectionPool.query(
+  const phoneCheckResult = await connectionPool.query(
     "SELECT 1 FROM users WHERE phone = $1 LIMIT 1",
     [phone]
   );
-  return (result.rowCount ?? 0) > 0;
+  return (phoneCheckResult.rowCount ?? 0) > 0;
 };
 
 export const insertUser = async (
@@ -40,27 +40,29 @@ export const insertUser = async (
 };
 
 export const getUserByEmail = async (email: string) => {
-  const result = await connectionPool.query(
+  const userQueryResult = await connectionPool.query(
     "SELECT id, email, username, password, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE email = $1",
     [email]
   );
-  return result.rows.length > 0 ? result.rows[0] : null;
+  return userQueryResult.rows.length > 0 ? userQueryResult.rows[0] : null;
 };
 
 export const getUserById = async (userId: number) => {
-  const result = await connectionPool.query(
+  const userByIdResult = await connectionPool.query(
     "SELECT id, email, username, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE id = $1",
     [userId]
   );
-  return result.rows.length > 0 ? result.rows[0] : null;
+  return userByIdResult.rows.length > 0 ? userByIdResult.rows[0] : null;
 };
 
 export const getUserByIdWithPassword = async (userId: number) => {
-  const result = await connectionPool.query(
+  const userWithPasswordResult = await connectionPool.query(
     "SELECT id, email, username, password, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE id = $1",
     [userId]
   );
-  return result.rows.length > 0 ? result.rows[0] : null;
+  return userWithPasswordResult.rows.length > 0
+    ? userWithPasswordResult.rows[0]
+    : null;
 };
 
 export const updateUserProfile = async (
@@ -128,8 +130,10 @@ export const updateUserProfile = async (
       last_login AS lastLogin
   `;
 
-  const result = await connectionPool.query(query, values);
-  return result.rows.length > 0 ? result.rows[0] : null;
+  const profileUpdateResult = await connectionPool.query(query, values);
+  return profileUpdateResult.rows.length > 0
+    ? profileUpdateResult.rows[0]
+    : null;
 };
 
 export const updateUserPassword = async (
@@ -137,30 +141,34 @@ export const updateUserPassword = async (
   newPassword: string
 ) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-  const result = await connectionPool.query(
+  const passwordUpdateResult = await connectionPool.query(
     "UPDATE users SET password = $1, updated_at = $2 WHERE id = $3 RETURNING id, email, username, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin",
     [hashedPassword, new Date(), userId]
   );
-  return result.rows.length > 0 ? result.rows[0] : null;
+  return passwordUpdateResult.rows.length > 0
+    ? passwordUpdateResult.rows[0]
+    : null;
 };
 
 export const getUserByUsername = async (username: string) => {
-  const result = await connectionPool.query(
+  const userByUsernameResult = await connectionPool.query(
     "SELECT id, email, username, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE username = $1",
     [username]
   );
-  return result.rows.length > 0 ? result.rows[0] : null;
+  return userByUsernameResult.rows.length > 0
+    ? userByUsernameResult.rows[0]
+    : null;
 };
 
 export const checkIfFollowing = async (
   userId: number,
   targetUserId: number
 ): Promise<boolean> => {
-  const result = await connectionPool.query(
+  const followCheckResult = await connectionPool.query(
     "SELECT 1 FROM follows WHERE follower_id = $1 AND following_id = $2 LIMIT 1",
     [userId, targetUserId]
   );
-  return (result.rowCount ?? 0) > 0;
+  return (followCheckResult.rowCount ?? 0) > 0;
 };
 
 export const insertFollower = async (userId: number, targetUserId: number) => {
@@ -178,23 +186,23 @@ export const deleteFollower = async (userId: number, targetUserId: number) => {
 };
 
 export const getFollowers = async (userId: number) => {
-  const result = await connectionPool.query(
+  const followersQueryResult = await connectionPool.query(
     `SELECT u.id, u.username, u.avatar_url AS "avatarUrl"
      FROM users u
      JOIN follows f ON u.id = f.follower_id
      WHERE f.following_id = $1`,
     [userId]
   );
-  return result.rows;
+  return followersQueryResult.rows;
 };
 
 export const getFollowing = async (userId: number) => {
-  const result = await connectionPool.query(
+  const followingQueryResult = await connectionPool.query(
     `SELECT u.id, u.username, u.avatar_url AS "avatarUrl"
      FROM users u
      JOIN follows f ON u.id = f.following_id
      WHERE f.follower_id = $1`,
     [userId]
   );
-  return result.rows;
+  return followingQueryResult.rows;
 };

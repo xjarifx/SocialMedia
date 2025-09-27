@@ -2,7 +2,7 @@
 // USER AUTHENTICATION TYPES
 // =============================
 
-export interface RegisterRequestBody {
+export interface CreateUserRequestBody {
   email: string;
   username: string;
   password: string;

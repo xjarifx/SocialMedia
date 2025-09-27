@@ -17,7 +17,7 @@ import {
   getFollowing,
 } from "../repositories/user-repository.js";
 import {
-  RegisterRequestBody,
+  CreateUserRequestBody,
   LoginRequestBody,
   UpdateProfileRequestBody,
 } from "../types/user-types.js";
@@ -29,7 +29,6 @@ import {
 } from "../utils/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { get } from "http";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -37,7 +36,7 @@ if (!JWT_SECRET) {
 }
 
 export const handleUserRegistration = async (req: Request, res: Response) => {
-  const { email, username, password } = req.body as RegisterRequestBody;
+  const { email, username, password } = req.body as CreateUserRequestBody;
 
   if (!email || !username || !password) {
     return res
@@ -82,8 +81,8 @@ export const handleUserRegistration = async (req: Request, res: Response) => {
       return res.status(409).json({ message: "Username already exists" });
     }
 
-    const result = await insertUser(email, username, password);
-    const newUser = result.rows[0];
+    const userInsertResult = await insertUser(email, username, password);
+    const newUser = userInsertResult.rows[0];
     return res.status(201).json({
       message: "User created successfully",
       user: {
@@ -94,10 +93,12 @@ export const handleUserRegistration = async (req: Request, res: Response) => {
         updatedAt: newUser.updatedAt,
       },
     });
-  } catch (error) {
+  } catch (userRegistrationError) {
     console.error(
       "Registration error:",
-      error instanceof Error ? error.message : error
+      userRegistrationError instanceof Error
+        ? userRegistrationError.message
+        : userRegistrationError
     );
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -123,20 +124,27 @@ export const handleUserLogin = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await getUserByEmail(email);
-    if (!user) {
+    const authenticatedUser = await getUserByEmail(email);
+    if (!authenticatedUser) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      authenticatedUser.password
+    );
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
     const jwtSecret = process.env.JWT_SECRET as string;
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email, username: user.username },
+    const authenticationToken = jwt.sign(
+      {
+        id: authenticatedUser.id,
+        email: authenticatedUser.email,
+        username: authenticatedUser.username,
+      },
       jwtSecret,
       {
         expiresIn: "24h",
@@ -146,13 +154,13 @@ export const handleUserLogin = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "Login successful",
       user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        id: authenticatedUser.id,
+        email: authenticatedUser.email,
+        username: authenticatedUser.username,
+        createdAt: authenticatedUser.createdAt,
+        updatedAt: authenticatedUser.updatedAt,
       },
-      token,
+      token: authenticationToken,
     });
   } catch (loginError) {
     console.error(
@@ -268,15 +276,15 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
     if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
     if (isPrivate !== undefined) updateData.isPrivate = isPrivate;
 
-    const result = await updateUserProfile(userId, updateData);
+    const profileUpdateResult = await updateUserProfile(userId, updateData);
 
-    if (!result) {
+    if (!profileUpdateResult) {
       return res.status(404).json({ message: "User not found" });
     }
 
     return res.status(200).json({
       message: "Profile updated successfully",
-      user: result,
+      user: profileUpdateResult,
     });
   } catch (profileUpdateError) {
     console.error("Profile update error:", profileUpdateError);
@@ -326,14 +334,14 @@ export const handleChangePassword = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await getUserByIdWithPassword(userId);
-    if (!user) {
+    const currentUserWithPassword = await getUserByIdWithPassword(userId);
+    if (!currentUserWithPassword) {
       return res.status(404).json({ message: "User not found" });
     }
 
     const isCurrentPasswordValid = await bcrypt.compare(
       currentPassword,
-      user.password
+      currentUserWithPassword.password
     );
     if (!isCurrentPasswordValid) {
       return res.status(401).json({ message: "Current password is incorrect" });
@@ -341,10 +349,12 @@ export const handleChangePassword = async (req: Request, res: Response) => {
 
     await updateUserPassword(userId, newPassword);
     return res.status(200).json({ message: "Password changed successfully" });
-  } catch (error) {
+  } catch (changePasswordError) {
     console.error(
       "Change password error:",
-      error instanceof Error ? error.message : error
+      changePasswordError instanceof Error
+        ? changePasswordError.message
+        : changePasswordError
     );
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -385,8 +395,8 @@ export const handleFollowUser = async (req: Request, res: Response) => {
     await insertFollower(userId, targetUserId);
 
     return res.status(200).json({ message: "Successfully followed the user" });
-  } catch (error) {
-    console.error("Follow user error:", error);
+  } catch (followUserError) {
+    console.error("Follow user error:", followUserError);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -425,8 +435,8 @@ export const handleUnfollowUser = async (req: Request, res: Response) => {
     return res
       .status(200)
       .json({ message: "Successfully unfollowed the user" });
-  } catch (error) {
-    console.error("Unfollow user error:", error);
+  } catch (unfollowUserError) {
+    console.error("Unfollow user error:", unfollowUserError);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -441,8 +451,8 @@ export const handleGetFollowers = async (req: Request, res: Response) => {
   try {
     const followers = await getFollowers(userId);
     return res.status(200).json(followers);
-  } catch (error) {
-    console.error("Get followers error:", error);
+  } catch (getFollowersError) {
+    console.error("Get followers error:", getFollowersError);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -455,8 +465,8 @@ export const handleGetFollowing = async (req: Request, res: Response) => {
   try {
     const following = await getFollowing(userId);
     return res.status(200).json(following);
-  } catch (error) {
-    console.error("Get following error:", error);
+  } catch (getFollowingError) {
+    console.error("Get following error:", getFollowingError);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
