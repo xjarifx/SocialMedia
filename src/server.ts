@@ -7,7 +7,6 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// jwt tokens in cookies
 
 app.use("/", routes);
 

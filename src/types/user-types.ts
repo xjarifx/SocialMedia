@@ -53,20 +53,6 @@ export interface ChangePasswordRequestBody {
   newPassword: string;
 }
 
-export interface UserProfile {
-  id: number;
-  username: string;
-  email: string;
-  phone?: string;
-  bio?: string;
-  avatarUrl?: string;
-  isVerified: boolean;
-  isPrivate: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  lastLogin?: Date;
-}
-
 // =============================
 // JWT TOKEN TYPES
 // =============================
@@ -75,12 +61,4 @@ export interface AuthenticatedUser {
   id: number;
   // email: string;
   // username: string;
-}
-
-export interface JwtPayload {
-  id: number;
-  email: string;
-  username: string;
-  iat?: number;
-  exp?: number;
 }

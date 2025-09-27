@@ -30,11 +30,6 @@ import {
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is not defined");
-}
-
 export const handleUserRegistration = async (req: Request, res: Response) => {
   const { email, username, password } = req.body as CreateUserRequestBody;
 
@@ -137,15 +132,13 @@ export const handleUserLogin = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const jwtSecret = process.env.JWT_SECRET as string;
-
     const authenticationToken = jwt.sign(
       {
         id: authenticatedUser.id,
         email: authenticatedUser.email,
         username: authenticatedUser.username,
       },
-      jwtSecret,
+      process.env.JWT_SECRET as string,
       {
         expiresIn: "24h",
       }
@@ -212,11 +205,11 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
       });
     }
 
-    if (currentUser?.username !== username) {
-      const existingUser = await checkUsernameExists(username);
-      if (existingUser) {
-        return res.status(409).json({ message: "Username already exists" });
-      }
+    if (
+      currentUser?.username !== username &&
+      (await checkUsernameExists(username))
+    ) {
+      return res.status(409).json({ message: "Username already exists" });
     }
   }
 
@@ -230,11 +223,12 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
       });
     }
 
-    if (phone.length > 0 && currentUser?.phone !== phone) {
-      const existingPhone = await checkPhoneExists(phone);
-      if (existingPhone) {
-        return res.status(409).json({ message: "Phone number already exists" });
-      }
+    if (
+      phone.length > 0 &&
+      currentUser?.phone !== phone &&
+      (await checkPhoneExists(phone))
+    ) {
+      return res.status(409).json({ message: "Phone number already exists" });
     }
   }
 
@@ -384,7 +378,6 @@ export const handleFollowUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "You cannot follow yourself" });
     }
 
-    // might get error, const targetUserId: any, expecting number
     const isAlreadyFollowing = await checkIfFollowing(userId, targetUserId);
     if (isAlreadyFollowing) {
       return res
@@ -442,7 +435,6 @@ export const handleUnfollowUser = async (req: Request, res: Response) => {
 };
 
 // View followers/following lists
-
 export const handleGetFollowers = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
@@ -470,5 +462,3 @@ export const handleGetFollowing = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-// last login needed to add
