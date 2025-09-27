@@ -139,7 +139,7 @@ export const handleUserLogin = async (req: Request, res: Response) => {
       { id: user.id, email: user.email, username: user.username },
       jwtSecret,
       {
-        expiresIn: "1h",
+        expiresIn: "24h",
       }
     );
 
