@@ -14,9 +14,6 @@ import {
   handlePostCreation,
   handlePostUpdate,
   handlePostDeletion,
-  // handlePostGet,
-  // handleAllPostsGet,
-  // handleUserFeedGet,
 } from "../controllers/post-controller.js";
 import {
   handleCreateComment,
@@ -24,83 +21,57 @@ import {
   handleDeleteComment,
   handleGetCommentsByPost,
 } from "../controllers/comment-controller.js";
-
 import {
   handleLikeCreation,
   handleLikeDeletion,
   handleGetLikeCount,
 } from "../controllers/like-controller.js";
-
+import { handleSearchByUsername } from "../search.js";
 import { authenticateUserToken } from "../middlewares/auth-middleware.js";
 
 const router = Router();
 
-// HOME ROUTE
-
+// newsfeed route (public)
 router.get("/", (req, res) => {
-  res.send("Welcome to the Social Media API. future TODO: newsfeed");
+  res.send("newsfeed");
 });
 
-// USERS ROUTES
+// AUTH ROUTES (public)
+router.post("/register", handleUserRegistration);
+router.post("/login", handleUserLogin);
 
-// Auth routes (public)
-router.post("/users/register", handleUserRegistration);
-router.post("/users/login", handleUserLogin);
+// PROFILE ROUTES (protected)
+router.get("/profile", authenticateUserToken, handleUserProfileGet);
+router.put("/profile", authenticateUserToken, handleUserProfileUpdate);
+router.put("/password", authenticateUserToken, handleChangePassword);
 
-// Profile routes (protected)
-router.get("/users/profile", authenticateUserToken, handleUserProfileGet);
-router.put("/users/profile", authenticateUserToken, handleUserProfileUpdate);
-
-// Change password route (protected)
-router.put("/users/password", authenticateUserToken, handleChangePassword);
-
-// Follow/Unfollow routes (protected)
-router.post(
-  "/users/:targetUsername/follow",
-  authenticateUserToken,
-  handleFollowUser
-);
+// FOLLOW ROUTES (protected)
+router.post("/:targetUsername/follow", authenticateUserToken, handleFollowUser);
+router.get("/followers", authenticateUserToken, handleGetFollowers);
+router.get("/following", authenticateUserToken, handleGetFollowing);
 router.delete(
-  "/users/:targetUsername/unfollow",
+  "/:targetUsername/unfollow",
   authenticateUserToken,
   handleUnfollowUser
 );
-router.get("/users/followers", authenticateUserToken, handleGetFollowers);
-router.get("/users/following", authenticateUserToken, handleGetFollowing);
 
-// POSTS ROUTES
+// POST ROUTES (protected)
 router.post("/posts", authenticateUserToken, handlePostCreation);
-router.put("/posts/:postId", authenticateUserToken, handlePostUpdate);
-router.delete("/posts/:postId", authenticateUserToken, handlePostDeletion);
-// router.get("/posts/:postId", authenticateUserToken, handlePostGet);
-// router.get("/posts", authenticateUserToken, handleAllPostsGet);
-// router.get("/users/:userId/feed", authenticateUserToken, handleUserFeedGet);
+router.put("/:postId", authenticateUserToken, handlePostUpdate);
+router.delete("/:postId", authenticateUserToken, handlePostDeletion);
 
-// Comment ROUTES
-router.post(
-  "/posts/:postId/comments",
-  authenticateUserToken,
-  handleCreateComment
-);
-router.put("/comments/:commentId", authenticateUserToken, handleUpdateComment);
-router.delete(
-  "/comments/:commentId",
-  authenticateUserToken,
-  handleDeleteComment
-);
-router.get(
-  "/posts/:postId/comments",
-  authenticateUserToken,
-  handleGetCommentsByPost
-);
+// COMMENT ROUTES (protected)
+router.post("/:postId/comments", authenticateUserToken, handleCreateComment);
+router.get("/:postId/comments", authenticateUserToken, handleGetCommentsByPost);
+router.put("/:commentId", authenticateUserToken, handleUpdateComment);
+router.delete("/:commentId", authenticateUserToken, handleDeleteComment);
 
-// Like ROUTES
-router.post("/posts/:postId/like", authenticateUserToken, handleLikeCreation);
-router.delete("/posts/:postId/like", authenticateUserToken, handleLikeDeletion);
-router.get(
-  "/posts/:postId/like/count",
-  authenticateUserToken,
-  handleGetLikeCount
-);
+// LIKE ROUTES (protected)
+router.post("/:postId/likes", authenticateUserToken, handleLikeCreation);
+router.get("/:postId/likes", authenticateUserToken, handleGetLikeCount);
+router.delete("/:postId/likes", authenticateUserToken, handleLikeDeletion);
+
+// SEARCH ROUTES (public)
+router.get("/search", handleSearchByUsername);
 
 export default router;
