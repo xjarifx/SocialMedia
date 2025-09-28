@@ -29,12 +29,10 @@ export const handleCreateComment = async (req: Request, res: Response) => {
 
   try {
     const createdComment = await insertComment(userId, postIdNumber, comment);
-    return res
-      .status(201)
-      .json({
-        message: "Comment created successfully",
-        comment: createdComment,
-      });
+    return res.status(201).json({
+      message: "Comment created successfully",
+      comment: createdComment,
+    });
   } catch (commentCreationError) {
     return res.status(500).json({ message: "Failed to create comment" });
   }
@@ -67,12 +65,10 @@ export const handleUpdateComment = async (req: Request, res: Response) => {
     if (!updatedComment) {
       return res.status(404).json({ message: "Comment not found" });
     }
-    return res
-      .status(200)
-      .json({
-        message: "Comment updated successfully",
-        comment: updatedComment,
-      });
+    return res.status(200).json({
+      message: "Comment updated successfully",
+      comment: updatedComment,
+    });
   } catch (commentUpdateError) {
     return res.status(500).json({ message: "Failed to update comment" });
   }
@@ -103,7 +99,7 @@ export const handleDeleteComment = async (req: Request, res: Response) => {
   }
 };
 // List comments for a post
-export const listCommentsByPost = async (req: Request, res: Response) => {
+export const handleGetCommentsByPost = async (req: Request, res: Response) => {
   const { postId } = req.params as { postId: string };
   if (!postId) {
     return res.status(400).json({ message: "Post ID is required" });

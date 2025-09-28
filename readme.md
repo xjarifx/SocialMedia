@@ -1,1 +1,3 @@
+notion plan page: https://neon-cut-6bf.notion.site/Project-Social-Media-274e526928ab80369962dd112f14fe6f
+
 coming soon ...

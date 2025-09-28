@@ -62,13 +62,12 @@ CREATE TABLE comments (
 Stores likes for posts and comments.
 
 ```sql
-CREATE TABLE likes (
+CREATE TABLE post_likes (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     post_id BIGINT REFERENCES posts(id) ON DELETE CASCADE,
-    comment_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT NOW(),
-    CONSTRAINT unique_like UNIQUE(user_id, post_id, comment_id)
+    CONSTRAINT unique_like UNIQUE(user_id, post_id)
 );
 ```
 

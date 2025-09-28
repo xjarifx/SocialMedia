@@ -22,16 +22,15 @@ import {
   handleCreateComment,
   handleUpdateComment,
   handleDeleteComment,
-  listCommentsByPost,
+  handleGetCommentsByPost,
 } from "../controllers/comment-controller.js";
+
 import {
-  handlePostLike,
-  handlePostUnlike,
-  handleCommentLike,
-  handleCommentUnlike,
-  handleGetPostLikes,
-  handleGetCommentLikes,
+  handleLikeCreation,
+  handleLikeDeletion,
+  handleGetLikeCount,
 } from "../controllers/like-controller.js";
+
 import { authenticateUserToken } from "../middlewares/auth-middleware.js";
 
 const router = Router();
@@ -92,27 +91,16 @@ router.delete(
 router.get(
   "/posts/:postId/comments",
   authenticateUserToken,
-  listCommentsByPost
+  handleGetCommentsByPost
 );
 
 // Like ROUTES
-router.post("/posts/:postId/like", authenticateUserToken, handlePostLike);
-router.delete("/posts/:postId/like", authenticateUserToken, handlePostUnlike);
-router.post(
-  "/comments/:commentId/like",
-  authenticateUserToken,
-  handleCommentLike
-);
-router.delete(
-  "/comments/:commentId/like",
-  authenticateUserToken,
-  handleCommentUnlike
-);
-router.get("/posts/:postId/likes", authenticateUserToken, handleGetPostLikes);
+router.post("/posts/:postId/like", authenticateUserToken, handleLikeCreation);
+router.delete("/posts/:postId/like", authenticateUserToken, handleLikeDeletion);
 router.get(
-  "/comments/:commentId/likes",
+  "/posts/:postId/like/count",
   authenticateUserToken,
-  handleGetCommentLikes
+  handleGetLikeCount
 );
 
 export default router;
