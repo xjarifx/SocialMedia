@@ -7,18 +7,18 @@ import {
 } from "../repositories/comment-repository.js";
 
 // Add comments to posts
-export const createComment = async (req: Request, res: Response) => {
+export const handleCreateComment = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-  const { post_id } = req.params as { post_id: string };
-  if (!post_id) {
+  const { postId } = req.params as { postId: string };
+  if (!postId) {
     return res.status(400).json({ message: "Post ID is required" });
   }
 
-  const postIdNum = parseInt(post_id, 10);
-  if (isNaN(postIdNum)) {
+  const postIdNumber = parseInt(postId, 10);
+  if (isNaN(postIdNumber)) {
     return res.status(400).json({ message: "Invalid Post ID" });
   }
 
@@ -28,29 +28,32 @@ export const createComment = async (req: Request, res: Response) => {
   }
 
   try {
-    const result = await insertComment(userId, postIdNum, comment);
+    const createdComment = await insertComment(userId, postIdNumber, comment);
     return res
       .status(201)
-      .json({ message: "Comment created successfully", comment: result });
-  } catch (error) {
+      .json({
+        message: "Comment created successfully",
+        comment: createdComment,
+      });
+  } catch (commentCreationError) {
     return res.status(500).json({ message: "Failed to create comment" });
   }
 };
 
 // Update comments
-export const handelUpdateComment = async (req: Request, res: Response) => {
+export const handleUpdateComment = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { comment_id } = req.params as { comment_id: string };
-  if (!comment_id) {
+  const { commentId } = req.params as { commentId: string };
+  if (!commentId) {
     return res.status(400).json({ message: "Comment ID is required" });
   }
 
-  const commentIdNum = parseInt(comment_id, 10);
-  if (isNaN(commentIdNum)) {
+  const commentIdNumber = parseInt(commentId, 10);
+  if (isNaN(commentIdNumber)) {
     return res.status(400).json({ message: "Invalid Comment ID" });
   }
 
@@ -60,14 +63,17 @@ export const handelUpdateComment = async (req: Request, res: Response) => {
   }
 
   try {
-    const result = await updateComment(commentIdNum, comment);
-    if (!result) {
+    const updatedComment = await updateComment(commentIdNumber, comment);
+    if (!updatedComment) {
       return res.status(404).json({ message: "Comment not found" });
     }
     return res
       .status(200)
-      .json({ message: "Comment updated successfully", comment: result });
-  } catch (error) {
+      .json({
+        message: "Comment updated successfully",
+        comment: updatedComment,
+      });
+  } catch (commentUpdateError) {
     return res.status(500).json({ message: "Failed to update comment" });
   }
 };
@@ -80,38 +86,38 @@ export const handleDeleteComment = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { comment_id } = req.params as { comment_id: string };
-  if (!comment_id) {
+  const { commentId } = req.params as { commentId: string };
+  if (!commentId) {
     return res.status(400).json({ message: "Comment ID is required" });
   }
-  const commentIdNum = parseInt(comment_id, 10);
-  if (isNaN(commentIdNum)) {
+  const commentIdNumber = parseInt(commentId, 10);
+  if (isNaN(commentIdNumber)) {
     return res.status(400).json({ message: "Invalid Comment ID" });
   }
   try {
-    await deleteComment(commentIdNum, userId);
+    await deleteComment(commentIdNumber, userId);
     res.status(200).json({ message: "Comment deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting comment:", error);
+  } catch (commentDeletionError) {
+    console.error("Error deleting comment:", commentDeletionError);
     return res.status(500).json({ message: "Failed to delete comment" });
   }
 };
 // List comments for a post
 export const listCommentsByPost = async (req: Request, res: Response) => {
-  const { post_id } = req.params as { post_id: string };
-  if (!post_id) {
+  const { postId } = req.params as { postId: string };
+  if (!postId) {
     return res.status(400).json({ message: "Post ID is required" });
   }
 
-  const postIdNum = parseInt(post_id, 10);
-  if (isNaN(postIdNum)) {
+  const postIdNumber = parseInt(postId, 10);
+  if (isNaN(postIdNumber)) {
     return res.status(400).json({ message: "Invalid Post ID" });
   }
 
   try {
-    const comments = await getCommentsByPostId(postIdNum);
-    return res.status(200).json({ comments });
-  } catch (error) {
+    const postComments = await getCommentsByPostId(postIdNumber);
+    return res.status(200).json({ comments: postComments });
+  } catch (commentRetrievalError) {
     return res.status(500).json({ message: "Failed to retrieve comments" });
   }
 };

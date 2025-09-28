@@ -18,11 +18,29 @@ import {
   // handleAllPostsGet,
   // handleUserFeedGet,
 } from "../controllers/post-controller.js";
+import {
+  handleCreateComment,
+  handleUpdateComment,
+  handleDeleteComment,
+  listCommentsByPost,
+} from "../controllers/comment-controller.js";
+import {
+  handlePostLike,
+  handlePostUnlike,
+  handleCommentLike,
+  handleCommentUnlike,
+  handleGetPostLikes,
+  handleGetCommentLikes,
+} from "../controllers/like-controller.js";
 import { authenticateUserToken } from "../middlewares/auth-middleware.js";
 
 const router = Router();
 
-// =============================================================================================
+// HOME ROUTE
+
+router.get("/", (req, res) => {
+  res.send("Welcome to the Social Media API. future TODO: newsfeed");
+});
 
 // USERS ROUTES
 
@@ -51,8 +69,6 @@ router.delete(
 router.get("/users/followers", authenticateUserToken, handleGetFollowers);
 router.get("/users/following", authenticateUserToken, handleGetFollowing);
 
-// ===================================================================
-
 // POSTS ROUTES
 router.post("/posts", authenticateUserToken, handlePostCreation);
 router.put("/posts/:postId", authenticateUserToken, handlePostUpdate);
@@ -60,5 +76,43 @@ router.delete("/posts/:postId", authenticateUserToken, handlePostDeletion);
 // router.get("/posts/:postId", authenticateUserToken, handlePostGet);
 // router.get("/posts", authenticateUserToken, handleAllPostsGet);
 // router.get("/users/:userId/feed", authenticateUserToken, handleUserFeedGet);
+
+// Comment ROUTES
+router.post(
+  "/posts/:postId/comments",
+  authenticateUserToken,
+  handleCreateComment
+);
+router.put("/comments/:commentId", authenticateUserToken, handleUpdateComment);
+router.delete(
+  "/comments/:commentId",
+  authenticateUserToken,
+  handleDeleteComment
+);
+router.get(
+  "/posts/:postId/comments",
+  authenticateUserToken,
+  listCommentsByPost
+);
+
+// Like ROUTES
+router.post("/posts/:postId/like", authenticateUserToken, handlePostLike);
+router.delete("/posts/:postId/like", authenticateUserToken, handlePostUnlike);
+router.post(
+  "/comments/:commentId/like",
+  authenticateUserToken,
+  handleCommentLike
+);
+router.delete(
+  "/comments/:commentId/like",
+  authenticateUserToken,
+  handleCommentUnlike
+);
+router.get("/posts/:postId/likes", authenticateUserToken, handleGetPostLikes);
+router.get(
+  "/comments/:commentId/likes",
+  authenticateUserToken,
+  handleGetCommentLikes
+);
 
 export default router;
