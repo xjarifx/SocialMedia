@@ -3,10 +3,21 @@
 :root {
   --primary-500: #f37125;
   --primary-600: #e55a14;
+  --primary-900: #1a0a04; /* Very dark orange that looks almost black */
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  /* Hide scrollbars but keep scroll functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 body {
@@ -16,6 +27,25 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Hide scrollbars but keep scroll functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  /* Use very dark orange instead of black */
+  color: #1a0a04;
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+/* Hide scrollbars globally for all scrollable elements */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 /* Force primary colors if Tailwind config isn't working */
@@ -41,4 +71,17 @@ body {
 
 .focus\:ring-primary-500:focus {
   --tw-ring-color: #f37125 !important;
+}
+
+/* Override black text with very dark orange */
+.text-black {
+  color: #1a0a04 !important;
+}
+
+.text-neutral-900 {
+  color: #1a0a04 !important;
+}
+
+.text-gray-900 {
+  color: #1a0a04 !important;
 }

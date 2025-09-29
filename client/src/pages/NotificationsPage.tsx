@@ -26,13 +26,13 @@ export default function NotificationsPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={1.5}
-                  d="M15 17h5l-5 5v-5z"
+                  d="M10 2a7 7 0 017 7v3a3 3 0 003 3h1a1 1 0 110 2H3a1 1 0 110-2h1a3 3 0 003-3V9a7 7 0 017-7z"
                 />
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={1.5}
-                  d="M9 7H4l5-5v5z"
+                  d="M13.73 21a2 2 0 01-3.46 0"
                 />
               </svg>
             </div>

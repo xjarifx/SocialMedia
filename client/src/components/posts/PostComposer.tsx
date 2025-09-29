@@ -27,11 +27,11 @@ export default function PostComposer() {
   const remainingChars = maxLength - content.length;
 
   return (
-    <div className="p-4">
+    <div className="p-3">
       <div className="flex space-x-3">
         {/* User Avatar */}
-        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-          <span className="text-primary-600 font-medium text-lg">
+        <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <span className="text-primary-600 font-medium text-base">
             {user?.username?.[0]?.toUpperCase() || "U"}
           </span>
         </div>
@@ -43,13 +43,13 @@ export default function PostComposer() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="What's happening?"
-              className="w-full p-3 text-lg placeholder-primary-400 border-0 resize-none focus:outline-none focus:ring-0 bg-transparent"
-              rows={3}
+              className="w-full p-2 text-base placeholder-primary-400 border-0 resize-none focus:outline-none focus:ring-0 bg-transparent"
+              rows={2}
               maxLength={maxLength}
             />
 
             {/* Actions */}
-            <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center justify-between mt-2">
               <div className="flex items-center space-x-4">
                 {/* Media Upload Button */}
                 <button

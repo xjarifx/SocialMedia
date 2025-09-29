@@ -1,6 +1,5 @@
 import { useState } from "react";
 import PostFeed from "../components/posts/PostFeed";
-import PostComposer from "../components/posts/PostComposer";
 import SearchBar from "../components/ui/SearchBar";
 
 export default function DashboardPage() {
@@ -41,11 +40,6 @@ export default function DashboardPage() {
               Following
             </button>
           </div>
-        </div>
-
-        {/* Post Composer */}
-        <div className="border-b border-orange-200">
-          <PostComposer />
         </div>
 
         {/* Post Feed */}

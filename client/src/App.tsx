@@ -10,6 +10,7 @@ import AppLayout from "./components/layout/AppLayout";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
+import PostPage from "./pages/PostPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProfileEditPage from "./pages/profile/ProfileEditPage";
@@ -61,6 +62,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <DashboardPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/post"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <PostPage />
             </AppLayout>
           </ProtectedRoute>
         }

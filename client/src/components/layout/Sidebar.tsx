@@ -52,13 +52,33 @@ export default function Sidebar() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M15 17h5l-5 5v-5z"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      ),
+      label: "Post",
+      path: "/post",
+      isActive: location.pathname === "/post",
+    },
+    {
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 2a7 7 0 017 7v3a3 3 0 003 3h1a1 1 0 110 2H3a1 1 0 110-2h1a3 3 0 003-3V9a7 7 0 017-7z"
           />
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M9 7H4l5-5v5z"
+            d="M13.73 21a2 2 0 01-3.46 0"
           />
         </svg>
       ),
@@ -96,13 +116,13 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
+      <nav className="flex-1 px-4 pt-4">
+        <ul className="space-y-0">
           {sidebarItems.map((item) => (
             <li key={item.path}>
               <button
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-soft transition-colors ${
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-soft transition-colors ${
                   item.isActive
                     ? "bg-primary-50 text-primary-600"
                     : "text-primary-400 hover:bg-orange-50 hover:text-primary-600"
@@ -115,7 +135,7 @@ export default function Sidebar() {
                 >
                   {item.icon}
                 </span>
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium text-base">{item.label}</span>
               </button>
             </li>
           ))}

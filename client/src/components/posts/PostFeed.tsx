@@ -67,6 +67,138 @@ const mockPosts: Post[] = [
     isLiked: false,
     isReposted: false,
   },
+  {
+    id: 5,
+    username: "reactdev",
+    content:
+      "Hot take: React Server Components are going to change everything. The way we think about data fetching and rendering will never be the same. Exciting times ahead! ⚛️",
+    createdAt: "12h",
+    likes: 203,
+    comments: 45,
+    reposts: 32,
+    isLiked: true,
+    isReposted: false,
+  },
+  {
+    id: 6,
+    username: "uiuxmaster",
+    content:
+      "Spent the entire weekend redesigning our mobile app. Sometimes you have to start from scratch to get it right. The new flow is 40% more intuitive! 📱✨",
+    createdAt: "1d",
+    likes: 145,
+    comments: 28,
+    reposts: 19,
+    isLiked: false,
+    isReposted: true,
+  },
+  {
+    id: 7,
+    username: "codewarrior",
+    content:
+      "Debugging a production issue at 2 AM. Coffee count: 4 cups ☕ Status: Still going strong 💪 Sometimes being a developer means being a digital detective.",
+    createdAt: "1d",
+    likes: 78,
+    comments: 15,
+    reposts: 6,
+    isLiked: true,
+    isReposted: false,
+  },
+  {
+    id: 8,
+    username: "techstartup",
+    content:
+      "Just closed our Series A! 🎉 Thank you to everyone who believed in our vision. Time to scale this thing to the moon! 🚀 #startup #funding",
+    createdAt: "2d",
+    likes: 421,
+    comments: 67,
+    reposts: 89,
+    isLiked: false,
+    isReposted: false,
+  },
+  {
+    id: 9,
+    username: "frontenddude",
+    content:
+      "CSS Grid + Flexbox = Perfect layout combination 💯 Stop fighting the browser and embrace modern CSS. Your future self will thank you!",
+    createdAt: "2d",
+    likes: 192,
+    comments: 31,
+    reposts: 24,
+    isLiked: true,
+    isReposted: true,
+  },
+  {
+    id: 10,
+    username: "datascientist",
+    content:
+      "Machine learning models are only as good as the data you feed them. Garbage in, garbage out. Spent 80% of my time this week cleaning datasets 📊",
+    createdAt: "3d",
+    likes: 234,
+    comments: 19,
+    reposts: 41,
+    isLiked: false,
+    isReposted: false,
+  },
+  {
+    id: 11,
+    username: "mobileguru",
+    content:
+      "Flutter vs React Native in 2025? Both are solid choices, but Flutter's performance on complex animations gives it the edge. What's your experience? 📱",
+    createdAt: "3d",
+    likes: 167,
+    comments: 52,
+    reposts: 33,
+    isLiked: true,
+    isReposted: false,
+  },
+  {
+    id: 12,
+    username: "devops_ninja",
+    content:
+      "Kubernetes can be overwhelming at first, but once you understand the concepts, it's like having superpowers for container orchestration ⚡ Worth the learning curve!",
+    createdAt: "4d",
+    likes: 98,
+    comments: 24,
+    reposts: 17,
+    isLiked: false,
+    isReposted: true,
+  },
+  {
+    id: 13,
+    username: "webperf",
+    content:
+      "Shaved 2 seconds off our page load time by optimizing images and implementing lazy loading. Users are already reporting better experience! 🏃‍♂️💨",
+    createdAt: "4d",
+    likes: 156,
+    comments: 18,
+    reposts: 22,
+    isLiked: true,
+    isReposted: false,
+  },
+  {
+    id: 14,
+    username: "backendwizard",
+    content:
+      "Microservices architecture isn't always the answer. Sometimes a well-structured monolith is exactly what you need. Choose based on your actual requirements, not trends 🎯",
+    createdAt: "5d",
+    likes: 289,
+    comments: 73,
+    reposts: 45,
+    isLiked: false,
+    isReposted: false,
+  },
+  {
+    id: 15,
+    username: "airesearcher",
+    content:
+      "OpenAI's latest model is impressive, but remember: AI is a tool to augment human creativity, not replace it. The best results come from human-AI collaboration 🤖🤝👨‍💻",
+    createdAt: "5d",
+    likes: 412,
+    comments: 91,
+    reposts: 78,
+    isLiked: true,
+    isReposted: true,
+  },
 ];
 
 export default function PostFeed({ activeTab }: PostFeedProps) {
@@ -83,10 +215,19 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
       if (activeTab === "for-you") {
         setPosts(mockPosts);
       } else {
-        // Filter for following feed (mock)
+        // Filter for following feed (mock) - expanded to include more users
         setPosts(
           mockPosts.filter((post) =>
-            ["techguru", "designlover"].includes(post.username)
+            [
+              "techguru",
+              "designlover",
+              "reactdev",
+              "uiuxmaster",
+              "frontenddude",
+              "mobileguru",
+              "webperf",
+              "airesearcher",
+            ].includes(post.username)
           )
         );
       }
