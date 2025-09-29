@@ -253,8 +253,8 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+      <div className="p-8 text-center min-h-96 flex flex-col justify-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
         <p className="mt-2 text-primary-400">Loading posts...</p>
       </div>
     );
@@ -262,7 +262,7 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
 
   if (posts.length === 0) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-8 text-center min-h-96 flex flex-col justify-center">
         <p className="text-primary-400">
           {activeTab === "following"
             ? "No posts from people you follow yet. Start following some users!"
@@ -273,7 +273,7 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
   }
 
   return (
-    <div>
+    <div className="transition-all duration-300 ease-in-out">
       {posts.map((post) => (
         <PostCard
           key={post.id}

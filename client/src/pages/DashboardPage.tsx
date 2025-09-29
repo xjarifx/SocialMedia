@@ -43,7 +43,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Post Feed */}
-        <PostFeed activeTab={activeTab} />
+        <div className="min-h-screen">
+          <PostFeed activeTab={activeTab} />
+        </div>
       </div>
 
       {/* Right Search Panel */}
