@@ -164,25 +164,7 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-orange-200 z-10">
           <div className="px-4 py-3">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="p-2 hover:bg-orange-50 rounded-full transition-colors"
-              >
-                <svg
-                  className="w-5 h-5 text-primary-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
+            <div className="flex items-center">
               <div>
                 <h1 className="text-xl font-bold text-primary-600">
                   {user?.username}
