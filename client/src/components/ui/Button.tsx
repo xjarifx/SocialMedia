@@ -23,10 +23,10 @@ export default function Button({
     primary:
       "bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-soft",
     secondary:
-      "bg-white text-neutral-700 border border-neutral-300 hover:bg-neutral-50 active:bg-neutral-100 shadow-soft",
-    ghost: "text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200",
+      "bg-white text-primary-600 border border-orange-200 hover:bg-orange-50 active:bg-orange-100 shadow-soft",
+    ghost: "text-primary-600 hover:bg-orange-100 active:bg-orange-200",
     danger:
-      "bg-red-500 text-white hover:bg-red-600 active:bg-red-700 shadow-soft",
+      "bg-orange-600 text-white hover:bg-orange-700 active:bg-orange-800 shadow-soft",
   };
 
   const sizes = {

@@ -6,9 +6,11 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AppLayout from "./components/layout/AppLayout";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
-import HomePage from "./pages/HomePage";
+import DashboardPage from "./pages/DashboardPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProfileEditPage from "./pages/profile/ProfileEditPage";
 import PasswordChangePage from "./pages/profile/PasswordChangePage";
@@ -26,15 +28,21 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public routes - redirect to home if already authenticated */}
+      {/* Public routes - redirect to dashboard if already authenticated */}
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
+        }
       />
       <Route
         path="/register"
         element={
-          isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <RegisterPage />
+          )
         }
       />
 
@@ -43,7 +51,27 @@ function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <Navigate to="/dashboard" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <DashboardPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <NotificationsPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -53,7 +81,9 @@ function AppRoutes() {
         path="/profile"
         element={
           <ProtectedRoute>
-            <ProfilePage />
+            <AppLayout>
+              <ProfilePage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -61,7 +91,9 @@ function AppRoutes() {
         path="/profile/edit"
         element={
           <ProtectedRoute>
-            <ProfileEditPage />
+            <AppLayout>
+              <ProfileEditPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -69,7 +101,9 @@ function AppRoutes() {
         path="/profile/password"
         element={
           <ProtectedRoute>
-            <PasswordChangePage />
+            <AppLayout>
+              <PasswordChangePage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />

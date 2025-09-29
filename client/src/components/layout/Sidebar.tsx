@@ -1,0 +1,161 @@
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import type { ReactNode } from "react";
+
+interface SidebarItem {
+  icon: ReactNode;
+  label: string;
+  path: string;
+  isActive?: boolean;
+}
+
+export default function Sidebar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const sidebarItems: SidebarItem[] = [
+    {
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+          />
+        </svg>
+      ),
+      label: "Home",
+      path: "/dashboard",
+      isActive: location.pathname === "/dashboard",
+    },
+    {
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 17h5l-5 5v-5z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 7H4l5-5v5z"
+          />
+        </svg>
+      ),
+      label: "Notifications",
+      path: "/notifications",
+      isActive: location.pathname === "/notifications",
+    },
+    {
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
+        </svg>
+      ),
+      label: "Profile",
+      path: "/profile",
+      isActive: location.pathname === "/profile",
+    },
+  ];
+
+  return (
+    <div className="h-full flex flex-col bg-white border-r border-orange-200">
+      {/* Logo */}
+      <div className="p-4 border-b border-orange-200">
+        <h1 className="text-xl font-bold text-primary-600">SocialApp</h1>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 p-4">
+        <ul className="space-y-2">
+          {sidebarItems.map((item) => (
+            <li key={item.path}>
+              <button
+                onClick={() => navigate(item.path)}
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-soft transition-colors ${
+                  item.isActive
+                    ? "bg-primary-50 text-primary-600"
+                    : "text-primary-400 hover:bg-orange-50 hover:text-primary-600"
+                }`}
+              >
+                <span
+                  className={
+                    item.isActive ? "text-primary-600" : "text-primary-400"
+                  }
+                >
+                  {item.icon}
+                </span>
+                <span className="font-medium">{item.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* User Profile Section */}
+      <div className="p-4 border-t border-orange-200">
+        <div className="flex items-center space-x-3 mb-3">
+          <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+            <span className="text-primary-600 font-medium">
+              {user?.username?.[0]?.toUpperCase() || "U"}
+            </span>
+          </div>
+          <div className="flex-1">
+            <p className="font-medium text-primary-600">{user?.username}</p>
+            <p className="text-sm text-primary-400">{user?.email}</p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center space-x-2 px-3 py-2 text-primary-400 hover:bg-orange-50 hover:text-primary-600 rounded-soft transition-colors"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          <span>Sign out</span>
+        </button>
+      </div>
+    </div>
+  );
+}

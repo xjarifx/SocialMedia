@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../../utils/api";
 import Button from "../../components/ui/Button";
 import PasswordInput from "../../components/ui/PasswordInput";
 import Card from "../../components/ui/Card";
+import PageHeader from "../../components/ui/PageHeader";
 import { ApiError } from "../../utils/api";
 
 export default function PasswordChangePage() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -80,6 +83,11 @@ export default function PasswordChangePage() {
         confirmPassword: "",
       });
 
+      // Navigate back to profile after successful password change
+      setTimeout(() => {
+        navigate("/profile");
+      }, 2000);
+
       // Hide success message after 3 seconds
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
@@ -100,96 +108,97 @@ export default function PasswordChangePage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-neutral-900">Change Password</h1>
-        <p className="text-neutral-600 mt-1">
-          Update your account password to keep it secure
-        </p>
+    <div className="min-h-screen bg-neutral-50">
+      <PageHeader
+        title="Change Password"
+        subtitle="Update your account password to keep it secure"
+        showBackButton={true}
+        backTo="/profile"
+      />
+      <div className="max-w-lg mx-auto py-8 px-4">
+        <Card>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {errors.form && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-soft text-red-700 text-sm">
+                {errors.form}
+              </div>
+            )}
+
+            {showSuccess && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-soft text-green-700 text-sm">
+                Password changed successfully! Your new password is now active.
+              </div>
+            )}
+
+            <PasswordInput
+              label="Current Password"
+              name="currentPassword"
+              value={formData.currentPassword}
+              onChange={handleChange}
+              error={errors.currentPassword}
+              required
+              placeholder="Enter your current password"
+            />
+
+            <PasswordInput
+              label="New Password"
+              name="newPassword"
+              value={formData.newPassword}
+              onChange={handleChange}
+              error={errors.newPassword}
+              required
+              placeholder="Enter your new password"
+              helperText="At least 8 characters with uppercase, lowercase, number, and special character"
+            />
+
+            <PasswordInput
+              label="Confirm New Password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              required
+              placeholder="Confirm your new password"
+            />
+
+            {/* Security Tips */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-soft">
+              <h3 className="text-sm font-medium text-blue-900 mb-2">
+                Password Security Tips
+              </h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Use a unique password for this account</li>
+                <li>• Include a mix of letters, numbers, and symbols</li>
+                <li>• Avoid using personal information</li>
+                <li>• Consider using a password manager</li>
+              </ul>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => window.history.back()}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                isLoading={isLoading}
+                disabled={
+                  isLoading ||
+                  !formData.currentPassword ||
+                  !formData.newPassword ||
+                  !formData.confirmPassword
+                }
+              >
+                {isLoading ? "Changing Password..." : "Change Password"}
+              </Button>
+            </div>
+          </form>
+        </Card>
       </div>
-
-      <Card>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {errors.form && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-soft text-red-700 text-sm">
-              {errors.form}
-            </div>
-          )}
-
-          {showSuccess && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-soft text-green-700 text-sm">
-              Password changed successfully! Your new password is now active.
-            </div>
-          )}
-
-          <PasswordInput
-            label="Current Password"
-            name="currentPassword"
-            value={formData.currentPassword}
-            onChange={handleChange}
-            error={errors.currentPassword}
-            required
-            placeholder="Enter your current password"
-          />
-
-          <PasswordInput
-            label="New Password"
-            name="newPassword"
-            value={formData.newPassword}
-            onChange={handleChange}
-            error={errors.newPassword}
-            required
-            placeholder="Enter your new password"
-            helperText="At least 8 characters with uppercase, lowercase, number, and special character"
-          />
-
-          <PasswordInput
-            label="Confirm New Password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            error={errors.confirmPassword}
-            required
-            placeholder="Confirm your new password"
-          />
-
-          {/* Security Tips */}
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-soft">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">
-              Password Security Tips
-            </h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Use a unique password for this account</li>
-              <li>• Include a mix of letters, numbers, and symbols</li>
-              <li>• Avoid using personal information</li>
-              <li>• Consider using a password manager</li>
-            </ul>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => window.history.back()}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              disabled={
-                isLoading ||
-                !formData.currentPassword ||
-                !formData.newPassword ||
-                !formData.confirmPassword
-              }
-            >
-              {isLoading ? "Changing Password..." : "Change Password"}
-            </Button>
-          </div>
-        </form>
-      </Card>
     </div>
   );
 }
