@@ -12,6 +12,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import PostPage from "./pages/PostPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import MessagesPage from "./pages/MessagesPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProfileEditPage from "./pages/profile/ProfileEditPage";
 import PasswordChangePage from "./pages/profile/PasswordChangePage";
@@ -82,6 +83,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <NotificationsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/messages"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <MessagesPage />
             </AppLayout>
           </ProtectedRoute>
         }

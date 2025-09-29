@@ -106,14 +106,34 @@ export default function Sidebar() {
       path: "/profile",
       isActive: location.pathname === "/profile",
     },
+    {
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          />
+        </svg>
+      ),
+      label: "Messages",
+      path: "/messages",
+      isActive: location.pathname === "/messages",
+    },
   ];
 
   return (
     <div className="h-full flex flex-col bg-white border-r border-orange-200">
       {/* Logo */}
-      <div className="p-4 border-b border-orange-200">
-        <h1 className="text-xl font-bold text-primary-600">SocialApp</h1>
-      </div>
+      {/* <div className="p-4">
+        <h1 className="text-xl font-bold text-primary-600">SocialMedia</h1>
+      </div> */}
 
       {/* Navigation */}
       <nav className="flex-1 px-4 pt-4">
