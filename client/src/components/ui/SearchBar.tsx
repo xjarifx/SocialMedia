@@ -44,7 +44,7 @@ export default function SearchBar({
           type="text"
           value={query}
           onChange={handleInputChange}
-          className="block w-full pl-10 pr-3 py-3 border border-orange-200 rounded-full bg-orange-50 text-primary-600 placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="block w-full pl-10 pr-3 py-3 border border-orange-200 rounded-full bg-primary-50 text-primary-600 placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           placeholder={placeholder}
         />
       </div>

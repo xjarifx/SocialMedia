@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --primary-500: #f37125;
-  --primary-600: #e55a14;
+  --primary-50: #fef7f3; /* Very light orange */
+  --primary-100: #fed7c3; /* Light orange */
+  --primary-200: #fdb896; /* Lighter orange */
+  --primary-300: #fb9969; /* Medium-light orange */
+  --primary-500: #f37125; /* Standard orange */
+  --primary-600: #e55a14; /* Darker orange */
   --primary-900: #1a0a04; /* Very dark orange that looks almost black */
 }
 
@@ -49,12 +53,36 @@ body::-webkit-scrollbar {
 }
 
 /* Force primary colors if Tailwind config isn't working */
+.bg-primary-50 {
+  background-color: #fef7f3 !important;
+}
+
+.bg-primary-100 {
+  background-color: #fed7c3 !important;
+}
+
+.bg-primary-200 {
+  background-color: #fdb896 !important;
+}
+
+.bg-primary-300 {
+  background-color: #fb9969 !important;
+}
+
 .bg-primary-500 {
   background-color: #f37125 !important;
 }
 
 .hover\:bg-primary-600:hover {
   background-color: #e55a14 !important;
+}
+
+.hover\:bg-primary-50:hover {
+  background-color: #fef7f3 !important;
+}
+
+.hover\:bg-primary-100:hover {
+  background-color: #fed7c3 !important;
 }
 
 .text-primary-500 {

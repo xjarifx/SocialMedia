@@ -7,7 +7,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="min-h-screen bg-orange-50">
+    <div className="min-h-screen bg-white">
       <div className="flex w-full">
         {/* Global Sidebar - Always visible */}
         <div className="w-64 sticky top-0 h-screen">
