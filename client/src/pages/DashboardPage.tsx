@@ -55,34 +55,6 @@ export default function DashboardPage() {
             placeholder="Search posts, users, topics..."
             onSearch={handleSearch}
           />
-
-          {/* Search Results/Suggestions */}
-          <div className="mt-6 space-y-4">
-            <div className="bg-orange-50 rounded-soft p-4">
-              <h3 className="font-semibold text-primary-600 mb-3">
-                Trending Now
-              </h3>
-              <div className="space-y-2">
-                <div className="text-sm text-primary-400">#WebDevelopment</div>
-                <div className="text-sm text-primary-400">#ReactJS</div>
-                <div className="text-sm text-primary-400">#TypeScript</div>
-                <div className="text-sm text-primary-400">#AI</div>
-              </div>
-            </div>
-
-            <div className="bg-orange-50 rounded-soft p-4">
-              <h3 className="font-semibold text-primary-600 mb-3">
-                Recent Searches
-              </h3>
-              <div className="space-y-2">
-                <div className="text-sm text-primary-400">
-                  social media design
-                </div>
-                <div className="text-sm text-primary-400">tailwind css</div>
-                <div className="text-sm text-primary-400">typescript tips</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

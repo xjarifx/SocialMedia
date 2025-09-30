@@ -4,129 +4,19 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import PostCard from "../../components/posts/PostCard";
 
-// Mock user posts for now
-const mockUserPosts = [
-  {
-    id: 1,
-    username: "currentuser",
-    content:
-      "Just updated my profile! Love the new Twitter-style layout. Clean and functional! 🎉",
-    createdAt: "2h",
-    likes: 12,
-    comments: 3,
-    reposts: 1,
-    isLiked: false,
-    isReposted: false,
-  },
-  {
-    id: 2,
-    username: "currentuser",
-    content:
-      "Working on some exciting new features for our social media app. The orange theme is really growing on me!",
-    createdAt: "1d",
-    likes: 28,
-    comments: 7,
-    reposts: 4,
-    isLiked: true,
-    isReposted: false,
-  },
-  {
-    id: 3,
-    username: "currentuser",
-    content:
-      "Beautiful sunset today! Sometimes you need to step away from the code and appreciate nature. 🌅",
-    createdAt: "3d",
-    likes: 45,
-    comments: 12,
-    reposts: 8,
-    isLiked: true,
-    isReposted: true,
-  },
-  {
-    id: 4,
-    username: "currentuser",
-    content:
-      "Spent the weekend learning about React 19 features. The new concurrent features are mind-blowing! 🤯 Can't wait to implement them in production.",
-    createdAt: "4d",
-    likes: 67,
-    comments: 15,
-    reposts: 12,
-    isLiked: false,
-    isReposted: false,
-  },
-  {
-    id: 5,
-    username: "currentuser",
-    content:
-      "Coffee shop coding session today ☕ There's something about the ambient noise that helps me focus. Currently debugging a tricky state management issue.",
-    createdAt: "5d",
-    likes: 34,
-    comments: 8,
-    reposts: 3,
-    isLiked: true,
-    isReposted: false,
-  },
-  {
-    id: 6,
-    username: "currentuser",
-    content:
-      "Loving the minimalist design trend in 2025. Less is definitely more when it comes to user interfaces. Clean, focused, intentional design wins every time 🎨",
-    createdAt: "6d",
-    likes: 89,
-    comments: 21,
-    reposts: 16,
-    isLiked: true,
-    isReposted: true,
-  },
-  {
-    id: 7,
-    username: "currentuser",
-    content:
-      "Just deployed a major update to production. No bugs so far 🤞 The new authentication system is working flawlessly. Time to celebrate with some pizza! 🍕",
-    createdAt: "1w",
-    likes: 52,
-    comments: 9,
-    reposts: 5,
-    isLiked: false,
-    isReposted: false,
-  },
-  {
-    id: 8,
-    username: "currentuser",
-    content:
-      "Attended an amazing tech conference this week. The future of web development is looking bright with all these new tools and frameworks emerging! 🚀",
-    createdAt: "1w",
-    likes: 78,
-    comments: 18,
-    reposts: 23,
-    isLiked: true,
-    isReposted: false,
-  },
-  {
-    id: 9,
-    username: "currentuser",
-    content:
-      "Working on improving our app's accessibility. It's not just about compliance - it's about making sure everyone can use our product. Every user matters 💪",
-    createdAt: "2w",
-    likes: 145,
-    comments: 32,
-    reposts: 28,
-    isLiked: false,
-    isReposted: true,
-  },
-  {
-    id: 10,
-    username: "currentuser",
-    content:
-      "Pair programming session was incredibly productive today. Two heads are definitely better than one when solving complex problems. Shoutout to my coding partner! 👥",
-    createdAt: "2w",
-    likes: 41,
-    comments: 6,
-    reposts: 7,
-    isLiked: true,
-    isReposted: false,
-  },
-];
+// TODO: Replace with actual API calls to fetch user posts
+
+interface Post {
+  id: number;
+  username: string;
+  content: string;
+  createdAt: string;
+  likes: number;
+  comments: number;
+  reposts: number;
+  isLiked: boolean;
+  isReposted: boolean;
+}
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -134,7 +24,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<
     "posts" | "replies" | "media" | "likes"
   >("posts");
-  const [posts, setPosts] = useState(mockUserPosts);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const handleLike = (postId: number) => {
     setPosts((prev) =>
@@ -199,12 +89,8 @@ export default function ProfilePage() {
             </h2>
           </div>
 
-          {/* Bio */}
           <div className="mb-4">
-            <p className="text-primary-600">
-              {user?.bio ||
-                "Building amazing social experiences with React and TypeScript. Love clean code and great UX! 🚀"}
-            </p>
+            <p className="text-primary-600">{user?.bio || ""}</p>
           </div>
 
           {/* Join Date */}
@@ -231,11 +117,11 @@ export default function ProfilePage() {
           {/* Following/Followers */}
           <div className="flex space-x-6 mb-6">
             <button className="hover:underline">
-              <span className="font-bold text-primary-600">127</span>{" "}
+              <span className="font-bold text-primary-600">0</span>{" "}
               <span className="text-primary-400">Following</span>
             </button>
             <button className="hover:underline">
-              <span className="font-bold text-primary-600">1.2K</span>{" "}
+              <span className="font-bold text-primary-600">0</span>{" "}
               <span className="text-primary-400">Followers</span>
             </button>
           </div>
