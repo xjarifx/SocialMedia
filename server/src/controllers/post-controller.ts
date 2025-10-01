@@ -4,6 +4,9 @@ import {
   updatePostById,
   getPostById,
   deletePostById,
+  getPostsByUserId,
+  getForYouPosts,
+  getFollowingPosts, // added
 } from "../repositories/post-repository.js";
 
 // create post
@@ -119,8 +122,48 @@ export const handlePostDeletion = async (req: Request, res: Response) => {
   }
 };
 
-// handlePostGet - fetch single post
+export const handleGetOwnPosts = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 
-// handleAllPostsGet - fetch all posts (pagination, filtering, sorting)
+  try {
+    const posts = await getPostsByUserId(userId);
+    return res.status(200).json({ posts });
+  } catch (error) {
+    console.error("Error fetching user's posts:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-// handleUserFeedGet - user feed: posts from followed users
+// for you
+export const handleGetForYouPosts = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const posts = await getForYouPosts(userId);
+    return res.status(200).json({ posts });
+  } catch (error) {
+    console.error("Error fetching 'For You' posts:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// following
+export const handleGetFollowingPosts = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    const posts = await getFollowingPosts(userId);
+    return res.status(200).json({ posts });
+  } catch (error) {
+    console.error("Error fetching following posts:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

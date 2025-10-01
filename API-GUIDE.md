@@ -51,6 +51,10 @@
 **Update:** `PUT /:postId` 🔐  
 **Delete:** `DELETE /:postId` 🔐
 
+**My Posts:** `GET /posts/mine` 🔐  
+**Following Feed:** `GET /posts/following` 🔐  
+**For You Feed:** `GET /posts/for-you` 🔐
+
 ## 💬 Comments
 
 **Get:** `GET /:postId/comments` 🔐  

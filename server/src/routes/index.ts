@@ -14,6 +14,9 @@ import {
   handlePostCreation,
   handlePostUpdate,
   handlePostDeletion,
+  handleGetForYouPosts,
+  handleGetFollowingPosts,
+  handleGetOwnPosts,
 } from "../controllers/post-controller.js";
 import {
   handleCreateComment,
@@ -57,6 +60,9 @@ router.delete(
 
 // POST ROUTES (protected)
 router.post("/posts", authenticateUserToken, handlePostCreation);
+router.get("/posts/for-you", authenticateUserToken, handleGetForYouPosts);
+router.get("/posts/following", authenticateUserToken, handleGetFollowingPosts);
+router.get("/posts/mine", authenticateUserToken, handleGetOwnPosts);
 router.put("/:postId", authenticateUserToken, handlePostUpdate);
 router.delete("/:postId", authenticateUserToken, handlePostDeletion);
 

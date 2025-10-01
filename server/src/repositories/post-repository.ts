@@ -58,3 +58,87 @@ export const getPostById = async (
 export const deletePostById = async (postId: number) => {
   return connectionPool.query("DELETE FROM posts WHERE id = $1", [postId]);
 };
+
+export const getPostsByUserId = async (
+  userId: number
+): Promise<
+  {
+    id: number;
+    userId: number;
+    caption?: string;
+    mediaUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }[]
+> => {
+  const postsByUserIdResult = await connectionPool.query(
+    "SELECT id, user_id AS userId, caption, media_url AS mediaUrl, created_at AS createdAt, updated_at AS updatedAt FROM posts WHERE user_id = $1",
+    [userId]
+  );
+  return postsByUserIdResult.rows;
+};
+
+// people whom the user is not following -> show only unfollowed users' posts
+export const getForYouPosts = async (
+  userId: number
+): Promise<
+  {
+    id: number;
+    userId: number;
+    caption?: string;
+    mediaUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }[]
+> => {
+  const forYouPostsResult = await connectionPool.query(
+    `SELECT
+       p.id,
+       p.user_id AS "userId",
+       p.caption,
+       p.media_url AS "mediaUrl",
+       p.created_at AS "createdAt",
+       p.updated_at AS "updatedAt"
+     FROM posts p
+     WHERE p.user_id != $1
+       AND NOT EXISTS (
+         SELECT 1
+         FROM follows f
+         WHERE f.follower_id = $1
+           AND f.following_id = p.user_id
+       )
+     ORDER BY p.created_at DESC`,
+    [userId]
+  );
+  return forYouPostsResult.rows;
+};
+
+export const getFollowingPosts = async (
+  userId: number
+): Promise<
+  {
+    id: number;
+    userId: number;
+    caption?: string;
+    mediaUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }[]
+> => {
+  const result = await connectionPool.query(
+    `SELECT
+       p.id,
+       p.user_id AS "userId",
+       p.caption,
+       p.media_url AS "mediaUrl",
+       p.created_at AS "createdAt",
+       p.updated_at AS "updatedAt"
+     FROM posts p
+     INNER JOIN follows f
+       ON f.following_id = p.user_id
+     WHERE f.follower_id = $1
+     ORDER BY p.created_at DESC`,
+    [userId]
+  );
+  return result.rows;
+};
