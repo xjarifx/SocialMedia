@@ -69,10 +69,33 @@ export const getPostsByUserId = async (
     mediaUrl?: string;
     createdAt: Date;
     updatedAt: Date;
+    likeCount: number;
+    commentCount: number;
   }[]
 > => {
   const postsByUserIdResult = await connectionPool.query(
-    "SELECT id, user_id AS userId, caption, media_url AS mediaUrl, created_at AS createdAt, updated_at AS updatedAt FROM posts WHERE user_id = $1",
+    `SELECT 
+       p.id, 
+       p.user_id AS "userId", 
+       p.caption, 
+       p.media_url AS "mediaUrl", 
+       p.created_at AS "createdAt", 
+       p.updated_at AS "updatedAt",
+       COALESCE(l.like_count, 0) AS "likeCount",
+       COALESCE(c.comment_count, 0) AS "commentCount"
+     FROM posts p
+     LEFT JOIN (
+       SELECT post_id, COUNT(*)::int AS like_count
+       FROM post_likes
+       GROUP BY post_id
+     ) l ON l.post_id = p.id
+     LEFT JOIN (
+       SELECT post_id, COUNT(*)::int AS comment_count
+       FROM comments
+       GROUP BY post_id
+     ) c ON c.post_id = p.id
+     WHERE p.user_id = $1
+     ORDER BY p.created_at DESC`,
     [userId]
   );
   return postsByUserIdResult.rows;
@@ -89,6 +112,8 @@ export const getForYouPosts = async (
     mediaUrl?: string;
     createdAt: Date;
     updatedAt: Date;
+    likeCount: number;
+    commentCount: number;
   }[]
 > => {
   const forYouPostsResult = await connectionPool.query(
@@ -98,14 +123,19 @@ export const getForYouPosts = async (
        p.caption,
        p.media_url AS "mediaUrl",
        p.created_at AS "createdAt",
-       p.updated_at AS "updatedAt"
+       p.updated_at AS "updatedAt",
+       COALESCE(l.like_count, 0) AS "likeCount",
+       COALESCE(c.comment_count, 0) AS "commentCount"
      FROM posts p
+     LEFT JOIN (
+       SELECT post_id, COUNT(*)::int AS like_count FROM post_likes GROUP BY post_id
+     ) l ON l.post_id = p.id
+     LEFT JOIN (
+       SELECT post_id, COUNT(*)::int AS comment_count FROM comments GROUP BY post_id
+     ) c ON c.post_id = p.id
      WHERE p.user_id != $1
        AND NOT EXISTS (
-         SELECT 1
-         FROM follows f
-         WHERE f.follower_id = $1
-           AND f.following_id = p.user_id
+         SELECT 1 FROM follows f WHERE f.follower_id = $1 AND f.following_id = p.user_id
        )
      ORDER BY p.created_at DESC`,
     [userId]
@@ -123,6 +153,8 @@ export const getFollowingPosts = async (
     mediaUrl?: string;
     createdAt: Date;
     updatedAt: Date;
+    likeCount: number;
+    commentCount: number;
   }[]
 > => {
   const result = await connectionPool.query(
@@ -132,10 +164,17 @@ export const getFollowingPosts = async (
        p.caption,
        p.media_url AS "mediaUrl",
        p.created_at AS "createdAt",
-       p.updated_at AS "updatedAt"
+       p.updated_at AS "updatedAt",
+       COALESCE(l.like_count, 0) AS "likeCount",
+       COALESCE(c.comment_count, 0) AS "commentCount"
      FROM posts p
-     INNER JOIN follows f
-       ON f.following_id = p.user_id
+     INNER JOIN follows f ON f.following_id = p.user_id
+     LEFT JOIN (
+       SELECT post_id, COUNT(*)::int AS like_count FROM post_likes GROUP BY post_id
+     ) l ON l.post_id = p.id
+     LEFT JOIN (
+       SELECT post_id, COUNT(*)::int AS comment_count FROM comments GROUP BY post_id
+     ) c ON c.post_id = p.id
      WHERE f.follower_id = $1
      ORDER BY p.created_at DESC`,
     [userId]

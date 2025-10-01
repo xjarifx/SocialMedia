@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PostCard from "./PostCard";
+import { api } from "../../utils/api";
 
 interface Post {
   id: number;
@@ -17,20 +18,38 @@ interface PostFeedProps {
   activeTab: "for-you" | "following";
 }
 
-// TODO: Replace with actual API calls to fetch posts
-
 export default function PostFeed({ activeTab }: PostFeedProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Implement actual API calls to fetch posts
     const loadPosts = async () => {
       setIsLoading(true);
-
-      // For now, set empty posts until API integration
-      setPosts([]);
-      setIsLoading(false);
+      setError(null);
+      try {
+        const data =
+          activeTab === "for-you"
+            ? await api.getForYouPosts()
+            : await api.getFollowingPosts();
+        const mapped: Post[] = (data.posts || []).map((p: any) => ({
+          id: p.id,
+          username: p.userId?.toString() || "user", // placeholder until user join implemented
+          content: p.caption || "",
+          createdAt: p.createdAt,
+          likes: p.likeCount ?? 0,
+          comments: p.commentCount ?? 0,
+          reposts: 0,
+          isLiked: false,
+          isReposted: false,
+        }));
+        setPosts(mapped);
+      } catch (e: any) {
+        setError(e.message || "Failed to load posts");
+        setPosts([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadPosts();
@@ -55,6 +74,14 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
       <div className="p-8 text-center min-h-96 flex flex-col justify-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
         <p className="mt-2 text-primary-400">Loading posts...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center min-h-96 flex flex-col justify-center">
+        <p className="text-red-500 text-sm">{error}</p>
       </div>
     );
   }

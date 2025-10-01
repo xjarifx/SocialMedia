@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import PostCard from "../../components/posts/PostCard";
+import { api } from "../../utils/api";
 
 // TODO: Replace with actual API calls to fetch user posts
 
@@ -25,6 +26,37 @@ export default function ProfilePage() {
     "posts" | "replies" | "media" | "likes"
   >("posts");
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!user) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await api.getMyPosts();
+        // server returns { posts: [{ id, userId, caption, mediaUrl, createdAt, updatedAt }] }
+        const mapped: Post[] = (data.posts || []).map((p: any) => ({
+          id: p.id,
+          username: user.username,
+          content: p.caption || "",
+          createdAt: p.createdAt || p.created_at || new Date().toISOString(),
+          likes: p.likeCount ?? 0,
+          comments: p.commentCount ?? 0,
+          reposts: 0,
+          isLiked: false,
+          isReposted: false,
+        }));
+        setPosts(mapped);
+      } catch (e: any) {
+        setError(e.message || "Failed to load posts");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, [user]);
 
   const handleLike = (postId: number) => {
     setPosts((prev) =>
@@ -155,13 +187,32 @@ export default function ProfilePage() {
         <div>
           {activeTab === "posts" && (
             <div>
-              {posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onLike={() => handleLike(post.id)}
-                />
-              ))}
+              {isLoading && (
+                <div className="p-8 text-center">
+                  <p className="text-primary-400">Loading your posts...</p>
+                </div>
+              )}
+              {error && !isLoading && (
+                <div className="p-8 text-center">
+                  <p className="text-red-500 text-sm">{error}</p>
+                </div>
+              )}
+              {!isLoading && !error && posts.length === 0 && (
+                <div className="p-8 text-center">
+                  <p className="text-primary-400">
+                    You haven't posted anything yet.
+                  </p>
+                </div>
+              )}
+              {!isLoading &&
+                !error &&
+                posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onLike={() => handleLike(post.id)}
+                  />
+                ))}
             </div>
           )}
 

@@ -1,3 +1,5 @@
+import { formatDateDisplay } from "../../utils/time";
+
 interface Post {
   id: number;
   username: string;
@@ -16,6 +18,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, onLike }: PostCardProps) {
+  const displayDate = formatDateDisplay(post.createdAt);
   return (
     <article className="border-b border-orange-200 p-4 hover:bg-orange-50/30 transition-colors">
       <div className="flex space-x-3">
@@ -32,7 +35,7 @@ export default function PostCard({ post, onLike }: PostCardProps) {
           <div className="flex items-center space-x-2 mb-1">
             <h3 className="font-semibold text-primary-600">@{post.username}</h3>
             <span className="text-primary-400 text-sm">·</span>
-            <span className="text-primary-400 text-sm">{post.createdAt}</span>
+            <span className="text-primary-400 text-sm">{displayDate}</span>
           </div>
 
           {/* Content */}

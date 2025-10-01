@@ -120,6 +120,22 @@ export const api = {
     return response.json();
   },
 
+  // Get current user's own posts
+  getMyPosts: async () => {
+    const response = await authenticatedFetch("/posts/mine");
+    return response.json(); // { posts: [...] }
+  },
+
+  getForYouPosts: async () => {
+    const response = await authenticatedFetch("/posts/for-you");
+    return response.json(); // { posts: [...] }
+  },
+
+  getFollowingPosts: async () => {
+    const response = await authenticatedFetch("/posts/following");
+    return response.json(); // { posts: [...] }
+  },
+
   updatePost: async (
     postId: number,
     postData: { caption?: string; mediaUrl?: string }
