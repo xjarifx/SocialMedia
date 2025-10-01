@@ -1,19 +1,13 @@
 import { useState } from "react";
 import PostFeed from "../components/posts/PostFeed";
-import SearchBar from "../components/ui/SearchBar";
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<"for-you" | "following">(
     "for-you"
   );
 
-  const handleSearch = (query: string) => {
-    console.log("Searching for:", query);
-    // TODO: Implement search functionality
-  };
-
   return (
-    <div className="flex w-full">
+    <div className="flex w-full h-full">
       {/* Main Content */}
       <div className="flex-1 border-r border-orange-200 bg-white">
         {/* Header with Tabs */}
@@ -45,16 +39,6 @@ export default function DashboardPage() {
         {/* Post Feed */}
         <div className="min-h-screen">
           <PostFeed activeTab={activeTab} />
-        </div>
-      </div>
-
-      {/* Right Search Panel */}
-      <div className="w-80 p-6 bg-white border-l border-orange-200">
-        <div className="sticky top-6">
-          <SearchBar
-            placeholder="Search posts, users, topics..."
-            onSearch={handleSearch}
-          />
         </div>
       </div>
     </div>

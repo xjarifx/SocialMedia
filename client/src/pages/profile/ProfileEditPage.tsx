@@ -126,9 +126,9 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <div className="h-screen bg-orange-50 flex flex-col">
-      {/* Compact Header */}
-      <div className="bg-white border-b border-orange-200 px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-orange-50 flex flex-col">
+      {/* Sticky Header */}
+      <div className="bg-white border-b border-orange-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => navigate("/profile")}
@@ -174,202 +174,190 @@ export default function ProfileEditPage() {
         </div>
       </div>
 
-      {/* Main Content - Full Width */}
-      <div className="flex-1 overflow-auto">
-        <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-0">
-          {/* Profile Preview - Left */}
-          <div className="bg-white border-r border-orange-200 p-6">
-            <h2 className="text-sm font-medium text-primary-700 mb-4">
-              Preview
-            </h2>
-            <div className="space-y-4">
-              <div className="text-center">
-                <Avatar
-                  src={formData.avatarUrl || user?.avatarUrl}
-                  size="xl"
-                  className="mx-auto mb-3"
-                />
-                <h3 className="font-medium text-primary-900">
-                  @{formData.username}
-                </h3>
-                {formData.phone && (
-                  <p className="text-sm text-primary-500">{formData.phone}</p>
-                )}
+      {/* Main Content */}
+      <div className="flex-1">
+        <div className="max-w-3xl mx-auto px-4 md:px-8 py-10">
+          <form id="profile-form" onSubmit={handleSubmit} className="space-y-8">
+            {/* Alerts */}
+            {errors.form && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-700 font-medium">
+                  {errors.form}
+                </p>
               </div>
-
-              {formData.bio && (
-                <div className="bg-orange-50 rounded-lg p-3">
-                  <p className="text-sm text-primary-700 leading-relaxed">
-                    {formData.bio}
-                  </p>
-                </div>
-              )}
-
-              <div className="flex items-center justify-center space-x-1 text-xs">
-                {formData.isPrivate ? (
-                  <>
-                    <svg
-                      className="w-3 h-3 text-primary-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-primary-600">Private</span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-3 h-3 text-green-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-green-600">Public</span>
-                  </>
-                )}
+            )}
+            {showSuccess && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-700 font-medium">
+                  Profile updated successfully!
+                </p>
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Main Form - Center */}
-          <div className="lg:col-span-2 bg-white p-6">
-            <form
-              id="profile-form"
-              onSubmit={handleSubmit}
-              className="h-full flex flex-col space-y-6"
-            >
-              {/* Status Messages */}
-              {errors.form && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-800">{errors.form}</p>
-                </div>
-              )}
-
-              {showSuccess && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-800">
-                    Profile updated successfully!
-                  </p>
-                </div>
-              )}
-
-              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-6">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  {/* Avatar */}
-                  <div>
-                    <label className="block text-sm font-medium text-primary-700 mb-2">
-                      Profile Picture
-                    </label>
-                    <div className="flex items-center space-x-4">
-                      <Avatar
-                        src={formData.avatarUrl || user?.avatarUrl}
-                        size="lg"
-                        className="flex-shrink-0"
-                      />
+            {/* Unified Card */}
+            <div className="bg-white border border-orange-200 rounded-lg shadow-sm p-6 flex flex-col gap-10">
+              {/* Identity Section */}
+              <section className="flex flex-col gap-6">
+                <h2 className="text-sm font-semibold tracking-wide text-primary-700 uppercase">
+                  Profile Identity
+                </h2>
+                <div className="flex flex-col md:flex-row md:items-center gap-5">
+                  <Avatar
+                    src={formData.avatarUrl || user?.avatarUrl}
+                    size="xl"
+                    className="ring-2 ring-orange-100"
+                  />
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <label className="block text-xs font-medium text-primary-500 mb-1 uppercase tracking-wide">
+                        Avatar URL
+                      </label>
                       <Input
                         name="avatarUrl"
                         type="url"
                         value={formData.avatarUrl}
                         onChange={handleChange}
                         error={errors.avatarUrl}
-                        placeholder="Image URL"
-                        className="flex-1"
+                        placeholder="https://..."
                       />
                     </div>
-                  </div>
-
-                  {/* Username */}
-                  <div>
-                    <Input
-                      label="Username"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleChange}
-                      error={errors.username}
-                      required
-                      placeholder="Enter username"
-                    />
-                    <p className="text-xs text-primary-500 mt-1">
-                      Profile URL: /@{formData.username}
-                    </p>
-                  </div>
-
-                  {/* Phone */}
-                  <Input
-                    label="Phone Number"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    error={errors.phone}
-                    placeholder="+1 (555) 123-4567"
-                  />
-
-                  {/* Privacy Toggle */}
-                  <div className="border border-orange-200 rounded-lg p-4 bg-orange-50">
-                    <div className="flex items-center justify-between">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h3 className="text-sm font-medium text-primary-900">
-                          Private Account
-                        </h3>
-                        <p className="text-xs text-primary-600">
-                          Only followers can see your posts
+                        <Input
+                          label="Username"
+                          name="username"
+                          value={formData.username}
+                          onChange={handleChange}
+                          error={errors.username}
+                          required
+                          placeholder="username"
+                        />
+                        <p className="text-[11px] text-primary-400 mt-1">
+                          Profile URL: /@{formData.username}
                         </p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="isPrivate"
-                          checked={formData.isPrivate}
+                      <div>
+                        <Input
+                          label="Phone Number"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
                           onChange={handleChange}
-                          className="sr-only peer"
+                          error={errors.phone}
+                          placeholder="+1 (555) 123-4567"
                         />
-                        <div className="w-9 h-5 bg-orange-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-orange-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column */}
-                <div className="space-y-6">
-                  {/* Bio */}
-                  <div className="h-full flex flex-col">
-                    <label className="block text-sm font-medium text-primary-700 mb-2">
-                      Bio
-                    </label>
-                    <div className="relative flex-1">
-                      <textarea
-                        name="bio"
-                        value={formData.bio}
-                        onChange={handleChange}
-                        rows={8}
-                        className="w-full h-full px-3 py-2 border border-orange-300 rounded-lg text-primary-900 placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
-                        placeholder="Tell people about yourself..."
-                      />
-                      <div className="absolute bottom-2 right-2 text-xs text-primary-400 bg-white px-2 py-1 rounded">
-                        {formData.bio.length}/500
                       </div>
                     </div>
-                    {errors.bio && (
-                      <p className="text-sm text-red-600 mt-1">{errors.bio}</p>
-                    )}
                   </div>
                 </div>
-              </div>
-            </form>
-          </div>
+              </section>
+
+              <div className="h-px bg-orange-100" />
+
+              {/* Bio Section */}
+              <section className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold tracking-wide text-primary-700 uppercase">
+                    Bio
+                  </h2>
+                  <span
+                    className={`text-xs ${
+                      formData.bio.length > 500
+                        ? "text-red-500"
+                        : "text-primary-400"
+                    }`}
+                  >
+                    {formData.bio.length}/500
+                  </span>
+                </div>
+                <div className="relative">
+                  <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleChange}
+                    rows={7}
+                    maxLength={600}
+                    className="w-full px-4 py-3 border border-orange-300 rounded-md text-primary-900 placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none leading-relaxed"
+                    placeholder="Tell people about yourself, your interests, goals, passions..."
+                  />
+                  {errors.bio && (
+                    <p className="text-xs text-red-600 mt-2">{errors.bio}</p>
+                  )}
+                </div>
+                <p className="text-[11px] text-primary-400">
+                  Tip: A clear bio helps others decide to follow you.
+                </p>
+              </section>
+
+              <div className="h-px bg-orange-100" />
+
+              {/* Privacy Section */}
+              <section className="flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-sm font-semibold tracking-wide text-primary-700 uppercase mb-1">
+                      Privacy
+                    </h2>
+                    <p className="text-xs text-primary-500 max-w-sm">
+                      When private, only approved followers can see your posts
+                      and full profile details.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer mt-1">
+                    <input
+                      type="checkbox"
+                      name="isPrivate"
+                      checked={formData.isPrivate}
+                      onChange={handleChange}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-orange-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-orange-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                  </label>
+                </div>
+                <div className="mt-2 flex items-center text-xs font-medium">
+                  {formData.isPrivate ? (
+                    <span className="flex items-center gap-1 text-primary-600">
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>{" "}
+                      Private
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-green-600">
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>{" "}
+                      Public
+                    </span>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            {/* Submit (mobile) */}
+            <div className="flex justify-end pt-2">
+              <Button type="submit" isLoading={isLoading} disabled={isLoading}>
+                {isLoading ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
