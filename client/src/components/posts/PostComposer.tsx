@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../ui/Toast";
 import { api } from "../../utils/api";
 import Button from "../ui/Button";
 
 export default function PostComposer() {
-  const { user } = useAuth();
   const { showToast } = useToast();
   const [content, setContent] = useState("");
   const [isPosting, setIsPosting] = useState(false);
@@ -80,23 +78,23 @@ export default function PostComposer() {
 
     return (
       <div
-        className={`mt-3 grid gap-2 ${
+        className={`mt-4 grid gap-3 ${
           mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
         }`}
       >
         {mediaPreviews.map((preview, index) => (
           <div
             key={index}
-            className="relative group rounded-xl overflow-hidden"
+            className="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all duration-200"
           >
             <img
               src={preview}
               alt={`Upload ${index + 1}`}
-              className="w-full h-40 object-cover"
+              className="w-full h-48 object-cover"
             />
             <button
               onClick={() => removeMedia(index)}
-              className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 rounded-full p-1.5 transition-colors"
+              className="absolute top-2 right-2 bg-black/80 hover:bg-black rounded-full p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
               type="button"
             >
               <svg
@@ -104,11 +102,11 @@ export default function PostComposer() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                strokeWidth={2.5}
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
@@ -120,26 +118,19 @@ export default function PostComposer() {
   };
 
   return (
-    <div className="border-b border-neutral-800 px-4 py-3">
-      <div className="flex space-x-3">
-        {/* User Avatar */}
-        <div className="flex-shrink-0 pt-1">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-sm">
-              {user?.username?.[0]?.toUpperCase() || "U"}
-            </span>
-          </div>
-        </div>
-
+    <div className="border-b border-neutral-800 p-4">
+      <div className="flex">
         {/* Composer */}
         <div className="flex-1">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <textarea
               ref={textareaRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="What is happening?!"
-              className="w-full pt-3 pb-2 text-xl text-white placeholder-neutral-500 border-0 resize-none focus:outline-none focus:ring-0 bg-transparent min-h-[60px] max-h-[400px] overflow-y-auto"
+              autoFocus
+              className="w-full pt-2 pb-3 text-xl text-white placeholder-neutral-500 border-0 resize-none outline-none focus:outline-none focus:ring-0 focus:border-0 focus-visible:outline-none focus-visible:shadow-none focus-visible:ring-0 bg-transparent min-h-[120px] max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent"
+              style={{ boxShadow: "none" }}
               maxLength={maxLength + 50} // Allow slight overflow for better UX
             />
 
@@ -147,8 +138,8 @@ export default function PostComposer() {
             {renderMediaPreviews()}
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-neutral-800 mt-2">
-              <div className="flex items-center -ml-2">
+            <div className="flex items-center justify-between pt-4 border-t border-neutral-800 mt-4">
+              <div className="flex items-center">
                 {/* Media Upload Button */}
                 <input
                   ref={fileInputRef}
@@ -162,121 +153,64 @@ export default function PostComposer() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={mediaFiles.length >= 4}
-                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Media"
+                  className="p-2.5 text-primary-500 hover:bg-primary-500/10 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                  title="Add media"
                 >
                   <svg
                     className="w-5 h-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    strokeWidth={2}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
                 </button>
-
-                {/* GIF Button */}
-                <button
-                  type="button"
-                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors"
-                  title="GIF"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                    />
-                  </svg>
-                </button>
-
-                {/* Poll Button */}
-                <button
-                  type="button"
-                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors"
-                  title="Poll"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                </button>
-
-                {/* Emoji Button */}
-                <button
-                  type="button"
-                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors"
-                  title="Emoji"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </button>
+                {mediaFiles.length > 0 && (
+                  <span className="ml-2 text-sm text-neutral-400">
+                    {mediaFiles.length}/4{" "}
+                    {mediaFiles.length === 1 ? "image" : "images"}
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 {/* Character Count with Progress Circle */}
                 {content.length > 0 && (
                   <div className="relative flex items-center justify-center">
-                    <svg className="w-8 h-8 transform -rotate-90">
+                    <svg className="w-9 h-9 transform -rotate-90">
                       <circle
-                        cx="16"
-                        cy="16"
-                        r="12"
+                        cx="18"
+                        cy="18"
+                        r="14"
                         stroke="currentColor"
                         strokeWidth="3"
                         fill="none"
-                        className="text-neutral-700"
+                        className="text-neutral-800"
                       />
                       <circle
-                        cx="16"
-                        cy="16"
-                        r="12"
+                        cx="18"
+                        cy="18"
+                        r="14"
                         stroke="currentColor"
                         strokeWidth="3"
                         fill="none"
-                        className={`${
+                        className={`transition-all duration-300 ${
                           isOverLimit
                             ? "text-red-500"
                             : remainingChars < 20
                             ? "text-orange-500"
                             : "text-primary-500"
                         }`}
-                        strokeDasharray={`${2 * Math.PI * 12}`}
+                        strokeDasharray={`${2 * Math.PI * 14}`}
                         strokeDashoffset={`${
                           2 *
                           Math.PI *
-                          12 *
+                          14 *
                           (1 - Math.min(content.length / maxLength, 1))
                         }`}
                         strokeLinecap="round"
@@ -284,7 +218,7 @@ export default function PostComposer() {
                     </svg>
                     {remainingChars < 20 && (
                       <span
-                        className={`absolute text-xs font-bold ${
+                        className={`absolute text-xs font-bold transition-colors ${
                           isOverLimit ? "text-red-500" : "text-orange-500"
                         }`}
                       >
@@ -299,7 +233,7 @@ export default function PostComposer() {
                   type="submit"
                   isLoading={isPosting}
                   disabled={!content.trim() || isOverLimit}
-                  className="px-6 py-2"
+                  className="bg-black hover:bg-neutral-900 text-white font-bold px-8 py-2.5 rounded-xl border border-neutral-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
                 >
                   {isPosting ? "Posting..." : "Post"}
                 </Button>

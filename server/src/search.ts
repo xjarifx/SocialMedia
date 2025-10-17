@@ -7,7 +7,7 @@ export const handleSearchByUsername = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "Username is required" });
   }
 
-  const searchPattern = `%${username.trim().toLowerCase()}%`;
+  const searchPattern = `${username.trim().toLowerCase()}%`;
 
   const query = `
     SELECT id, username, email, bio, avatar_url AS "avatarUrl", created_at AS "createdAt" 
