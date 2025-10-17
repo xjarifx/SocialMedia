@@ -129,59 +129,73 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-white border-r border-orange-200">
-      {/* Logo */}
-      {/* <div className="p-4">
-        <h1 className="text-xl font-bold text-primary-600">SocialMedia</h1>
-      </div> */}
+    <div className="h-full flex flex-col py-2">
+      {/* Logo - Twitter/X Style */}
+      <div className="px-3 mb-2">
+        <div className="w-12 h-12 rounded-full hover:bg-neutral-900 flex items-center justify-center transition-colors cursor-pointer">
+          <svg
+            className="w-7 h-7 text-white"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+        </div>
+      </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 pt-4">
-        <ul className="space-y-0">
+      <nav className="flex-1">
+        <ul className="space-y-1">
           {sidebarItems.map((item) => (
             <li key={item.path}>
               <button
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-soft transition-colors ${
+                className={`w-full flex items-center space-x-4 px-4 py-3 rounded-full transition-all ${
                   item.isActive
-                    ? "bg-primary-50 text-primary-600"
-                    : "text-primary-400 hover:bg-orange-50 hover:text-primary-600"
+                    ? "font-bold"
+                    : "font-normal hover:bg-neutral-900"
                 }`}
               >
-                <span
-                  className={
-                    item.isActive ? "text-primary-600" : "text-primary-400"
-                  }
-                >
+                <span className={item.isActive ? "text-white" : "text-white"}>
                   {item.icon}
                 </span>
-                <span className="font-medium text-base">{item.label}</span>
+                <span className={`text-xl ${item.isActive ? "font-bold" : ""}`}>
+                  {item.label}
+                </span>
               </button>
             </li>
           ))}
         </ul>
+
+        {/* Post Button - Twitter/X Style */}
+        <div className="px-3 mt-4">
+          <button
+            onClick={() => navigate("/post")}
+            className="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-full transition-colors shadow-lg"
+          >
+            Post
+          </button>
+        </div>
       </nav>
 
-      {/* User Profile Section */}
-      <div className="p-4 border-t border-orange-200">
-        <div className="flex items-center space-x-3 mb-3">
-          <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-            <span className="text-primary-600 font-medium">
+      {/* User Profile Section - Twitter/X Style */}
+      <div className="px-3 py-3">
+        <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-full hover:bg-neutral-900 transition-colors">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-sm">
               {user?.username?.[0]?.toUpperCase() || "U"}
             </span>
           </div>
-          <div className="flex-1">
-            <p className="font-medium text-primary-600">{user?.username}</p>
-            <p className="text-sm text-primary-400">{user?.email}</p>
+          <div className="flex-1 text-left">
+            <p className="font-bold text-sm text-white truncate">
+              {user?.username}
+            </p>
+            <p className="text-xs text-neutral-500 truncate">
+              @{user?.username?.toLowerCase()}
+            </p>
           </div>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center space-x-2 px-3 py-2 text-primary-400 hover:bg-orange-50 hover:text-primary-600 rounded-soft transition-colors"
-        >
           <svg
-            className="w-5 h-5"
+            className="w-5 h-5 text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -190,10 +204,9 @@ export default function Sidebar() {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span>Sign out</span>
         </button>
       </div>
     </div>

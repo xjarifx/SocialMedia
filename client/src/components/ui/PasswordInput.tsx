@@ -18,11 +18,11 @@ export default function PasswordInput({
   const [showPassword, setShowPassword] = useState(false);
 
   const baseStyles =
-    "w-full px-3 py-2 pr-10 border rounded-soft text-neutral-900 placeholder-neutral-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500";
+    "w-full px-3 py-2 pr-10 border rounded-soft text-neutral-100 placeholder-neutral-500 bg-neutral-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500";
 
   const stateStyles = error
-    ? "border-red-500 bg-red-50"
-    : "border-neutral-300 bg-white hover:border-neutral-400";
+    ? "border-red-500 bg-red-950"
+    : "border-neutral-800 hover:border-primary-500";
 
   const combinedClassName = `${baseStyles} ${stateStyles} ${className}`;
 
@@ -33,7 +33,7 @@ export default function PasswordInput({
   return (
     <div className="space-y-1">
       {label && (
-        <label className="block text-sm font-medium text-neutral-700">
+        <label className="block text-sm font-medium text-neutral-300">
           {label}
         </label>
       )}
@@ -45,7 +45,7 @@ export default function PasswordInput({
         />
         <button
           type="button"
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-colors"
+          className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-200 transition-colors"
           onClick={togglePasswordVisibility}
           tabIndex={-1}
         >

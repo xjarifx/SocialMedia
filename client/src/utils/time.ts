@@ -34,9 +34,9 @@ export function formatRelativeTime(
   return formatDateDisplay(d);
 }
 
-export function safeParseISO(value: any): string {
+export function safeParseISO(value: unknown): string {
   if (!value) return new Date().toISOString();
-  const d = new Date(value);
+  const d = value instanceof Date ? value : new Date(String(value));
   if (isNaN(d.getTime())) return new Date().toISOString();
   return d.toISOString();
 }

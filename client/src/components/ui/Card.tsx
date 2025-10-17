@@ -12,7 +12,7 @@ export default function Card({
   padding = "md",
 }: CardProps) {
   const baseStyles =
-    "bg-white border border-neutral-200 rounded-soft-lg shadow-soft";
+    "bg-gradient-to-br from-neutral-900 to-neutral-900/95 border-2 border-neutral-800 rounded-xl shadow-soft-lg backdrop-blur-sm transition-all hover:border-neutral-700 hover:shadow-lg";
 
   const paddingStyles = {
     none: "",

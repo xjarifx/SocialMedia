@@ -87,7 +87,6 @@ export const handlePostUpdate = async (req: Request, res: Response) => {
 };
 
 // delete post
-
 export const handlePostDeletion = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {

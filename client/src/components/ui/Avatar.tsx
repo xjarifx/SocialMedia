@@ -20,7 +20,7 @@ export default function Avatar({
   };
 
   const baseStyles =
-    "rounded-full object-cover bg-neutral-200 flex items-center justify-center";
+    "rounded-full object-cover bg-neutral-700 flex items-center justify-center ring-1 ring-neutral-800";
   const combinedClassName = `${baseStyles} ${sizes[size]} ${className}`;
 
   if (!src) {

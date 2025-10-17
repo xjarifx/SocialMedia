@@ -28,15 +28,28 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
       setIsLoading(true);
       setError(null);
       try {
+        type ApiPost = {
+          id: number;
+          userId?: number | string;
+          caption?: string;
+          createdAt?: string;
+          created_at?: string;
+          likeCount?: number;
+          commentCount?: number;
+        };
         const data =
           activeTab === "for-you"
             ? await api.getForYouPosts()
             : await api.getFollowingPosts();
-        const mapped: Post[] = (data.posts || []).map((p: any) => ({
+        const postsData = (data.posts as ApiPost[] | undefined) ?? [];
+        const mapped: Post[] = postsData.map((p) => ({
           id: p.id,
-          username: p.userId?.toString() || "user", // placeholder until user join implemented
-          content: p.caption || "",
-          createdAt: p.createdAt,
+          username:
+            typeof p.userId === "number" || typeof p.userId === "string"
+              ? String(p.userId)
+              : "user",
+          content: p.caption ?? "",
+          createdAt: p.createdAt ?? p.created_at ?? new Date().toISOString(),
           likes: p.likeCount ?? 0,
           comments: p.commentCount ?? 0,
           reposts: 0,
@@ -44,8 +57,10 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           isReposted: false,
         }));
         setPosts(mapped);
-      } catch (e: any) {
-        setError(e.message || "Failed to load posts");
+      } catch (e: unknown) {
+        const message =
+          (e as { message?: string })?.message || "Failed to load posts";
+        setError(message);
         setPosts([]);
       } finally {
         setIsLoading(false);
@@ -73,7 +88,9 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
     return (
       <div className="p-8 text-center min-h-96 flex flex-col justify-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
-        <p className="mt-2 text-primary-400">Loading posts...</p>
+        <p className="mt-2 text-neutral-400">
+          Loading posts...
+        </p>
       </div>
     );
   }
@@ -89,7 +106,7 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
   if (posts.length === 0) {
     return (
       <div className="p-8 text-center min-h-96 flex flex-col justify-center">
-        <p className="text-primary-400">
+        <p className="text-neutral-400">
           {activeTab === "following"
             ? "No posts from people you follow yet. Start following some users!"
             : "No posts to show right now. Be the first to post something!"}

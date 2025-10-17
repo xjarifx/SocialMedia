@@ -25,17 +25,17 @@ export default function SearchBar({
   return (
     <form onSubmit={handleSubmit} className="relative">
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <svg
-            className="h-5 w-5 text-primary-400"
+            className="h-5 w-5 text-neutral-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            strokeWidth={2}
           >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth={2}
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
@@ -44,7 +44,7 @@ export default function SearchBar({
           type="text"
           value={query}
           onChange={handleInputChange}
-          className="block w-full pl-10 pr-3 py-3 border border-orange-200 rounded-full bg-primary-50 text-primary-600 placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="block w-full pl-12 pr-4 py-3 border-none rounded-full bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:bg-black focus:ring-2 focus:ring-primary-500 transition-colors text-[15px]"
           placeholder={placeholder}
         />
       </div>

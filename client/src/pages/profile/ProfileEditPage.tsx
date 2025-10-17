@@ -84,7 +84,7 @@ export default function ProfileEditPage() {
 
     try {
       // Only send changed fields
-      const updates: any = {};
+      const updates: Record<string, unknown> = {};
       if (formData.username !== user?.username)
         updates.username = formData.username;
       if (formData.phone !== (user?.phone || ""))
@@ -126,17 +126,17 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <div className="min-h-screen bg-orange-50 flex flex-col">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col">
       {/* Sticky Header */}
-      <div className="bg-white border-b border-orange-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
+      <div className="bg-neutral-950 border-b border-neutral-800 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => navigate("/profile")}
-            className="p-1.5 hover:bg-orange-50 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-neutral-800 rounded-lg transition-colors"
             aria-label="Go back"
           >
             <svg
-              className="w-5 h-5 text-primary-600"
+              className="w-5 h-5 text-primary-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -149,7 +149,7 @@ export default function ProfileEditPage() {
               />
             </svg>
           </button>
-          <h1 className="text-lg font-semibold text-primary-900">
+          <h1 className="text-lg font-semibold text-neutral-100">
             Edit Profile
           </h1>
         </div>
@@ -195,21 +195,21 @@ export default function ProfileEditPage() {
             )}
 
             {/* Unified Card */}
-            <div className="bg-white border border-orange-200 rounded-lg shadow-sm p-6 flex flex-col gap-10">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-lg shadow-soft p-6 flex flex-col gap-10">
               {/* Identity Section */}
               <section className="flex flex-col gap-6">
-                <h2 className="text-sm font-semibold tracking-wide text-primary-700 uppercase">
+                <h2 className="text-sm font-semibold tracking-wide text-neutral-300 uppercase">
                   Profile Identity
                 </h2>
                 <div className="flex flex-col md:flex-row md:items-center gap-5">
                   <Avatar
                     src={formData.avatarUrl || user?.avatarUrl}
                     size="xl"
-                    className="ring-2 ring-orange-100"
+                    className="ring-2 ring-neutral-800"
                   />
                   <div className="flex-1 space-y-4">
                     <div>
-                      <label className="block text-xs font-medium text-primary-500 mb-1 uppercase tracking-wide">
+                      <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wide">
                         Avatar URL
                       </label>
                       <Input
@@ -232,7 +232,7 @@ export default function ProfileEditPage() {
                           required
                           placeholder="username"
                         />
-                        <p className="text-[11px] text-primary-400 mt-1">
+                        <p className="text-[11px] text-neutral-400 mt-1">
                           Profile URL: /@{formData.username}
                         </p>
                       </div>
@@ -252,12 +252,12 @@ export default function ProfileEditPage() {
                 </div>
               </section>
 
-              <div className="h-px bg-orange-100" />
+              <div className="h-px bg-neutral-800" />
 
               {/* Bio Section */}
               <section className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold tracking-wide text-primary-700 uppercase">
+                  <h2 className="text-sm font-semibold tracking-wide text-neutral-300 uppercase">
                     Bio
                   </h2>
                   <span
@@ -277,28 +277,28 @@ export default function ProfileEditPage() {
                     onChange={handleChange}
                     rows={7}
                     maxLength={600}
-                    className="w-full px-4 py-3 border border-orange-300 rounded-md text-primary-900 placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none leading-relaxed"
+                    className="w-full px-4 py-3 border border-neutral-800 rounded-md text-neutral-100 placeholder-neutral-500 bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none leading-relaxed"
                     placeholder="Tell people about yourself, your interests, goals, passions..."
                   />
                   {errors.bio && (
                     <p className="text-xs text-red-600 mt-2">{errors.bio}</p>
                   )}
                 </div>
-                <p className="text-[11px] text-primary-400">
+                <p className="text-[11px] text-neutral-400">
                   Tip: A clear bio helps others decide to follow you.
                 </p>
               </section>
 
-              <div className="h-px bg-orange-100" />
+              <div className="h-px bg-neutral-800" />
 
               {/* Privacy Section */}
               <section className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-sm font-semibold tracking-wide text-primary-700 uppercase mb-1">
+                    <h2 className="text-sm font-semibold tracking-wide text-neutral-300 uppercase mb-1">
                       Privacy
                     </h2>
-                    <p className="text-xs text-primary-500 max-w-sm">
+                    <p className="text-xs text-neutral-400 max-w-sm">
                       When private, only approved followers can see your posts
                       and full profile details.
                     </p>
@@ -311,12 +311,12 @@ export default function ProfileEditPage() {
                       onChange={handleChange}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-orange-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-orange-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                    <div className="w-11 h-6 bg-neutral-300 dark:bg-neutral-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white dark:after:bg-neutral-200 after:border-neutral-300 dark:after:border-neutral-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
                   </label>
                 </div>
                 <div className="mt-2 flex items-center text-xs font-medium">
                   {formData.isPrivate ? (
-                    <span className="flex items-center gap-1 text-primary-600">
+                    <span className="flex items-center gap-1 text-primary-400">
                       <svg
                         className="w-4 h-4"
                         fill="currentColor"

@@ -2,11 +2,11 @@ export default function NotificationsPage() {
   return (
     <div className="flex w-full">
       {/* Main Content */}
-      <div className="flex-1 bg-white">
+      <div className="flex-1 bg-neutral-950">
         {/* Header */}
-        <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-orange-200 z-10">
+        <div className="sticky top-0 bg-neutral-950/80 backdrop-blur-md border-b border-neutral-800 z-10">
           <div className="px-6 py-4">
-            <h1 className="text-xl font-semibold text-primary-600">
+            <h1 className="text-xl font-semibold text-neutral-100">
               Notifications
             </h1>
           </div>
@@ -17,7 +17,7 @@ export default function NotificationsPage() {
           <div className="text-center p-8">
             <div className="mb-6">
               <svg
-                className="w-16 h-16 mx-auto text-primary-300"
+                className="w-16 h-16 mx-auto text-neutral-300 dark:text-neutral-700"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -36,10 +36,10 @@ export default function NotificationsPage() {
                 />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-primary-600 mb-3">
+            <h2 className="text-2xl font-semibold text-neutral-100 mb-3">
               Coming Soon!
             </h2>
-            <p className="text-primary-400 text-lg max-w-md mx-auto">
+            <p className="text-neutral-400 text-lg max-w-md mx-auto">
               We're working hard to bring you notifications. Stay tuned for
               updates on likes, comments, and more!
             </p>

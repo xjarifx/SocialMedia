@@ -95,9 +95,9 @@ export default function RegisterPage() {
         }
       } else {
         // Show debug info for non-ApiError
-        setErrors({
-          form: `Non-API Error: ${(error as any)?.message || "Unknown error"}`,
-        });
+        const message =
+          (error as { message?: string })?.message || "Unknown error";
+        setErrors({ form: `Non-API Error: ${message}` });
       }
     } finally {
       setIsLoading(false);
@@ -105,13 +105,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-neutral-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-neutral-900">
+          <h2 className="text-3xl font-bold text-neutral-100">
             Create your account
           </h2>
-          <p className="mt-2 text-neutral-600">
+          <p className="mt-2 text-neutral-400">
             Join our community and start sharing
           </p>
         </div>

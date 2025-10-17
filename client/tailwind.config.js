@@ -15,16 +15,24 @@ export default {
       },
       colors: {
         primary: {
-          50: "#fef7f0",
-          100: "#fdeee0",
-          200: "#fbd6ba",
-          300: "#f8ba85",
-          400: "#f49553",
-          500: "#f37125", // Main brand color
-          600: "#e55a14",
-          700: "#c14612",
-          800: "#9b3812",
-          900: "#7e3012",
+          50: "#fff5ed",
+          100: "#ffe8d6",
+          200: "#ffceac",
+          300: "#ffab77",
+          400: "#ff8540",
+          500: "#ff6b1a", // Brighter, more vibrant orange
+          600: "#f05a0a",
+          700: "#c7450b",
+          800: "#9e3810",
+          900: "#7f3010",
+          950: "#451607",
+        },
+        // Orange accent variations
+        accent: {
+          orange: "#ff6b1a",
+          "orange-light": "#ff8540",
+          "orange-dark": "#f05a0a",
+          glow: "rgba(255, 107, 26, 0.15)",
         },
         neutral: {
           50: "#fafafa",
@@ -41,9 +49,12 @@ export default {
         },
       },
       boxShadow: {
-        soft: "0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05)",
+        soft: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
         "soft-lg":
-          "0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)",
+          "0 10px 15px -3px rgb(0 0 0 / 0.15), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "orange-glow":
+          "0 0 20px rgba(255, 107, 26, 0.3), 0 0 40px rgba(255, 107, 26, 0.1)",
+        "orange-glow-sm": "0 0 10px rgba(255, 107, 26, 0.2)",
       },
       borderRadius: {
         soft: "8px",

@@ -108,7 +108,7 @@ export default function PasswordChangePage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-neutral-950">
       <PageHeader
         title="Change Password"
         subtitle="Update your account password to keep it secure"

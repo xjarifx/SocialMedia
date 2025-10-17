@@ -7,39 +7,58 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="flex w-full h-full">
-      {/* Main Content */}
-      <div className="flex-1 border-r border-orange-200 bg-white">
-        {/* Header with Tabs */}
-        <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-orange-200 z-10">
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab("for-you")}
-              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors ${
-                activeTab === "for-you"
-                  ? "text-primary-600 border-b-2 border-primary-500"
-                  : "text-primary-400 hover:text-primary-600"
-              }`}
-            >
-              For You
-            </button>
-            <button
-              onClick={() => setActiveTab("following")}
-              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors ${
-                activeTab === "following"
-                  ? "text-primary-600 border-b-2 border-primary-500"
-                  : "text-primary-400 hover:text-primary-600"
-              }`}
-            >
-              Following
-            </button>
-          </div>
+    <div className="w-full h-full">
+      {/* Header with Tabs - Twitter/X Style */}
+      <div className="sticky top-0 bg-black/80 backdrop-blur-md border-b border-neutral-800 z-10">
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab("for-you")}
+            className={`flex-1 hover:bg-neutral-900 transition-colors relative ${
+              activeTab === "for-you" ? "" : ""
+            }`}
+          >
+            <div className="flex items-center justify-center h-[53px]">
+              <span
+                className={`text-[15px] font-medium ${
+                  activeTab === "for-you"
+                    ? "font-bold text-white"
+                    : "text-neutral-500"
+                }`}
+              >
+                For you
+              </span>
+            </div>
+            {activeTab === "for-you" && (
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-1 bg-primary-500 rounded-full"></div>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("following")}
+            className={`flex-1 hover:bg-neutral-900 transition-colors relative ${
+              activeTab === "following" ? "" : ""
+            }`}
+          >
+            <div className="flex items-center justify-center h-[53px]">
+              <span
+                className={`text-[15px] font-medium ${
+                  activeTab === "following"
+                    ? "font-bold text-white"
+                    : "text-neutral-500"
+                }`}
+              >
+                Following
+              </span>
+            </div>
+            {activeTab === "following" && (
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-1 bg-primary-500 rounded-full"></div>
+            )}
+          </button>
         </div>
+      </div>
 
-        {/* Post Feed */}
-        <div className="min-h-screen">
-          <PostFeed activeTab={activeTab} />
-        </div>
+      {/* Post Feed */}
+      <div>
+        <PostFeed activeTab={activeTab} />
       </div>
     </div>
   );

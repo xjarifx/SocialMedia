@@ -17,16 +17,16 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium rounded-soft transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center font-semibold rounded-soft transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900";
 
   const variants = {
     primary:
-      "bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-soft",
+      "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-400 hover:to-primary-500 active:from-primary-600 active:to-primary-700 shadow-orange-glow-sm hover:shadow-orange-glow",
     secondary:
-      "bg-white text-primary-600 border border-orange-200 hover:bg-orange-50 active:bg-orange-100 shadow-soft",
-    ghost: "text-primary-600 hover:bg-orange-100 active:bg-orange-200",
+      "bg-neutral-800 text-primary-400 border-2 border-primary-500/30 hover:border-primary-500 hover:bg-neutral-700 hover:shadow-orange-glow-sm",
+    ghost: "text-primary-400 hover:bg-primary-500/10 hover:text-primary-300",
     danger:
-      "bg-orange-600 text-white hover:bg-orange-700 active:bg-orange-800 shadow-soft",
+      "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-soft",
   };
 
   const sizes = {

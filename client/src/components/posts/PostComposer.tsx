@@ -27,13 +27,15 @@ export default function PostComposer() {
   const remainingChars = maxLength - content.length;
 
   return (
-    <div className="p-3">
+    <div className="border-b border-neutral-800 px-4 py-3">
       <div className="flex space-x-3">
         {/* User Avatar */}
-        <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-          <span className="text-primary-600 font-medium text-base">
-            {user?.username?.[0]?.toUpperCase() || "U"}
-          </span>
+        <div className="flex-shrink-0 pt-1">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-sm">
+              {user?.username?.[0]?.toUpperCase() || "U"}
+            </span>
+          </div>
         </div>
 
         {/* Composer */}
@@ -42,20 +44,20 @@ export default function PostComposer() {
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="What's happening?"
-              className="w-full p-2 text-base placeholder-primary-400 border-0 resize-none focus:outline-none focus:ring-0 bg-transparent"
-              rows={2}
+              placeholder="What is happening?!"
+              className="w-full pt-3 pb-2 text-xl text-white placeholder-neutral-500 border-0 resize-none focus:outline-none focus:ring-0 bg-transparent"
+              rows={3}
               maxLength={maxLength}
             />
 
             {/* Actions */}
-            <div className="flex items-center justify-between mt-2">
-              <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-between pt-3 border-t border-neutral-800 mt-2">
+              <div className="flex items-center -ml-2">
                 {/* Media Upload Button */}
                 <button
                   type="button"
-                  className="p-2 text-primary-500 hover:bg-primary-50 rounded-full transition-colors"
-                  title="Add photo or video"
+                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors"
+                  title="Media"
                 >
                   <svg
                     className="w-5 h-5"
@@ -75,20 +77,41 @@ export default function PostComposer() {
                 {/* Emoji Button */}
                 <button
                   type="button"
-                  className="p-2 text-primary-500 hover:bg-primary-50 rounded-full transition-colors"
-                  title="Add emoji"
+                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors"
+                  title="Emoji"
                 >
                   <svg
                     className="w-5 h-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    strokeWidth={2}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
                       d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+
+                {/* GIF Button */}
+                <button
+                  type="button"
+                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors"
+                  title="GIF"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
                     />
                   </svg>
                 </button>
@@ -96,8 +119,8 @@ export default function PostComposer() {
                 {/* Poll Button */}
                 <button
                   type="button"
-                  className="p-2 text-primary-500 hover:bg-primary-50 rounded-full transition-colors"
-                  title="Create poll"
+                  className="p-2 text-primary-500 hover:bg-primary-500/10 rounded-full transition-colors"
+                  title="Poll"
                 >
                   <svg
                     className="w-5 h-5"
@@ -122,7 +145,7 @@ export default function PostComposer() {
                     className={`text-sm ${
                       remainingChars < 20
                         ? "text-orange-600"
-                        : "text-primary-400"
+                        : "text-neutral-400"
                     }`}
                   >
                     {remainingChars}

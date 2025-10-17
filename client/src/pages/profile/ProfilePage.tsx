@@ -37,11 +37,20 @@ export default function ProfilePage() {
       try {
         const data = await api.getMyPosts();
         // server returns { posts: [{ id, userId, caption, mediaUrl, createdAt, updatedAt }] }
-        const mapped: Post[] = (data.posts || []).map((p: any) => ({
+        type ApiPost = {
+          id: number;
+          caption?: string;
+          createdAt?: string;
+          created_at?: string;
+          likeCount?: number;
+          commentCount?: number;
+        };
+        const postsData = (data.posts as ApiPost[] | undefined) ?? [];
+        const mapped: Post[] = postsData.map((p) => ({
           id: p.id,
           username: user.username,
-          content: p.caption || "",
-          createdAt: p.createdAt || p.created_at || new Date().toISOString(),
+          content: p.caption ?? "",
+          createdAt: p.createdAt ?? p.created_at ?? new Date().toISOString(),
           likes: p.likeCount ?? 0,
           comments: p.commentCount ?? 0,
           reposts: 0,
@@ -49,8 +58,10 @@ export default function ProfilePage() {
           isReposted: false,
         }));
         setPosts(mapped);
-      } catch (e: any) {
-        setError(e.message || "Failed to load posts");
+      } catch (e: unknown) {
+        const message =
+          (e as { message?: string })?.message || "Failed to load posts";
+        setError(message);
       } finally {
         setIsLoading(false);
       }
@@ -82,16 +93,18 @@ export default function ProfilePage() {
   return (
     <div className="flex w-full">
       {/* Main Profile Content */}
-      <div className="flex-1 bg-white">
+      <div className="flex-1 bg-neutral-950">
         {/* Header */}
-        <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-orange-200 z-10">
+        <div className="sticky top-0 bg-neutral-950/80 backdrop-blur-md border-b border-neutral-800 z-10">
           <div className="px-4 py-3">
             <div className="flex items-center">
               <div>
-                <h1 className="text-xl font-bold text-primary-600">
+                <h1 className="text-xl font-bold text-neutral-100">
                   {user?.username}
                 </h1>
-                <p className="text-sm text-primary-400">{posts.length} posts</p>
+                <p className="text-sm text-neutral-400">
+                  {posts.length} posts
+                </p>
               </div>
             </div>
           </div>
@@ -101,7 +114,7 @@ export default function ProfilePage() {
         <div className="px-4 pb-4 pt-6">
           {/* Avatar and Edit Button Row */}
           <div className="flex justify-between items-start mb-4">
-            <div className="w-32 h-32 bg-primary-500 rounded-full flex items-center justify-center">
+            <div className="w-32 h-32 bg-primary-500 rounded-full flex items-center justify-center ring-4 ring-neutral-800">
               <span className="text-white font-bold text-4xl">
                 {user?.username?.[0]?.toUpperCase() || "U"}
               </span>
@@ -116,17 +129,19 @@ export default function ProfilePage() {
 
           {/* User Info */}
           <div className="mb-4">
-            <h2 className="text-2xl font-bold text-primary-600">
+            <h2 className="text-2xl font-bold text-neutral-100">
               {user?.username}
             </h2>
           </div>
 
           <div className="mb-4">
-            <p className="text-primary-600">{user?.bio || ""}</p>
+            <p className="text-neutral-300">
+              {user?.bio || ""}
+            </p>
           </div>
 
           {/* Join Date */}
-          <div className="mb-4 flex items-center text-primary-400">
+          <div className="mb-4 flex items-center text-neutral-400">
             <svg
               className="w-4 h-4 mr-2"
               fill="none"
@@ -149,17 +164,25 @@ export default function ProfilePage() {
           {/* Following/Followers */}
           <div className="flex space-x-6 mb-6">
             <button className="hover:underline">
-              <span className="font-bold text-primary-600">0</span>{" "}
-              <span className="text-primary-400">Following</span>
+              <span className="font-bold text-neutral-100">
+                0
+              </span>{" "}
+              <span className="text-neutral-400">
+                Following
+              </span>
             </button>
             <button className="hover:underline">
-              <span className="font-bold text-primary-600">0</span>{" "}
-              <span className="text-primary-400">Followers</span>
+              <span className="font-bold text-neutral-100">
+                0
+              </span>{" "}
+              <span className="text-neutral-400">
+                Followers
+              </span>
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-orange-200">
+          <div className="border-b border-neutral-800">
             <nav className="flex space-x-8">
               {[
                 { key: "posts", label: "Posts" },
@@ -169,11 +192,15 @@ export default function ProfilePage() {
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setActiveTab(tab.key as any)}
+                  onClick={() =>
+                    setActiveTab(
+                      tab.key as "posts" | "replies" | "media" | "likes"
+                    )
+                  }
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.key
-                      ? "border-primary-500 text-primary-600"
-                      : "border-transparent text-primary-400 hover:text-primary-600"
+                      ? "border-primary-500 text-primary-400"
+                      : "border-transparent text-neutral-400 hover:text-white"
                   }`}
                 >
                   {tab.label}
@@ -189,7 +216,9 @@ export default function ProfilePage() {
             <div>
               {isLoading && (
                 <div className="p-8 text-center">
-                  <p className="text-primary-400">Loading your posts...</p>
+                  <p className="text-neutral-400">
+                    Loading your posts...
+                  </p>
                 </div>
               )}
               {error && !isLoading && (
@@ -199,7 +228,7 @@ export default function ProfilePage() {
               )}
               {!isLoading && !error && posts.length === 0 && (
                 <div className="p-8 text-center">
-                  <p className="text-primary-400">
+                  <p className="text-neutral-400">
                     You haven't posted anything yet.
                   </p>
                 </div>

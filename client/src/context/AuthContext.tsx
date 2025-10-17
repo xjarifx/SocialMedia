@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Verify token is still valid by fetching profile
           const profileResponse = await api.getProfile();
           setUser(profileResponse.user);
-        } catch (error) {
+        } catch {
           // Token is invalid, clear storage
           localStorage.removeItem("authToken");
           localStorage.removeItem("user");
@@ -67,17 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (credentials: { email: string; password: string }) => {
-    try {
-      const response = await api.login(credentials);
-
-      setToken(response.token);
-      setUser(response.user);
-
-      localStorage.setItem("authToken", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.login(credentials);
+    setToken(response.token);
+    setUser(response.user);
+    localStorage.setItem("authToken", response.token);
+    localStorage.setItem("user", JSON.stringify(response.user));
   };
 
   const register = async (userData: {
@@ -85,13 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string;
     password: string;
   }) => {
-    try {
-      await api.register(userData);
-      // After registration, automatically log in
-      await login({ email: userData.email, password: userData.password });
-    } catch (error) {
-      throw error;
-    }
+    await api.register(userData);
+    // After registration, automatically log in
+    await login({ email: userData.email, password: userData.password });
   };
 
   const logout = () => {
@@ -102,13 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (profileData: Partial<User>) => {
-    try {
-      const response = await api.updateProfile(profileData);
-      setUser(response.user);
-      localStorage.setItem("user", JSON.stringify(response.user));
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.updateProfile(profileData);
+    setUser(response.user);
+    localStorage.setItem("user", JSON.stringify(response.user));
   };
 
   const value: AuthContextType = {
@@ -125,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

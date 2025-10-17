@@ -7,9 +7,9 @@ export default function HomePage() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       {/* Navigation Header */}
-      <header className="bg-white border-b border-neutral-200 sticky top-0 z-10">
+      <header className="bg-neutral-900 border-b border-neutral-800 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -26,7 +26,7 @@ export default function HomePage() {
                 onClick={() => (window.location.href = "/profile")}
               >
                 <Avatar src={user?.avatarUrl} size="sm" />
-                <span className="text-sm font-medium text-neutral-700">
+                <span className="text-sm font-medium text-neutral-300">
                   @{user?.username}
                 </span>
               </div>
@@ -46,24 +46,34 @@ export default function HomePage() {
             <Card>
               <div className="text-center">
                 <Avatar src={user?.avatarUrl} size="xl" className="mx-auto" />
-                <h2 className="mt-4 text-xl font-semibold text-neutral-900">
+                <h2 className="mt-4 text-xl font-semibold text-neutral-100">
                   {user?.username}
                 </h2>
-                <p className="text-neutral-600">{user?.email}</p>
+                <p className="text-neutral-400">
+                  {user?.email}
+                </p>
                 {user?.bio && (
-                  <p className="mt-2 text-sm text-neutral-700">{user.bio}</p>
+                  <p className="mt-2 text-sm text-neutral-300">
+                    {user.bio}
+                  </p>
                 )}
                 <div className="mt-4 flex justify-center space-x-4 text-sm text-neutral-500">
                   <div>
-                    <span className="font-semibold text-neutral-900">0</span>{" "}
+                    <span className="font-semibold text-neutral-100">
+                      0
+                    </span>{" "}
                     Posts
                   </div>
                   <div>
-                    <span className="font-semibold text-neutral-900">0</span>{" "}
+                    <span className="font-semibold text-neutral-100">
+                      0
+                    </span>{" "}
                     Following
                   </div>
                   <div>
-                    <span className="font-semibold text-neutral-900">0</span>{" "}
+                    <span className="font-semibold text-neutral-100">
+                      0
+                    </span>{" "}
                     Followers
                   </div>
                 </div>
@@ -86,7 +96,7 @@ export default function HomePage() {
               <div className="flex space-x-3">
                 <Avatar src={user?.avatarUrl} size="md" />
                 <div className="flex-1">
-                  <div className="bg-neutral-100 rounded-soft px-4 py-3 text-neutral-500 cursor-pointer hover:bg-neutral-200 transition-colors">
+                  <div className="bg-neutral-800 rounded-soft px-4 py-3 text-neutral-400 cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
                     What's on your mind, {user?.username}?
                   </div>
                   <div className="flex justify-end mt-3">
@@ -114,10 +124,10 @@ export default function HomePage() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                <h3 className="text-lg font-medium text-neutral-100 mb-2">
                   Welcome to your feed!
                 </h3>
-                <p className="text-neutral-600 mb-4">
+                <p className="text-neutral-400 mb-4">
                   Start by creating your first post or following some users.
                 </p>
                 <div className="flex justify-center space-x-3">

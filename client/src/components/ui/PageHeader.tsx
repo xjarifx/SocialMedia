@@ -22,18 +22,18 @@ export default function PageHeader({
   };
 
   return (
-    <div className="bg-white border-b border-orange-200 sticky top-0 z-10">
+    <div className="bg-neutral-900 border-b border-neutral-800 sticky top-0 z-10">
       <div className="max-w-4xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {showBackButton && (
               <button
                 onClick={handleBack}
-                className="p-2 hover:bg-orange-50 rounded-full transition-colors"
+                className="p-2 hover:bg-neutral-800 rounded-full transition-colors"
                 aria-label="Go back"
               >
                 <svg
-                  className="w-5 h-5 text-primary-600"
+                  className="w-5 h-5 text-primary-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -48,9 +48,9 @@ export default function PageHeader({
               </button>
             )}
             <div>
-              <h1 className="text-xl font-bold text-primary-600">{title}</h1>
+              <h1 className="text-xl font-bold text-primary-400">{title}</h1>
               {subtitle && (
-                <p className="text-sm text-primary-500 mt-1">{subtitle}</p>
+                <p className="text-sm text-primary-400 mt-1">{subtitle}</p>
               )}
             </div>
           </div>

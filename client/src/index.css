@@ -1,115 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  --primary-50: #fef7f3; /* Very light orange */
-  --primary-100: #fed7c3; /* Light orange */
-  --primary-200: #fdb896; /* Lighter orange */
-  --primary-300: #fb9969; /* Medium-light orange */
-  --primary-500: #f37125; /* Standard orange */
-  --primary-600: #e55a14; /* Darker orange */
-  --primary-900: #1a0a04; /* Very dark orange that looks almost black */
+  /* Enhanced Orange brand (#ff6b1a) - vibrant and eye-catching */
+  --brand: 22 100% 55%;
+  --brand-hover: 22 100% 60%;
+  --brand-active: 22 100% 50%;
+
+  /* Dark surfaces with subtle warmth */
+  --surface: 0 0% 7%;
+  --surface-2: 0 0% 10%;
+  --surface-elevated: 0 0% 12%;
+
+  /* Text colors optimized for orange accents */
+  --text: 24 10% 95%;
+  --text-secondary: 24 8% 80%;
+  --muted: 24 6% 60%;
+
+  /* Orange glow for special elements */
+  --orange-glow: 22 100% 55%;
+  --ring: 22 100% 55%;
 }
 
 * {
   box-sizing: border-box;
 }
 
-html {
-  /* Hide scrollbars but keep scroll functionality */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-}
-
-html::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Hide scrollbars but keep scroll functionality */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  /* Use very dark orange instead of black */
-  color: #1a0a04;
+  color: #ffffff;
+  background: #000000;
+  font-size: 15px;
 }
 
-body::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+/* Base elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: hsl(var(--text));
+}
+p,
+span,
+label {
+  color: hsl(var(--text) / 0.9);
 }
 
-/* Hide scrollbars globally for all scrollable elements */
-* {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
+/* Focus ring consistency with orange glow */
+:where(button, [role="button"], input, textarea, select):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.3), 0 0 10px hsl(var(--ring) / 0.2);
 }
 
+/* Twitter/X Style Scrollbar */
 *::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  width: 0px;
+  height: 0px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: transparent;
 }
 
-/* Force primary colors if Tailwind config isn't working */
-.bg-primary-50 {
-  background-color: #fef7f3 !important;
+/* Selection color with orange */
+::selection {
+  background-color: rgba(255, 107, 26, 0.3);
+  color: #fff;
 }
 
-.bg-primary-100 {
-  background-color: #fed7c3 !important;
-}
-
-.bg-primary-200 {
-  background-color: #fdb896 !important;
-}
-
-.bg-primary-300 {
-  background-color: #fb9969 !important;
-}
-
-.bg-primary-500 {
-  background-color: #f37125 !important;
-}
-
-.hover\:bg-primary-600:hover {
-  background-color: #e55a14 !important;
-}
-
-.hover\:bg-primary-50:hover {
-  background-color: #fef7f3 !important;
-}
-
-.hover\:bg-primary-100:hover {
-  background-color: #fed7c3 !important;
-}
-
-.text-primary-500 {
-  color: #f37125 !important;
-}
-
-.hover\:text-primary-600:hover {
-  color: #e55a14 !important;
-}
-
-.border-primary-500 {
-  border-color: #f37125 !important;
-}
-
-.focus\:ring-primary-500:focus {
-  --tw-ring-color: #f37125 !important;
-}
-
-/* Override black text with very dark orange */
-.text-black {
-  color: #1a0a04 !important;
-}
-
-.text-neutral-900 {
-  color: #1a0a04 !important;
-}
-
-.text-gray-900 {
-  color: #1a0a04 !important;
+/* Smooth transitions for interactive elements */
+button,
+a,
+input,
+textarea,
+select {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
