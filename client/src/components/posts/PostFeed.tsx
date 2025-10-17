@@ -81,6 +81,18 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
     );
   };
 
+  const handleDelete = (postId: number) => {
+    setPosts((prev) => prev.filter((post) => post.id !== postId));
+  };
+
+  const handleUpdate = (postId: number, newContent: string) => {
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, content: newContent } : post
+      )
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="p-8 text-center min-h-96 flex flex-col justify-center">
@@ -117,6 +129,8 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           key={post.id}
           post={post}
           onLike={() => handleLike(post.id)}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
         />
       ))}
     </div>

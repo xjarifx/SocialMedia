@@ -111,6 +111,18 @@ export default function UserProfilePage() {
     );
   };
 
+  const handleDelete = (postId: number) => {
+    setPosts((prev) => prev.filter((post) => post.id !== postId));
+  };
+
+  const handleUpdate = (postId: number, newContent: string) => {
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, content: newContent } : post
+      )
+    );
+  };
+
   const handleFollow = async () => {
     if (!username || isFollowLoading) return;
 
@@ -324,6 +336,8 @@ export default function UserProfilePage() {
                 key={post.id}
                 post={post}
                 onLike={() => handleLike(post.id)}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}
               />
             ))}
           </div>

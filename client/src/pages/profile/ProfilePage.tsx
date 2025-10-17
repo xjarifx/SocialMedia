@@ -84,6 +84,18 @@ export default function ProfilePage() {
     );
   };
 
+  const handleDelete = (postId: number) => {
+    setPosts((prev) => prev.filter((post) => post.id !== postId));
+  };
+
+  const handleUpdate = (postId: number, newContent: string) => {
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, content: newContent } : post
+      )
+    );
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -251,6 +263,8 @@ export default function ProfilePage() {
               key={post.id}
               post={post}
               onLike={() => handleLike(post.id)}
+              onDelete={handleDelete}
+              onUpdate={handleUpdate}
             />
           ))}
       </div>

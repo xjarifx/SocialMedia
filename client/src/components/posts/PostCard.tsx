@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "../../context/AuthContext";
 import { formatDateDisplay } from "../../utils/time";
 import { formatNumber } from "../../utils/format";
+import { api } from "../../utils/api";
+import EditPostModal from "./EditPostModal";
 
 interface Post {
   id: number;
@@ -22,12 +25,44 @@ interface PostCardProps {
   post: Post;
   onLike: () => void;
   onClick?: () => void;
+  onDelete?: (postId: number) => void;
+  onUpdate?: (postId: number, newContent: string) => void;
 }
 
-export default function PostCard({ post, onLike, onClick }: PostCardProps) {
+export default function PostCard({
+  post,
+  onLike,
+  onClick,
+  onDelete,
+  onUpdate,
+}: PostCardProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const displayDate = formatDateDisplay(post.createdAt);
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const isOwner = user?.username === post.username;
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -39,6 +74,44 @@ export default function PostCard({ post, onLike, onClick }: PostCardProps) {
   const handleUsernameClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate(`/user/${post.username}`);
+  };
+
+  const handleMenuToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
+  };
+
+  const handleEdit = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    setShowEditModal(true);
+  };
+
+  const handleUpdatePost = (postId: number, newContent: string) => {
+    if (onUpdate) {
+      onUpdate(postId, newContent);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this post?")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await api.deletePost(post.id);
+      setShowMenu(false);
+      if (onDelete) {
+        onDelete(post.id);
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      alert("Failed to delete post");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const renderMediaGrid = () => {
@@ -143,24 +216,73 @@ export default function PostCard({ post, onLike, onClick }: PostCardProps) {
                 {displayDate}
               </span>
             </div>
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="p-1 rounded-full hover:bg-primary-500/10 transition-colors group"
-            >
-              <svg
-                className="w-4 h-4 text-neutral-500 group-hover:text-primary-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            </button>
+            {isOwner && (
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={handleMenuToggle}
+                  className="p-1 rounded-full hover:bg-primary-500/10 transition-colors group"
+                >
+                  <svg
+                    className="w-4 h-4 text-neutral-500 group-hover:text-primary-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {showMenu && (
+                  <div className="absolute right-0 mt-1 w-48 bg-black border border-neutral-800 rounded-xl shadow-lg overflow-hidden z-10">
+                    <button
+                      onClick={handleEdit}
+                      className="w-full px-4 py-3 text-left text-white hover:bg-neutral-900 transition-colors flex items-center space-x-3"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      <span>Edit post</span>
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="w-full px-4 py-3 text-left text-red-500 hover:bg-neutral-900 transition-colors flex items-center space-x-3 disabled:opacity-50"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                      <span>{isDeleting ? "Deleting..." : "Delete post"}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Content */}
@@ -243,6 +365,14 @@ export default function PostCard({ post, onLike, onClick }: PostCardProps) {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <EditPostModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        post={{ id: post.id, content: post.content }}
+        onUpdate={handleUpdatePost}
+      />
     </article>
   );
 }

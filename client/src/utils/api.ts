@@ -146,7 +146,7 @@ export const api = {
     postId: number,
     postData: { caption?: string; mediaUrl?: string }
   ) => {
-    const response = await authenticatedFetch(`/${postId}`, {
+    const response = await authenticatedFetch(`/posts/${postId}`, {
       method: "PUT",
       body: JSON.stringify(postData),
     });
@@ -154,7 +154,7 @@ export const api = {
   },
 
   deletePost: async (postId: number) => {
-    await authenticatedFetch(`/${postId}`, {
+    await authenticatedFetch(`/posts/${postId}`, {
       method: "DELETE",
     });
   },

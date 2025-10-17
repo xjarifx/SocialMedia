@@ -71,8 +71,8 @@ router.get("/posts/for-you", authenticateUserToken, handleGetForYouPosts);
 router.get("/posts/following", authenticateUserToken, handleGetFollowingPosts);
 router.get("/posts/mine", authenticateUserToken, handleGetOwnPosts);
 router.get("/posts/:username", authenticateUserToken, handleGetPostsByUsername);
-router.put("/:postId", authenticateUserToken, handlePostUpdate);
-router.delete("/:postId", authenticateUserToken, handlePostDeletion);
+router.put("/posts/:postId", authenticateUserToken, handlePostUpdate);
+router.delete("/posts/:postId", authenticateUserToken, handlePostDeletion);
 
 // COMMENT ROUTES (protected)
 router.post("/:postId/comments", authenticateUserToken, handleCreateComment);

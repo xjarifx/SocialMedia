@@ -61,7 +61,20 @@ export const handlePostUpdate = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "Post not found" });
   }
 
-  if (existingPost.userId !== userId) {
+  console.log(
+    "Update attempt - User ID:",
+    userId,
+    "(type:",
+    typeof userId,
+    ") Post User ID:",
+    existingPost.userId,
+    "(type:",
+    typeof existingPost.userId,
+    ")"
+  );
+
+  // Ensure both values are numbers for comparison
+  if (Number(existingPost.userId) !== Number(userId)) {
     return res.status(403).json({ message: "Forbidden" });
   }
 
@@ -109,7 +122,20 @@ export const handlePostDeletion = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "Post not found" });
   }
 
-  if (existingPost.userId !== userId) {
+  console.log(
+    "Delete attempt - User ID:",
+    userId,
+    "(type:",
+    typeof userId,
+    ") Post User ID:",
+    existingPost.userId,
+    "(type:",
+    typeof existingPost.userId,
+    ")"
+  );
+
+  // Ensure both values are numbers for comparison
+  if (Number(existingPost.userId) !== Number(userId)) {
     return res.status(403).json({ message: "Forbidden" });
   }
 
