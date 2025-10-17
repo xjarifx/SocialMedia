@@ -65,6 +65,7 @@ export const getPostsByUserId = async (
   {
     id: number;
     userId: number;
+    username: string;
     caption?: string;
     mediaUrl?: string;
     createdAt: Date;
@@ -76,7 +77,8 @@ export const getPostsByUserId = async (
   const postsByUserIdResult = await connectionPool.query(
     `SELECT 
        p.id, 
-       p.user_id AS "userId", 
+       p.user_id AS "userId",
+       u.username,
        p.caption, 
        p.media_url AS "mediaUrl", 
        p.created_at AS "createdAt", 
@@ -84,6 +86,7 @@ export const getPostsByUserId = async (
        COALESCE(l.like_count, 0) AS "likeCount",
        COALESCE(c.comment_count, 0) AS "commentCount"
      FROM posts p
+     INNER JOIN users u ON u.id = p.user_id
      LEFT JOIN (
        SELECT post_id, COUNT(*)::int AS like_count
        FROM post_likes
@@ -108,6 +111,7 @@ export const getForYouPosts = async (
   {
     id: number;
     userId: number;
+    username: string;
     caption?: string;
     mediaUrl?: string;
     createdAt: Date;
@@ -120,6 +124,7 @@ export const getForYouPosts = async (
     `SELECT
        p.id,
        p.user_id AS "userId",
+       u.username,
        p.caption,
        p.media_url AS "mediaUrl",
        p.created_at AS "createdAt",
@@ -127,6 +132,7 @@ export const getForYouPosts = async (
        COALESCE(l.like_count, 0) AS "likeCount",
        COALESCE(c.comment_count, 0) AS "commentCount"
      FROM posts p
+     INNER JOIN users u ON u.id = p.user_id
      LEFT JOIN (
        SELECT post_id, COUNT(*)::int AS like_count FROM post_likes GROUP BY post_id
      ) l ON l.post_id = p.id
@@ -149,6 +155,7 @@ export const getFollowingPosts = async (
   {
     id: number;
     userId: number;
+    username: string;
     caption?: string;
     mediaUrl?: string;
     createdAt: Date;
@@ -161,6 +168,7 @@ export const getFollowingPosts = async (
     `SELECT
        p.id,
        p.user_id AS "userId",
+       u.username,
        p.caption,
        p.media_url AS "mediaUrl",
        p.created_at AS "createdAt",
@@ -169,6 +177,7 @@ export const getFollowingPosts = async (
        COALESCE(c.comment_count, 0) AS "commentCount"
      FROM posts p
      INNER JOIN follows f ON f.following_id = p.user_id
+     INNER JOIN users u ON u.id = p.user_id
      LEFT JOIN (
        SELECT post_id, COUNT(*)::int AS like_count FROM post_likes GROUP BY post_id
      ) l ON l.post_id = p.id

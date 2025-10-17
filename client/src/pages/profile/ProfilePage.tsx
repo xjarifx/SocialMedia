@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import Button from "../../components/ui/Button";
 import PostCard from "../../components/posts/PostCard";
+import { PostSkeleton } from "../../components/ui/Skeleton";
+import { formatNumber } from "../../utils/format";
 import { api } from "../../utils/api";
-
-// TODO: Replace with actual API calls to fetch user posts
 
 interface Post {
   id: number;
@@ -17,17 +18,18 @@ interface Post {
   reposts: number;
   isLiked: boolean;
   isReposted: boolean;
+  media?: string[];
+  views?: number;
 }
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<
-    "posts" | "replies" | "media" | "likes"
-  >("posts");
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [followerCount] = useState(0);
+  const [followingCount] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -36,7 +38,6 @@ export default function ProfilePage() {
       setError(null);
       try {
         const data = await api.getMyPosts();
-        // server returns { posts: [{ id, userId, caption, mediaUrl, createdAt, updatedAt }] }
         type ApiPost = {
           id: number;
           caption?: string;
@@ -48,7 +49,7 @@ export default function ProfilePage() {
         const postsData = (data.posts as ApiPost[] | undefined) ?? [];
         const mapped: Post[] = postsData.map((p) => ({
           id: p.id,
-          username: user.username,
+          username: (p as any).username || user.username,
           content: p.caption ?? "",
           createdAt: p.createdAt ?? p.created_at ?? new Date().toISOString(),
           likes: p.likeCount ?? 0,
@@ -91,59 +92,95 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="flex w-full">
-      {/* Main Profile Content */}
-      <div className="flex-1 bg-neutral-950">
-        {/* Header */}
-        <div className="sticky top-0 bg-neutral-950/80 backdrop-blur-md border-b border-neutral-800 z-10">
-          <div className="px-4 py-3">
-            <div className="flex items-center">
-              <div>
-                <h1 className="text-xl font-bold text-neutral-100">
-                  {user?.username}
-                </h1>
-                <p className="text-sm text-neutral-400">
-                  {posts.length} posts
-                </p>
-              </div>
-            </div>
+    <div className="w-full">
+      {/* Header */}
+      <div className="sticky top-0 bg-black/80 backdrop-blur-md border-b border-neutral-800 z-10 px-4 py-2">
+        <div className="flex items-center space-x-8">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="p-2 rounded-full hover:bg-neutral-800 transition-colors"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+          <div>
+            <h1 className="text-xl font-bold">{user?.username}</h1>
+            <p className="text-xs text-neutral-500">
+              {formatNumber(posts.length)} posts
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Profile Info Section */}
-        <div className="px-4 pb-4 pt-6">
-          {/* Avatar and Edit Button Row */}
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-32 h-32 bg-primary-500 rounded-full flex items-center justify-center ring-4 ring-neutral-800">
-              <span className="text-white font-bold text-4xl">
-                {user?.username?.[0]?.toUpperCase() || "U"}
-              </span>
-            </div>
+      {/* Profile Info */}
+      <div className="px-4 py-4">
+        {/* Avatar and Edit Button */}
+        <div className="flex justify-between items-start mb-4">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="w-32 h-32 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center border-4 border-white"
+          >
+            <span className="text-white font-bold text-4xl">
+              {user?.username?.[0]?.toUpperCase() || "U"}
+            </span>
+          </motion.div>
+          <div className="mt-3">
             <Button
-              onClick={() => navigate("/profile/edit")}
+              onClick={() => {
+                console.log("Edit profile button clicked");
+                navigate("/profile/edit");
+              }}
               variant="secondary"
+              className="font-bold"
             >
               Edit profile
             </Button>
           </div>
+        </div>
 
-          {/* User Info */}
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold text-neutral-100">
-              {user?.username}
-            </h2>
-          </div>
+        {/* User Info */}
+        <div className="mb-3">
+          <h2 className="text-xl font-bold text-white">{user?.username}</h2>
+          <p className="text-[15px] text-neutral-500">
+            @{user?.username?.toLowerCase()}
+          </p>
+        </div>
 
-          <div className="mb-4">
-            <p className="text-neutral-300">
-              {user?.bio || ""}
-            </p>
+        {/* Bio */}
+        {user?.bio && (
+          <div className="mb-3">
+            <p className="text-[15px] text-white">{user.bio}</p>
           </div>
+        )}
+
+        {/* Metadata */}
+        <div className="flex flex-wrap items-center gap-3 mb-3 text-neutral-500 text-[15px]">
+          {/* Location (if available) */}
+          {/* <div className="flex items-center space-x-1">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Location</span>
+          </div> */}
 
           {/* Join Date */}
-          <div className="mb-4 flex items-center text-neutral-400">
+          <div className="flex items-center space-x-1">
             <svg
-              className="w-4 h-4 mr-2"
+              className="w-4 h-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -160,101 +197,62 @@ export default function ProfilePage() {
               {user?.createdAt ? formatDate(user.createdAt) : "January 2024"}
             </span>
           </div>
-
-          {/* Following/Followers */}
-          <div className="flex space-x-6 mb-6">
-            <button className="hover:underline">
-              <span className="font-bold text-neutral-100">
-                0
-              </span>{" "}
-              <span className="text-neutral-400">
-                Following
-              </span>
-            </button>
-            <button className="hover:underline">
-              <span className="font-bold text-neutral-100">
-                0
-              </span>{" "}
-              <span className="text-neutral-400">
-                Followers
-              </span>
-            </button>
-          </div>
-
-          {/* Tabs */}
-          <div className="border-b border-neutral-800">
-            <nav className="flex space-x-8">
-              {[
-                { key: "posts", label: "Posts" },
-                { key: "replies", label: "Replies" },
-                { key: "media", label: "Media" },
-                { key: "likes", label: "Likes" },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() =>
-                    setActiveTab(
-                      tab.key as "posts" | "replies" | "media" | "likes"
-                    )
-                  }
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.key
-                      ? "border-primary-500 text-primary-400"
-                      : "border-transparent text-neutral-400 hover:text-white"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
         </div>
 
-        {/* Posts Section */}
-        <div>
-          {activeTab === "posts" && (
-            <div>
-              {isLoading && (
-                <div className="p-8 text-center">
-                  <p className="text-neutral-400">
-                    Loading your posts...
-                  </p>
-                </div>
-              )}
-              {error && !isLoading && (
-                <div className="p-8 text-center">
-                  <p className="text-red-500 text-sm">{error}</p>
-                </div>
-              )}
-              {!isLoading && !error && posts.length === 0 && (
-                <div className="p-8 text-center">
-                  <p className="text-neutral-400">
-                    You haven't posted anything yet.
-                  </p>
-                </div>
-              )}
-              {!isLoading &&
-                !error &&
-                posts.map((post) => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    onLike={() => handleLike(post.id)}
-                  />
-                ))}
-            </div>
-          )}
-
-          {activeTab !== "posts" && (
-            <div className="p-8 text-center">
-              <p className="text-primary-400">
-                {activeTab === "replies" && "No replies yet"}
-                {activeTab === "media" && "No media posts yet"}
-                {activeTab === "likes" && "No liked posts yet"}
-              </p>
-            </div>
-          )}
+        {/* Following/Followers */}
+        <div className="flex items-center space-x-5 mb-4">
+          <button className="hover:underline">
+            <span className="font-bold text-white">
+              {formatNumber(followingCount)}
+            </span>{" "}
+            <span className="text-neutral-500">Following</span>
+          </button>
+          <button className="hover:underline">
+            <span className="font-bold text-white">
+              {formatNumber(followerCount)}
+            </span>{" "}
+            <span className="text-neutral-500">Followers</span>
+          </button>
         </div>
+      </div>
+
+      {/* Posts */}
+      <div>
+        {isLoading && (
+          <>
+            <PostSkeleton />
+            <PostSkeleton />
+            <PostSkeleton />
+          </>
+        )}
+        {error && !isLoading && (
+          <div className="p-8 text-center">
+            <p className="text-red-500 text-sm">{error}</p>
+          </div>
+        )}
+        {!isLoading && !error && posts.length === 0 && (
+          <div className="p-8 text-center">
+            <h3 className="text-3xl font-bold text-white mb-2">No posts yet</h3>
+            <p className="text-neutral-500 mb-4">
+              When you post, it'll show up here.
+            </p>
+            <Button
+              onClick={() => navigate("/post")}
+              className="bg-black hover:bg-neutral-900 text-white font-bold border border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              Post now
+            </Button>
+          </div>
+        )}
+        {!isLoading &&
+          !error &&
+          posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              onLike={() => handleLike(post.id)}
+            />
+          ))}
       </div>
     </div>
   );

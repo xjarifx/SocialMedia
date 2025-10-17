@@ -46,14 +46,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (storedToken && storedUser) {
         try {
+          const parsedUser = JSON.parse(storedUser);
           setToken(storedToken);
-          setUser(JSON.parse(storedUser));
+          setUser(parsedUser);
 
-          // Verify token is still valid by fetching profile
-          const profileResponse = await api.getProfile();
-          setUser(profileResponse.user);
-        } catch {
-          // Token is invalid, clear storage
+          // Optionally verify token is still valid by fetching profile in the background
+          // This will update the user data if successful, or the authenticatedFetch
+          // will handle redirect to login if token is invalid
+          api
+            .getProfile()
+            .then((profileResponse) => {
+              if (profileResponse && profileResponse.user) {
+                setUser(profileResponse.user);
+                localStorage.setItem(
+                  "user",
+                  JSON.stringify(profileResponse.user)
+                );
+              }
+            })
+            .catch((error) => {
+              // If verification fails, the authenticatedFetch will handle the logout
+              console.error("Background token verification failed:", error);
+            });
+        } catch (error) {
+          // Failed to parse stored user, clear storage
+          console.error("Failed to parse stored user:", error);
           localStorage.removeItem("authToken");
           localStorage.removeItem("user");
           setToken(null);

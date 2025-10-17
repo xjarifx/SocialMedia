@@ -1,99 +1,102 @@
 import SearchBar from "../ui/SearchBar";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../utils/api";
 
 export default function RightSidebar() {
-  const handleSearch = useCallback((query: string) => {
-    // TODO: Implement global search logic (posts/users) via API
-    console.log("Global search:", query);
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setHasSearched(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setHasSearched(true);
+    try {
+      const response = await api.searchUsers(query);
+      setSearchResults(response.users || []);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   }, []);
 
-  const trendingTopics = [
-    { topic: "Technology", posts: "125K" },
-    { topic: "Programming", posts: "89K" },
-    { topic: "Design", posts: "67K" },
-    { topic: "AI", posts: "234K" },
-  ];
-
-  const suggestedUsers = [
-    {
-      username: "techguru",
-      name: "Tech Guru",
-      bio: "Software engineer & tech enthusiast",
-    },
-    { username: "designpro", name: "Design Pro", bio: "UI/UX designer" },
-  ];
+  const handleUserClick = (username: string) => {
+    navigate(`/user/${username}`);
+    setSearchResults([]);
+    setHasSearched(false);
+    setSearchQuery(""); // Clear the search bar
+  };
 
   return (
     <div className="h-full overflow-y-auto py-2">
-      {/* Search Bar - Twitter/X Style */}
-      <div className="mb-4">
-        <SearchBar placeholder="Search" onSearch={handleSearch} />
-      </div>
+      {/* Search Bar */}
+      <div className="mb-4 relative">
+        <SearchBar
+          placeholder="Search"
+          onSearch={handleSearch}
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
 
-      {/* What's happening - Twitter/X Style */}
-      <div className="bg-neutral-900 rounded-2xl overflow-hidden mb-4">
-        <h2 className="text-xl font-bold text-white px-4 py-3">
-          What's happening
-        </h2>
-        <div>
-          {trendingTopics.map((trend, index) => (
-            <button
-              key={index}
-              className="w-full px-4 py-3 hover:bg-neutral-800 transition-colors text-left"
-            >
-              <div className="text-xs text-neutral-500 mb-0.5">Trending</div>
-              <div className="font-bold text-white text-[15px]">
-                #{trend.topic}
-              </div>
-              <div className="text-xs text-neutral-500 mt-0.5">
-                {trend.posts} posts
-              </div>
-            </button>
-          ))}
-        </div>
-        <button className="w-full px-4 py-3 text-primary-500 hover:bg-neutral-800 transition-colors text-left text-[15px]">
-          Show more
-        </button>
-      </div>
-
-      {/* Who to follow - Twitter/X Style */}
-      <div className="bg-neutral-900 rounded-2xl overflow-hidden">
-        <h2 className="text-xl font-bold text-white px-4 py-3">
-          Who to follow
-        </h2>
-        <div>
-          {suggestedUsers.map((user, index) => (
-            <div
-              key={index}
-              className="px-4 py-3 hover:bg-neutral-800 transition-colors flex items-start space-x-3"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-sm">
-                  {user.username[0].toUpperCase()}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-bold text-white text-[15px] hover:underline cursor-pointer">
-                      {user.name}
-                    </p>
-                    <p className="text-neutral-500 text-[15px]">
-                      @{user.username}
-                    </p>
-                  </div>
-                  <button className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:bg-neutral-200 transition-colors">
-                    Follow
-                  </button>
+        {/* Search Results Dropdown */}
+        {hasSearched && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-neutral-900 rounded-2xl shadow-lg border border-neutral-800 overflow-hidden z-50">
+            {isSearching && (
+              <div className="p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin h-4 w-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                  <p className="text-neutral-500 text-sm">Searching...</p>
                 </div>
-                <p className="text-white text-[15px] mt-1">{user.bio}</p>
               </div>
-            </div>
-          ))}
-        </div>
-        <button className="w-full px-4 py-3 text-primary-500 hover:bg-neutral-800 transition-colors text-left text-[15px]">
-          Show more
-        </button>
+            )}
+
+            {!isSearching && searchResults.length > 0 && (
+              <div className="max-h-96 overflow-y-auto">
+                {searchResults.map((user: any) => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleUserClick(user.username)}
+                    className="w-full px-4 py-3 hover:bg-neutral-800 transition-colors flex items-center space-x-3 text-left"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">
+                        {user.username[0].toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-white text-[15px]">
+                        {user.username}
+                      </p>
+                      {user.bio && (
+                        <p className="text-neutral-500 text-sm truncate">
+                          {user.bio}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {!isSearching && searchResults.length === 0 && (
+              <div className="p-4">
+                <p className="text-neutral-500 text-sm text-center">
+                  No users found
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,7 +4,9 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ToastProvider } from "./components/ui/Toast";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AppLayout from "./components/layout/AppLayout";
 import LoginPage from "./pages/auth/LoginPage";
@@ -16,6 +18,17 @@ import MessagesPage from "./pages/MessagesPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProfileEditPage from "./pages/profile/ProfileEditPage";
 import PasswordChangePage from "./pages/profile/PasswordChangePage";
+import UserProfilePage from "./pages/profile/UserProfilePage";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function AppRoutes() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -113,9 +126,7 @@ function AppRoutes() {
         path="/profile/edit"
         element={
           <ProtectedRoute>
-            <AppLayout>
-              <ProfileEditPage />
-            </AppLayout>
+            <ProfileEditPage />
           </ProtectedRoute>
         }
       />
@@ -123,8 +134,18 @@ function AppRoutes() {
         path="/profile/password"
         element={
           <ProtectedRoute>
+            <PasswordChangePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* User profile route with @ prefix - must be after /profile/* routes */}
+      <Route
+        path="/user/:username"
+        element={
+          <ProtectedRoute>
             <AppLayout>
-              <PasswordChangePage />
+              <UserProfilePage />
             </AppLayout>
           </ProtectedRoute>
         }
@@ -138,10 +159,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          <ToastProvider>
+            <AppRoutes />
+          </ToastProvider>
+        </AuthProvider>
+      </Router>
+    </QueryClientProvider>
   );
 }

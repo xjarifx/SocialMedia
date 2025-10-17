@@ -119,13 +119,13 @@ export default function PasswordChangePage() {
         <Card>
           <form onSubmit={handleSubmit} className="space-y-6">
             {errors.form && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-soft text-red-700 text-sm">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
                 {errors.form}
               </div>
             )}
 
             {showSuccess && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-soft text-green-700 text-sm">
+              <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
                 Password changed successfully! Your new password is now active.
               </div>
             )}
@@ -162,7 +162,7 @@ export default function PasswordChangePage() {
             />
 
             {/* Security Tips */}
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-soft">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
               <h3 className="text-sm font-medium text-blue-900 mb-2">
                 Password Security Tips
               </h3>

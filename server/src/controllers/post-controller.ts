@@ -8,6 +8,7 @@ import {
   getForYouPosts,
   getFollowingPosts, // added
 } from "../repositories/post-repository.js";
+import { getUserByUsername } from "../repositories/user-repository.js";
 
 // create post
 export const handlePostCreation = async (req: Request, res: Response) => {
@@ -163,6 +164,27 @@ export const handleGetFollowingPosts = async (req: Request, res: Response) => {
     return res.status(200).json({ posts });
   } catch (error) {
     console.error("Error fetching following posts:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// get posts by username
+export const handleGetPostsByUsername = async (req: Request, res: Response) => {
+  const { username } = req.params;
+  if (!username) {
+    return res.status(400).json({ message: "Username is required" });
+  }
+
+  try {
+    const user = await getUserByUsername(username);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const posts = await getPostsByUserId(user.id);
+    return res.status(200).json({ posts, user });
+  } catch (error) {
+    console.error("Error fetching posts by username:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

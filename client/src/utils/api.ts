@@ -126,6 +126,12 @@ export const api = {
     return response.json(); // { posts: [...] }
   },
 
+  // Get posts by username
+  getPostsByUsername: async (username: string) => {
+    const response = await authenticatedFetch(`/posts/${username}`);
+    return response.json(); // { posts: [...], user: {...} }
+  },
+
   getForYouPosts: async () => {
     const response = await authenticatedFetch("/posts/for-you");
     return response.json(); // { posts: [...] }
@@ -213,6 +219,11 @@ export const api = {
     const response = await authenticatedFetch(`/${username}/unfollow`, {
       method: "DELETE",
     });
+    return response.json();
+  },
+
+  checkFollowStatus: async (username: string) => {
+    const response = await authenticatedFetch(`/${username}/follow-status`);
     return response.json();
   },
 

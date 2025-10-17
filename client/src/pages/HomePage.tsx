@@ -22,7 +22,7 @@ export default function HomePage() {
             {/* User Menu */}
             <div className="flex items-center space-x-4">
               <div
-                className="flex items-center space-x-2 cursor-pointer hover:bg-neutral-100 rounded-soft px-2 py-1 transition-colors"
+                className="flex items-center space-x-2 cursor-pointer hover:bg-neutral-100 rounded-xl px-2 py-1 transition-colors"
                 onClick={() => (window.location.href = "/profile")}
               >
                 <Avatar src={user?.avatarUrl} size="sm" />
@@ -49,31 +49,21 @@ export default function HomePage() {
                 <h2 className="mt-4 text-xl font-semibold text-neutral-100">
                   {user?.username}
                 </h2>
-                <p className="text-neutral-400">
-                  {user?.email}
-                </p>
+                <p className="text-neutral-400">{user?.email}</p>
                 {user?.bio && (
-                  <p className="mt-2 text-sm text-neutral-300">
-                    {user.bio}
-                  </p>
+                  <p className="mt-2 text-sm text-neutral-300">{user.bio}</p>
                 )}
                 <div className="mt-4 flex justify-center space-x-4 text-sm text-neutral-500">
                   <div>
-                    <span className="font-semibold text-neutral-100">
-                      0
-                    </span>{" "}
+                    <span className="font-semibold text-neutral-100">0</span>{" "}
                     Posts
                   </div>
                   <div>
-                    <span className="font-semibold text-neutral-100">
-                      0
-                    </span>{" "}
+                    <span className="font-semibold text-neutral-100">0</span>{" "}
                     Following
                   </div>
                   <div>
-                    <span className="font-semibold text-neutral-100">
-                      0
-                    </span>{" "}
+                    <span className="font-semibold text-neutral-100">0</span>{" "}
                     Followers
                   </div>
                 </div>
@@ -96,7 +86,7 @@ export default function HomePage() {
               <div className="flex space-x-3">
                 <Avatar src={user?.avatarUrl} size="md" />
                 <div className="flex-1">
-                  <div className="bg-neutral-800 rounded-soft px-4 py-3 text-neutral-400 cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+                  <div className="bg-neutral-800 rounded-xl px-4 py-3 text-neutral-400 cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
                     What's on your mind, {user?.username}?
                   </div>
                   <div className="flex justify-end mt-3">

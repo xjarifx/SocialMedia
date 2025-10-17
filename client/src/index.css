@@ -58,10 +58,10 @@ label {
   color: hsl(var(--text) / 0.9);
 }
 
-/* Focus ring consistency with orange glow */
+/* Focus ring consistency with neutral color */
 :where(button, [role="button"], input, textarea, select):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.3), 0 0 10px hsl(var(--ring) / 0.2);
+  box-shadow: 0 0 0 2px rgba(64, 64, 64, 0.5);
 }
 
 /* Twitter/X Style Scrollbar */

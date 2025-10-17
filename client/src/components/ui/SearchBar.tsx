@@ -3,13 +3,21 @@ import { useState } from "react";
 interface SearchBarProps {
   placeholder?: string;
   onSearch?: (query: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 export default function SearchBar({
   placeholder = "Search...",
   onSearch,
+  value: controlledValue,
+  onChange,
 }: SearchBarProps) {
-  const [query, setQuery] = useState("");
+  const [internalQuery, setInternalQuery] = useState("");
+
+  // Use controlled value if provided, otherwise use internal state
+  const query = controlledValue !== undefined ? controlledValue : internalQuery;
+  const setQuery = onChange || setInternalQuery;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,9 +25,10 @@ export default function SearchBar({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value);
-    // Optional: Call onSearch on every keystroke for live search
-    // onSearch?.(e.target.value);
+    const newValue = e.target.value;
+    setQuery(newValue);
+    // Call onSearch on every keystroke for live search
+    onSearch?.(newValue);
   };
 
   return (
@@ -44,7 +53,7 @@ export default function SearchBar({
           type="text"
           value={query}
           onChange={handleInputChange}
-          className="block w-full pl-12 pr-4 py-3 border-none rounded-full bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:bg-black focus:ring-2 focus:ring-primary-500 transition-colors text-[15px]"
+          className="block w-full pl-12 pr-4 py-3 border border-neutral-900 rounded-full bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:bg-black focus:border-neutral-700 transition-colors text-[15px]"
           placeholder={placeholder}
         />
       </div>

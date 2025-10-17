@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import connectionPool from "./db/connection.js";
 
 export const handleSearchByUsername = async (req: Request, res: Response) => {
   const username = req.query.username as string;
@@ -6,31 +7,27 @@ export const handleSearchByUsername = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "Username is required" });
   }
 
-  const usernameParts = username
-    .toLowerCase()
-    .split(" ")
-    .map((part) => part.trim())
-    .filter((part) => part !== "");
-
-  if (usernameParts.length === 0) {
-    return res.status(400).json({ error: "Invalid username format" });
-  }
-
-  const likeClauses = usernameParts
-    .map((_, index) => `username ILIKE $${index + 1}`)
-    .join(" AND ");
-  const queryParams = usernameParts.map((part) => `%${part}%`);
+  const searchPattern = `%${username.trim().toLowerCase()}%`;
 
   const query = `
-    SELECT id, username, full_name AS "fullName", bio, created_at AS "createdAt" 
+    SELECT id, username, email, bio, avatar_url AS "avatarUrl", created_at AS "createdAt" 
     FROM users 
-    WHERE ${likeClauses} 
-    ORDER BY LENGTH(username), username
-    LIMIT 50
+    WHERE LOWER(username) LIKE $1
+    ORDER BY 
+      CASE 
+        WHEN LOWER(username) = $2 THEN 1
+        WHEN LOWER(username) LIKE $2 || '%' THEN 2
+        ELSE 3
+      END,
+      username
+    LIMIT 20
   `;
 
   try {
-    const result = await req.app.locals.db.query(query, queryParams);
+    const result = await connectionPool.query(query, [
+      searchPattern,
+      username.trim().toLowerCase(),
+    ]);
     return res.status(200).json({ users: result.rows });
   } catch (error) {
     console.error("Error executing search query:", error);

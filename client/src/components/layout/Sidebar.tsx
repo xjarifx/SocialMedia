@@ -10,14 +10,9 @@ interface SidebarItem {
 }
 
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -106,26 +101,6 @@ export default function Sidebar() {
       path: "/profile",
       isActive: location.pathname === "/profile",
     },
-    {
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
-      ),
-      label: "Messages",
-      path: "/messages",
-      isActive: location.pathname === "/messages",
-    },
   ];
 
   return (
@@ -166,16 +141,6 @@ export default function Sidebar() {
             </li>
           ))}
         </ul>
-
-        {/* Post Button - Twitter/X Style */}
-        <div className="px-3 mt-4">
-          <button
-            onClick={() => navigate("/post")}
-            className="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-full transition-colors shadow-lg"
-          >
-            Post
-          </button>
-        </div>
       </nav>
 
       {/* User Profile Section - Twitter/X Style */}

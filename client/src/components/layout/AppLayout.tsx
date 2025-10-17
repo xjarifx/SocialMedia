@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
+import BottomNavigation from "./BottomNavigation";
+import FloatingPostButton from "./FloatingPostButton";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -19,7 +21,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </aside>
 
         {/* Main Content Area - Twitter/X width */}
-        <main className="flex-1 max-w-[600px] min-h-screen border-x border-neutral-800">
+        <main className="flex-1 max-w-[600px] min-h-screen border-x border-neutral-800 pb-16 md:pb-0">
           {children}
         </main>
 
@@ -30,6 +32,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </div>
         </aside>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNavigation />
+
+      {/* Floating Post Button (Mobile) */}
+      <FloatingPostButton />
     </div>
   );
 }

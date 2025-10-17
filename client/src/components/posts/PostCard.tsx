@@ -1,4 +1,8 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { formatDateDisplay } from "../../utils/time";
+import { formatNumber } from "../../utils/format";
 
 interface Post {
   id: number;
@@ -10,21 +14,113 @@ interface Post {
   reposts: number;
   isLiked: boolean;
   isReposted: boolean;
+  media?: string[];
+  views?: number;
 }
 
 interface PostCardProps {
   post: Post;
   onLike: () => void;
+  onClick?: () => void;
 }
 
-export default function PostCard({ post, onLike }: PostCardProps) {
+export default function PostCard({ post, onLike, onClick }: PostCardProps) {
+  const navigate = useNavigate();
   const displayDate = formatDateDisplay(post.createdAt);
+  const [isLikeAnimating, setIsLikeAnimating] = useState(false);
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsLikeAnimating(true);
+    onLike();
+    setTimeout(() => setIsLikeAnimating(false), 600);
+  };
+
+  const handleUsernameClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/user/${post.username}`);
+  };
+
+  const renderMediaGrid = () => {
+    if (!post.media || post.media.length === 0) return null;
+
+    const mediaCount = post.media.length;
+
+    if (mediaCount === 1) {
+      return (
+        <div className="mt-3 rounded-2xl overflow-hidden border border-neutral-700">
+          <img
+            src={post.media[0]}
+            alt="Post media"
+            className="w-full max-h-[500px] object-cover"
+          />
+        </div>
+      );
+    }
+
+    if (mediaCount === 2) {
+      return (
+        <div className="mt-3 grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden border border-neutral-700">
+          {post.media.map((url, i) => (
+            <img
+              key={i}
+              src={url}
+              alt={`Post media ${i + 1}`}
+              className="w-full h-[280px] object-cover"
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (mediaCount === 3) {
+      return (
+        <div className="mt-3 grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden border border-neutral-700">
+          <img
+            src={post.media[0]}
+            alt="Post media 1"
+            className="w-full row-span-2 h-full object-cover"
+          />
+          <img
+            src={post.media[1]}
+            alt="Post media 2"
+            className="w-full h-[140px] object-cover"
+          />
+          <img
+            src={post.media[2]}
+            alt="Post media 3"
+            className="w-full h-[140px] object-cover"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-3 grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden border border-neutral-700">
+        {post.media.slice(0, 4).map((url, i) => (
+          <img
+            key={i}
+            src={url}
+            alt={`Post media ${i + 1}`}
+            className="w-full h-[140px] object-cover"
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <article className="border-b border-neutral-800 px-4 py-3 hover:bg-neutral-900/30 transition-colors cursor-pointer">
+    <article
+      onClick={onClick}
+      className="border-b border-neutral-800 px-4 py-3 hover:bg-neutral-900/30 transition-colors cursor-pointer"
+    >
       <div className="flex space-x-3">
         {/* User Avatar */}
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+          <div
+            onClick={handleUsernameClick}
+            className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+          >
             <span className="text-white font-bold text-sm">
               {post.username[0].toUpperCase()}
             </span>
@@ -34,26 +130,95 @@ export default function PostCard({ post, onLike }: PostCardProps) {
         {/* Post Content */}
         <div className="flex-1 min-w-0">
           {/* Header */}
-          <div className="flex items-center space-x-1 mb-0.5">
-            <h3 className="font-bold text-white hover:underline cursor-pointer text-[15px]">
-              {post.username}
-            </h3>
-            <span className="text-neutral-500 text-[15px]">
-              @{post.username.toLowerCase()}
-            </span>
-            <span className="text-neutral-500 text-[15px]">·</span>
-            <span className="text-neutral-500 text-[15px]">{displayDate}</span>
+          <div className="flex items-center justify-between mb-0.5">
+            <div className="flex items-center space-x-1">
+              <h3
+                onClick={handleUsernameClick}
+                className="font-bold text-white hover:underline cursor-pointer text-[15px]"
+              >
+                {post.username}
+              </h3>
+              <span className="text-neutral-500 text-[15px]">·</span>
+              <span className="text-neutral-500 text-[15px]">
+                {displayDate}
+              </span>
+            </div>
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="p-1 rounded-full hover:bg-primary-500/10 transition-colors group"
+            >
+              <svg
+                className="w-4 h-4 text-neutral-500 group-hover:text-primary-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                />
+              </svg>
+            </button>
           </div>
 
           {/* Content */}
-          <p className="text-white text-[15px] mb-3 whitespace-pre-wrap leading-normal">
+          <p className="text-white text-[15px] mb-2 whitespace-pre-wrap leading-normal">
             {post.content}
           </p>
 
-          {/* Actions - Twitter/X Style */}
-          <div className="flex items-center justify-between max-w-md -ml-2">
+          {/* Media Grid */}
+          {renderMediaGrid()}
+
+          {/* Actions */}
+          <div className="flex items-center gap-12 -ml-2 mt-3">
+            {/* Like */}
+            <button
+              onClick={handleLike}
+              className="flex items-center space-x-1 group relative"
+            >
+              <div className="p-2 rounded-full group-hover:bg-pink-500/10 transition-colors">
+                <motion.svg
+                  className={`w-[18px] h-[18px] transition-colors ${
+                    post.isLiked
+                      ? "text-pink-600 fill-pink-600"
+                      : "text-neutral-500 group-hover:text-pink-600"
+                  }`}
+                  fill={post.isLiked ? "currentColor" : "none"}
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  animate={
+                    isLikeAnimating ? { scale: [1, 1.3, 1] } : { scale: 1 }
+                  }
+                  transition={{ duration: 0.3 }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </motion.svg>
+              </div>
+              {post.likes > 0 && (
+                <span
+                  className={`text-xs transition-colors ${
+                    post.isLiked
+                      ? "text-pink-600"
+                      : "text-neutral-500 group-hover:text-pink-600"
+                  }`}
+                >
+                  {formatNumber(post.likes)}
+                </span>
+              )}
+            </button>
+
             {/* Comment */}
-            <button className="flex items-center space-x-1 group">
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center space-x-1 group"
+            >
               <div className="p-2 rounded-full group-hover:bg-primary-500/10 transition-colors">
                 <svg
                   className="w-[18px] h-[18px] text-neutral-500 group-hover:text-primary-500 transition-colors"
@@ -71,89 +236,9 @@ export default function PostCard({ post, onLike }: PostCardProps) {
               </div>
               {post.comments > 0 && (
                 <span className="text-xs text-neutral-500 group-hover:text-primary-500 transition-colors">
-                  {post.comments}
+                  {formatNumber(post.comments)}
                 </span>
               )}
-            </button>
-
-            {/* Repost */}
-            <button className="flex items-center space-x-1 group">
-              <div className="p-2 rounded-full group-hover:bg-green-500/10 transition-colors">
-                <svg
-                  className="w-[18px] h-[18px] text-neutral-500 group-hover:text-green-500 transition-colors"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-              </div>
-              {post.reposts > 0 && (
-                <span className="text-xs text-neutral-500 group-hover:text-green-500 transition-colors">
-                  {post.reposts}
-                </span>
-              )}
-            </button>
-
-            {/* Like */}
-            <button
-              onClick={onLike}
-              className="flex items-center space-x-1 group"
-            >
-              <div className="p-2 rounded-full group-hover:bg-pink-500/10 transition-colors">
-                <svg
-                  className={`w-[18px] h-[18px] transition-colors ${
-                    post.isLiked
-                      ? "text-pink-600 fill-pink-600"
-                      : "text-neutral-500 group-hover:text-pink-600"
-                  }`}
-                  fill={post.isLiked ? "currentColor" : "none"}
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </div>
-              {post.likes > 0 && (
-                <span
-                  className={`text-xs transition-colors ${
-                    post.isLiked
-                      ? "text-pink-600"
-                      : "text-neutral-500 group-hover:text-pink-600"
-                  }`}
-                >
-                  {post.likes}
-                </span>
-              )}
-            </button>
-
-            {/* Share */}
-            <button className="flex items-center space-x-1 group">
-              <div className="p-2 rounded-full group-hover:bg-primary-500/10 transition-colors">
-                <svg
-                  className="w-[18px] h-[18px] text-neutral-500 group-hover:text-primary-500 transition-colors"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                  />
-                </svg>
-              </div>
             </button>
           </div>
         </div>

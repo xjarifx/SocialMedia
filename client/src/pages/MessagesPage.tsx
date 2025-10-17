@@ -4,9 +4,7 @@ export default function MessagesPage() {
       {/* Header */}
       <div className="bg-neutral-950 border-b border-neutral-800 px-4 py-3">
         <div className="flex items-center">
-          <h1 className="text-lg font-semibold text-neutral-100">
-            Messages
-          </h1>
+          <h1 className="text-lg font-semibold text-neutral-100">Messages</h1>
         </div>
       </div>
 
@@ -42,7 +40,7 @@ export default function MessagesPage() {
           </p>
 
           {/* Features Preview */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4 text-left">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-left">
             <h3 className="text-sm font-semibold text-neutral-100 mb-3">
               What's Coming:
             </h3>

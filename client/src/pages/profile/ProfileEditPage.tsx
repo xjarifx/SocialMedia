@@ -132,7 +132,7 @@ export default function ProfileEditPage() {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => navigate("/profile")}
-            className="p-1.5 hover:bg-neutral-800 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-neutral-800 rounded-xl transition-colors"
             aria-label="Go back"
           >
             <svg
@@ -180,14 +180,14 @@ export default function ProfileEditPage() {
           <form id="profile-form" onSubmit={handleSubmit} className="space-y-8">
             {/* Alerts */}
             {errors.form && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
                 <p className="text-sm text-red-700 font-medium">
                   {errors.form}
                 </p>
               </div>
             )}
             {showSuccess && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+              <div className="p-3 bg-green-50 border border-green-200 rounded-xl">
                 <p className="text-sm text-green-700 font-medium">
                   Profile updated successfully!
                 </p>
@@ -195,7 +195,7 @@ export default function ProfileEditPage() {
             )}
 
             {/* Unified Card */}
-            <div className="bg-neutral-900 border border-neutral-800 rounded-lg shadow-soft p-6 flex flex-col gap-10">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-soft p-6 flex flex-col gap-10">
               {/* Identity Section */}
               <section className="flex flex-col gap-6">
                 <h2 className="text-sm font-semibold tracking-wide text-neutral-300 uppercase">
@@ -277,7 +277,7 @@ export default function ProfileEditPage() {
                     onChange={handleChange}
                     rows={7}
                     maxLength={600}
-                    className="w-full px-4 py-3 border border-neutral-800 rounded-md text-neutral-100 placeholder-neutral-500 bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none leading-relaxed"
+                    className="w-full px-4 py-3 border border-neutral-800 rounded-xl text-neutral-100 placeholder-neutral-500 bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none leading-relaxed"
                     placeholder="Tell people about yourself, your interests, goals, passions..."
                   />
                   {errors.bio && (

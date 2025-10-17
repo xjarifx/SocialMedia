@@ -9,6 +9,7 @@ import {
   handleGetFollowers,
   handleUnfollowUser,
   handleFollowUser,
+  handleCheckFollowStatus,
 } from "../controllers/user-controller.js";
 import {
   handlePostCreation,
@@ -17,6 +18,7 @@ import {
   handleGetForYouPosts,
   handleGetFollowingPosts,
   handleGetOwnPosts,
+  handleGetPostsByUsername,
 } from "../controllers/post-controller.js";
 import {
   handleCreateComment,
@@ -50,6 +52,11 @@ router.put("/password", authenticateUserToken, handleChangePassword);
 
 // FOLLOW ROUTES (protected)
 router.post("/:targetUsername/follow", authenticateUserToken, handleFollowUser);
+router.get(
+  "/:targetUsername/follow-status",
+  authenticateUserToken,
+  handleCheckFollowStatus
+);
 router.get("/followers", authenticateUserToken, handleGetFollowers);
 router.get("/following", authenticateUserToken, handleGetFollowing);
 router.delete(
@@ -63,6 +70,7 @@ router.post("/posts", authenticateUserToken, handlePostCreation);
 router.get("/posts/for-you", authenticateUserToken, handleGetForYouPosts);
 router.get("/posts/following", authenticateUserToken, handleGetFollowingPosts);
 router.get("/posts/mine", authenticateUserToken, handleGetOwnPosts);
+router.get("/posts/:username", authenticateUserToken, handleGetPostsByUsername);
 router.put("/:postId", authenticateUserToken, handlePostUpdate);
 router.delete("/:postId", authenticateUserToken, handlePostDeletion);
 

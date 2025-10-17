@@ -44,10 +44,7 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
         const postsData = (data.posts as ApiPost[] | undefined) ?? [];
         const mapped: Post[] = postsData.map((p) => ({
           id: p.id,
-          username:
-            typeof p.userId === "number" || typeof p.userId === "string"
-              ? String(p.userId)
-              : "user",
+          username: (p as any).username || "user",
           content: p.caption ?? "",
           createdAt: p.createdAt ?? p.created_at ?? new Date().toISOString(),
           likes: p.likeCount ?? 0,
@@ -88,9 +85,7 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
     return (
       <div className="p-8 text-center min-h-96 flex flex-col justify-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
-        <p className="mt-2 text-neutral-400">
-          Loading posts...
-        </p>
+        <p className="mt-2 text-neutral-400">Loading posts...</p>
       </div>
     );
   }
