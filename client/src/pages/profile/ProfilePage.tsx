@@ -23,7 +23,7 @@ interface Post {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -149,7 +149,7 @@ export default function ProfilePage() {
               {user?.username?.[0]?.toUpperCase() || "U"}
             </span>
           </motion.div>
-          <div className="mt-3">
+          <div className="mt-3 flex gap-2">
             <Button
               onClick={() => {
                 console.log("Edit profile button clicked");
@@ -159,6 +159,16 @@ export default function ProfilePage() {
               className="font-bold"
             >
               Edit profile
+            </Button>
+            <Button
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+              variant="danger"
+              className="font-bold"
+            >
+              Log out
             </Button>
           </div>
         </div>

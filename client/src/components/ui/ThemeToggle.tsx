@@ -12,7 +12,7 @@ export default function ThemeToggle({
       type="button"
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      className={`inline-flex items-center gap-2 px-3 py-2 rounded-full border border-neutral-800 bg-neutral-900 text-primary-400 hover:bg-neutral-800 hover:border-orange-200 dark:hover:border-neutral-700 transition-colors ${className}`}
+      className={`inline-flex items-center gap-2 px-3 py-2 rounded-full border border-neutral-800 bg-neutral-900 text-primary-400 hover:bg-neutral-800 hover:border-blue-200 dark:hover:border-neutral-700 transition-colors ${className}`}
     >
       {theme === "dark" ? (
         <>

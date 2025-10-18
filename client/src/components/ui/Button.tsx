@@ -21,9 +21,9 @@ export default function Button({
 
   const variants = {
     primary:
-      "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-400 hover:to-primary-500 active:from-primary-600 active:to-primary-700 shadow-orange-glow-sm hover:shadow-orange-glow",
+      "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-400 hover:to-primary-500 active:from-primary-600 active:to-primary-700 shadow-blue-glow-sm hover:shadow-blue-glow",
     secondary:
-      "bg-neutral-800 text-primary-400 border-2 border-primary-500/30 hover:border-primary-500 hover:bg-neutral-700 hover:shadow-orange-glow-sm",
+      "bg-neutral-800 text-primary-400 border-2 border-primary-500/30 hover:border-primary-500 hover:bg-neutral-700 hover:shadow-blue-glow-sm",
     ghost: "text-primary-400 hover:bg-primary-500/10 hover:text-primary-300",
     danger:
       "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-soft",

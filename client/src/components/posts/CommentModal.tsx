@@ -220,7 +220,7 @@ export default function CommentModal({
                                 isOverLimit
                                   ? "text-red-500"
                                   : remainingChars < 20
-                                  ? "text-orange-500"
+                                  ? "text-blue-500"
                                   : "text-primary-500"
                               }`}
                               strokeDasharray={`${2 * Math.PI * 14}`}
@@ -236,7 +236,7 @@ export default function CommentModal({
                           {remainingChars < 20 && (
                             <span
                               className={`absolute text-xs font-bold transition-colors ${
-                                isOverLimit ? "text-red-500" : "text-orange-500"
+                                isOverLimit ? "text-red-500" : "text-blue-500"
                               }`}
                             >
                               {remainingChars}

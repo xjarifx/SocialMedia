@@ -15,24 +15,24 @@ export default {
       },
       colors: {
         primary: {
-          50: "#fff5ed",
-          100: "#ffe8d6",
-          200: "#ffceac",
-          300: "#ffab77",
-          400: "#ff8540",
-          500: "#ff6b1a", // Brighter, more vibrant orange
-          600: "#f05a0a",
-          700: "#c7450b",
-          800: "#9e3810",
-          900: "#7f3010",
-          950: "#451607",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6", // Vibrant blue
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
+          950: "#172554",
         },
-        // Orange accent variations
+        // Blue accent variations
         accent: {
-          orange: "#ff6b1a",
-          "orange-light": "#ff8540",
-          "orange-dark": "#f05a0a",
-          glow: "rgba(255, 107, 26, 0.15)",
+          blue: "#3b82f6",
+          "blue-light": "#60a5fa",
+          "blue-dark": "#2563eb",
+          glow: "rgba(59, 130, 246, 0.15)",
         },
         neutral: {
           50: "#fafafa",
@@ -52,9 +52,9 @@ export default {
         soft: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
         "soft-lg":
           "0 10px 15px -3px rgb(0 0 0 / 0.15), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-        "orange-glow":
-          "0 0 20px rgba(255, 107, 26, 0.3), 0 0 40px rgba(255, 107, 26, 0.1)",
-        "orange-glow-sm": "0 0 10px rgba(255, 107, 26, 0.2)",
+        "blue-glow":
+          "0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1)",
+        "blue-glow-sm": "0 0 10px rgba(59, 130, 246, 0.2)",
       },
       borderRadius: {
         soft: "8px",

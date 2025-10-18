@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  /* Enhanced Orange brand (#ff6b1a) - vibrant and eye-catching */
-  --brand: 22 100% 55%;
-  --brand-hover: 22 100% 60%;
-  --brand-active: 22 100% 50%;
+  /* Vibrant Blue brand (#3b82f6) - modern and professional */
+  --brand: 217 91% 60%;
+  --brand-hover: 217 91% 65%;
+  --brand-active: 217 91% 55%;
 
-  /* Dark surfaces with subtle warmth */
+  /* Dark surfaces with cool tones */
   --surface: 0 0% 7%;
   --surface-2: 0 0% 10%;
   --surface-elevated: 0 0% 12%;
 
-  /* Text colors optimized for orange accents */
+  /* Text colors optimized for blue accents */
   --text: 24 10% 95%;
   --text-secondary: 24 8% 80%;
   --muted: 24 6% 60%;
 
-  /* Orange glow for special elements */
-  --orange-glow: 22 100% 55%;
-  --ring: 22 100% 55%;
+  /* Blue glow for special elements */
+  --blue-glow: 217 91% 60%;
+  --ring: 217 91% 60%;
 }
 
 * {
@@ -79,9 +79,9 @@ label {
   background: transparent;
 }
 
-/* Selection color with orange */
+/* Selection color with blue */
 ::selection {
-  background-color: rgba(255, 107, 26, 0.3);
+  background-color: rgba(59, 130, 246, 0.3);
   color: #fff;
 }
 

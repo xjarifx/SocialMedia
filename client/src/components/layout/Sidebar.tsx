@@ -1,5 +1,6 @@
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 
 interface SidebarItem {
@@ -10,9 +11,33 @@ interface SidebarItem {
 }
 
 export default function Sidebar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [showMenu]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+    setShowMenu(false);
+  };
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -144,8 +169,11 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile Section - Twitter/X Style */}
-      <div className="px-3 py-3">
-        <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-full hover:bg-neutral-900 transition-colors">
+      <div className="px-3 py-3 relative" ref={menuRef}>
+        <button
+          onClick={() => setShowMenu(!showMenu)}
+          className="w-full flex items-center space-x-3 px-3 py-2 rounded-full hover:bg-neutral-900 transition-colors"
+        >
           <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-sm">
               {user?.username?.[0]?.toUpperCase() || "U"}
@@ -173,6 +201,18 @@ export default function Sidebar() {
             />
           </svg>
         </button>
+
+        {/* Dropdown Menu */}
+        {showMenu && (
+          <div className="absolute bottom-full left-3 right-3 mb-2 bg-black border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden">
+            <button
+              onClick={handleLogout}
+              className="w-full px-4 py-3 text-left text-white hover:bg-neutral-900 transition-colors font-bold text-sm"
+            >
+              Log out @{user?.username?.toLowerCase()}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
