@@ -159,7 +159,7 @@ export const handleGetOwnPosts = async (req: Request, res: Response) => {
   }
 
   try {
-    const posts = await getPostsByUserId(userId);
+    const posts = await getPostsByUserId(userId, userId);
     const followerCount = await getFollowerCount(userId);
     const followingCount = await getFollowingCount(userId);
 
@@ -218,7 +218,8 @@ export const handleGetPostsByUsername = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const posts = await getPostsByUserId(user.id);
+    const currentUserId = req.user?.id;
+    const posts = await getPostsByUserId(user.id, currentUserId);
     const followerCount = await getFollowerCount(user.id);
     const followingCount = await getFollowingCount(user.id);
 

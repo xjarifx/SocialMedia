@@ -60,7 +60,8 @@ export const deletePostById = async (postId: number) => {
 };
 
 export const getPostsByUserId = async (
-  userId: number
+  userId: number,
+  currentUserId?: number
 ): Promise<
   {
     id: number;
@@ -72,6 +73,7 @@ export const getPostsByUserId = async (
     updatedAt: Date;
     likeCount: number;
     commentCount: number;
+    isLiked?: boolean;
   }[]
 > => {
   const postsByUserIdResult = await connectionPool.query(
@@ -84,7 +86,10 @@ export const getPostsByUserId = async (
        p.created_at AS "createdAt", 
        p.updated_at AS "updatedAt",
        COALESCE(l.like_count, 0) AS "likeCount",
-       COALESCE(c.comment_count, 0) AS "commentCount"
+       COALESCE(c.comment_count, 0) AS "commentCount",
+       CASE WHEN $2::int IS NOT NULL THEN EXISTS(
+         SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $2
+       ) ELSE false END AS "isLiked"
      FROM posts p
      INNER JOIN users u ON u.id = p.user_id
      LEFT JOIN (
@@ -99,7 +104,7 @@ export const getPostsByUserId = async (
      ) c ON c.post_id = p.id
      WHERE p.user_id = $1
      ORDER BY p.created_at DESC`,
-    [userId]
+    [userId, currentUserId || null]
   );
   return postsByUserIdResult.rows;
 };
@@ -118,6 +123,7 @@ export const getForYouPosts = async (
     updatedAt: Date;
     likeCount: number;
     commentCount: number;
+    isLiked: boolean;
   }[]
 > => {
   const forYouPostsResult = await connectionPool.query(
@@ -130,7 +136,10 @@ export const getForYouPosts = async (
        p.created_at AS "createdAt",
        p.updated_at AS "updatedAt",
        COALESCE(l.like_count, 0) AS "likeCount",
-       COALESCE(c.comment_count, 0) AS "commentCount"
+       COALESCE(c.comment_count, 0) AS "commentCount",
+       EXISTS(
+         SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $1
+       ) AS "isLiked"
      FROM posts p
      INNER JOIN users u ON u.id = p.user_id
      LEFT JOIN (
@@ -162,6 +171,7 @@ export const getFollowingPosts = async (
     updatedAt: Date;
     likeCount: number;
     commentCount: number;
+    isLiked: boolean;
   }[]
 > => {
   const result = await connectionPool.query(
@@ -174,7 +184,10 @@ export const getFollowingPosts = async (
        p.created_at AS "createdAt",
        p.updated_at AS "updatedAt",
        COALESCE(l.like_count, 0) AS "likeCount",
-       COALESCE(c.comment_count, 0) AS "commentCount"
+       COALESCE(c.comment_count, 0) AS "commentCount",
+       EXISTS(
+         SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $1
+       ) AS "isLiked"
      FROM posts p
      INNER JOIN follows f ON f.following_id = p.user_id
      INNER JOIN users u ON u.id = p.user_id

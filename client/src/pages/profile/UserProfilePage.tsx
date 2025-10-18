@@ -80,6 +80,7 @@ export default function UserProfilePage() {
           created_at?: string;
           likeCount?: number;
           commentCount?: number;
+          isLiked?: boolean;
         };
         const postsData = (data.posts as ApiPost[] | undefined) ?? [];
         const mapped: Post[] = postsData.map((p) => ({
@@ -90,7 +91,7 @@ export default function UserProfilePage() {
           likes: p.likeCount ?? 0,
           comments: p.commentCount ?? 0,
           reposts: 0,
-          isLiked: false,
+          isLiked: p.isLiked ?? false,
           isReposted: false,
         }));
         setPosts(mapped);
@@ -105,18 +106,44 @@ export default function UserProfilePage() {
     load();
   }, [username]);
 
-  const handleLike = (postId: number) => {
+  const handleLike = async (postId: number) => {
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return;
+
+    // Optimistic update
     setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
+      prev.map((p) =>
+        p.id === postId
           ? {
-              ...post,
-              isLiked: !post.isLiked,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+              ...p,
+              isLiked: !p.isLiked,
+              likes: p.isLiked ? p.likes - 1 : p.likes + 1,
             }
-          : post
+          : p
       )
     );
+
+    try {
+      if (post.isLiked) {
+        await api.unlikePost(postId);
+      } else {
+        await api.likePost(postId);
+      }
+    } catch (error) {
+      // Revert on error
+      console.error("Error toggling like:", error);
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? {
+                ...p,
+                isLiked: !p.isLiked,
+                likes: p.isLiked ? p.likes + 1 : p.likes - 1,
+              }
+            : p
+        )
+      );
+    }
   };
 
   const handleDelete = (postId: number) => {
