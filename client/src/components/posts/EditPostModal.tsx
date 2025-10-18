@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "../ui/Button";
+import { useToast } from "../ui/Toast";
 import { api } from "../../utils/api";
 
 interface EditPostModalProps {
@@ -19,6 +20,7 @@ export default function EditPostModal({
   post,
   onUpdate,
 }: EditPostModalProps) {
+  const { showToast } = useToast();
   const [content, setContent] = useState(post.content);
   const [isUpdating, setIsUpdating] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -59,10 +61,11 @@ export default function EditPostModal({
     try {
       await api.updatePost(post.id, { caption: content });
       onUpdate(post.id, content);
+      showToast("Post updated successfully", "success");
       onClose();
     } catch (error) {
       console.error("Error updating post:", error);
-      alert("Failed to update post");
+      showToast("Failed to update post. Please try again.", "error");
     } finally {
       setIsUpdating(false);
     }

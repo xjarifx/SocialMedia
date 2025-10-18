@@ -5,7 +5,10 @@ import { useAuth } from "../../context/AuthContext";
 import { formatDateDisplay } from "../../utils/time";
 import { formatNumber } from "../../utils/format";
 import { api } from "../../utils/api";
+import { useToast } from "../ui/Toast";
+import ConfirmDialog from "../ui/ConfirmDialog";
 import EditPostModal from "./EditPostModal";
+import CommentModal from "./CommentModal";
 
 interface Post {
   id: number;
@@ -27,6 +30,7 @@ interface PostCardProps {
   onClick?: () => void;
   onDelete?: (postId: number) => void;
   onUpdate?: (postId: number, newContent: string) => void;
+  onCommentAdded?: () => void;
 }
 
 export default function PostCard({
@@ -35,14 +39,18 @@ export default function PostCard({
   onClick,
   onDelete,
   onUpdate,
+  onCommentAdded,
 }: PostCardProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const displayDate = formatDateDisplay(post.createdAt);
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isOwner = user?.username === post.username;
@@ -93,24 +101,37 @@ export default function PostCard({
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this post?")) {
-      return;
-    }
+    setShowMenu(false);
+    setShowDeleteConfirm(true);
+  };
 
+  const handleDeleteConfirm = async () => {
     setIsDeleting(true);
     try {
       await api.deletePost(post.id);
-      setShowMenu(false);
+      setShowDeleteConfirm(false);
+      showToast("Post deleted successfully", "success");
       if (onDelete) {
         onDelete(post.id);
       }
     } catch (error) {
       console.error("Error deleting post:", error);
-      alert("Failed to delete post");
+      showToast("Failed to delete post. Please try again.", "error");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowCommentModal(true);
+  };
+
+  const handleCommentAdded = () => {
+    if (onCommentAdded) {
+      onCommentAdded();
     }
   };
 
@@ -260,7 +281,7 @@ export default function PostCard({
                       <span>Edit post</span>
                     </button>
                     <button
-                      onClick={handleDelete}
+                      onClick={handleDeleteClick}
                       disabled={isDeleting}
                       className="w-full px-4 py-3 text-left text-red-500 hover:bg-neutral-900 transition-colors flex items-center space-x-3 disabled:opacity-50"
                     >
@@ -338,7 +359,7 @@ export default function PostCard({
 
             {/* Comment */}
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleCommentClick}
               className="flex items-center space-x-1 group"
             >
               <div className="p-2 rounded-full group-hover:bg-primary-500/10 transition-colors">
@@ -372,6 +393,29 @@ export default function PostCard({
         onClose={() => setShowEditModal(false)}
         post={{ id: post.id, content: post.content }}
         onUpdate={handleUpdatePost}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        isLoading={isDeleting}
+      />
+
+      {/* Comment Modal */}
+      <CommentModal
+        isOpen={showCommentModal}
+        onClose={() => setShowCommentModal(false)}
+        postId={post.id}
+        postAuthor={post.username}
+        postContent={post.content}
+        onCommentAdded={handleCommentAdded}
       />
     </article>
   );

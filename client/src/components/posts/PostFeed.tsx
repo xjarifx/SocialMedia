@@ -93,6 +93,14 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
     );
   };
 
+  const handleCommentAdded = (postId: number) => {
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, comments: post.comments + 1 } : post
+      )
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="p-8 text-center min-h-96 flex flex-col justify-center">
@@ -131,6 +139,7 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           onLike={() => handleLike(post.id)}
           onDelete={handleDelete}
           onUpdate={handleUpdate}
+          onCommentAdded={() => handleCommentAdded(post.id)}
         />
       ))}
     </div>

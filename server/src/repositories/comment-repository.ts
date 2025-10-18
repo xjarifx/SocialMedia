@@ -7,16 +7,27 @@ export const insertComment = async (
 ): Promise<{
   id: number;
   userId: number;
+  username: string;
   postId: number;
   comment: string;
   createdAt: Date;
-  updatedAt: Date;
 }> => {
   const commentInsertResult = await connectionPool.query(
-    "INSERT INTO comments (user_id, post_id, comment, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING id, user_id AS userId, post_id AS postId, comment, created_at AS createdAt, updated_at AS updatedAt",
-    [userId, postId, comment, new Date(), new Date()]
+    'INSERT INTO comments (user_id, post_id, comment, created_at) VALUES ($1, $2, $3, $4) RETURNING id, user_id AS "userId", post_id AS "postId", comment, created_at AS "createdAt"',
+    [userId, postId, comment, new Date()]
   );
-  return commentInsertResult.rows[0];
+  const newComment = commentInsertResult.rows[0];
+
+  // Fetch username
+  const userResult = await connectionPool.query(
+    "SELECT username FROM users WHERE id = $1",
+    [userId]
+  );
+
+  return {
+    ...newComment,
+    username: userResult.rows[0]?.username || "unknown",
+  };
 };
 
 export const updateComment = async (
@@ -28,11 +39,10 @@ export const updateComment = async (
   postId: number;
   comment: string;
   createdAt: Date;
-  updatedAt: Date;
 }> => {
   const commentUpdateResult = await connectionPool.query(
-    "UPDATE comments SET comment = $1, updated_at = $2 WHERE id = $3 RETURNING id, user_id AS userId, post_id AS postId, comment, created_at AS createdAt, updated_at AS updatedAt",
-    [comment, new Date(), commentId]
+    'UPDATE comments SET comment = $1 WHERE id = $2 RETURNING id, user_id AS "userId", post_id AS "postId", comment, created_at AS "createdAt"',
+    [comment, commentId]
   );
   return commentUpdateResult.rows[0];
 };
@@ -53,14 +63,14 @@ export const getCommentsByPostId = async (
   {
     id: number;
     userId: number;
+    username: string;
     postId: number;
     comment: string;
     createdAt: Date;
-    updatedAt: Date;
   }[]
 > => {
   const commentsResult = await connectionPool.query(
-    "SELECT id, user_id AS userId, post_id AS postId, comment, created_at AS createdAt, updated_at AS updatedAt FROM comments WHERE post_id = $1",
+    'SELECT c.id, c.user_id AS "userId", u.username, c.post_id AS "postId", c.comment, c.created_at AS "createdAt" FROM comments c INNER JOIN users u ON u.id = c.user_id WHERE c.post_id = $1 ORDER BY c.created_at DESC',
     [postId]
   );
   return commentsResult.rows;
