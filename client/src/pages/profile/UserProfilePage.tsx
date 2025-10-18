@@ -38,7 +38,7 @@ export default function UserProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [followerCount, setFollowerCount] = useState(0);
-  const [followingCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
 
@@ -54,6 +54,14 @@ export default function UserProfilePage() {
         // Set user data
         if (data.user) {
           setUser(data.user);
+
+          // Set follower and following counts from API response
+          if (typeof data.user.followerCount === "number") {
+            setFollowerCount(data.user.followerCount);
+          }
+          if (typeof data.user.followingCount === "number") {
+            setFollowingCount(data.user.followingCount);
+          }
         }
 
         // Check follow status
@@ -232,23 +240,23 @@ export default function UserProfilePage() {
       ) : (
         <>
           {/* Profile Info */}
-          <div className="px-4 py-4">
+          <div className="px-4 py-3">
             {/* Avatar and Follow Button */}
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-3">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="w-32 h-32 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center border-4 border-white"
+                className="w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center border-4 border-white"
               >
-                <span className="text-white font-bold text-4xl">
+                <span className="text-white font-bold text-3xl">
                   {user?.username?.[0]?.toUpperCase() || "U"}
                 </span>
               </motion.div>
-              <div className="mt-3">
+              <div className="mt-1">
                 <Button
                   variant="secondary"
-                  className="font-bold"
+                  className="font-bold text-sm"
                   onClick={handleFollow}
                   disabled={isFollowLoading}
                 >
@@ -262,22 +270,22 @@ export default function UserProfilePage() {
             </div>
 
             {/* User Info */}
-            <div className="mb-3">
-              <h2 className="text-xl font-bold text-white">{user?.username}</h2>
-              <p className="text-[15px] text-neutral-500">
+            <div className="mb-2">
+              <h2 className="text-lg font-bold text-white">{user?.username}</h2>
+              <p className="text-sm text-neutral-500">
                 @{user?.username?.toLowerCase()}
               </p>
             </div>
 
             {/* Bio */}
             {user?.bio && (
-              <div className="mb-3">
-                <p className="text-[15px] text-white">{user.bio}</p>
+              <div className="mb-2">
+                <p className="text-sm text-white">{user.bio}</p>
               </div>
             )}
 
             {/* Metadata */}
-            <div className="flex flex-wrap items-center gap-3 mb-3 text-neutral-500 text-[15px]">
+            <div className="flex flex-wrap items-center gap-3 mb-2 text-neutral-500 text-sm">
               {/* Join Date */}
               <div className="flex items-center space-x-1">
                 <svg
@@ -303,7 +311,7 @@ export default function UserProfilePage() {
             </div>
 
             {/* Following/Followers */}
-            <div className="flex items-center space-x-5 mb-4">
+            <div className="flex items-center space-x-5 mb-3">
               <button className="hover:underline">
                 <span className="font-bold text-white">
                   {formatNumber(followingCount)}
@@ -319,15 +327,18 @@ export default function UserProfilePage() {
             </div>
           </div>
 
+          {/* Posts Section Divider */}
+          <div className="border-b border-neutral-800"></div>
+
           {/* Posts */}
           <div>
             {posts.length === 0 && (
               <div className="p-8 text-center">
                 <h3 className="text-3xl font-bold text-white mb-2">
-                  No posts yet
+                  Nothing yet
                 </h3>
                 <p className="text-neutral-500 mb-4">
-                  This user hasn't posted anything yet.
+                  This user hasn't shared anything yet.
                 </p>
               </div>
             )}

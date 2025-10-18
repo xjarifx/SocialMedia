@@ -8,7 +8,11 @@ import {
   getForYouPosts,
   getFollowingPosts, // added
 } from "../repositories/post-repository.js";
-import { getUserByUsername } from "../repositories/user-repository.js";
+import {
+  getUserByUsername,
+  getFollowerCount,
+  getFollowingCount,
+} from "../repositories/user-repository.js";
 
 // create post
 export const handlePostCreation = async (req: Request, res: Response) => {
@@ -156,7 +160,14 @@ export const handleGetOwnPosts = async (req: Request, res: Response) => {
 
   try {
     const posts = await getPostsByUserId(userId);
-    return res.status(200).json({ posts });
+    const followerCount = await getFollowerCount(userId);
+    const followingCount = await getFollowingCount(userId);
+
+    return res.status(200).json({
+      posts,
+      followerCount,
+      followingCount,
+    });
   } catch (error) {
     console.error("Error fetching user's posts:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -208,7 +219,17 @@ export const handleGetPostsByUsername = async (req: Request, res: Response) => {
     }
 
     const posts = await getPostsByUserId(user.id);
-    return res.status(200).json({ posts, user });
+    const followerCount = await getFollowerCount(user.id);
+    const followingCount = await getFollowingCount(user.id);
+
+    return res.status(200).json({
+      posts,
+      user: {
+        ...user,
+        followerCount,
+        followingCount,
+      },
+    });
   } catch (error) {
     console.error("Error fetching posts by username:", error);
     return res.status(500).json({ message: "Internal server error" });

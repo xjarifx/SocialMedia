@@ -28,8 +28,8 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [followerCount] = useState(0);
-  const [followingCount] = useState(0);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -59,6 +59,14 @@ export default function ProfilePage() {
           isReposted: false,
         }));
         setPosts(mapped);
+
+        // Set follower and following counts from API response
+        if (typeof data.followerCount === "number") {
+          setFollowerCount(data.followerCount);
+        }
+        if (typeof data.followingCount === "number") {
+          setFollowingCount(data.followingCount);
+        }
       } catch (e: unknown) {
         const message =
           (e as { message?: string })?.message || "Failed to load posts";
@@ -136,27 +144,27 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Info */}
-      <div className="px-4 py-4">
+      <div className="px-4 py-3">
         {/* Avatar and Edit Button */}
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start mb-3">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="w-32 h-32 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center border-4 border-white"
+            className="w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center border-4 border-white"
           >
-            <span className="text-white font-bold text-4xl">
+            <span className="text-white font-bold text-3xl">
               {user?.username?.[0]?.toUpperCase() || "U"}
             </span>
           </motion.div>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-1 flex gap-2">
             <Button
               onClick={() => {
                 console.log("Edit profile button clicked");
                 navigate("/profile/edit");
               }}
               variant="secondary"
-              className="font-bold"
+              className="font-bold text-sm"
             >
               Edit profile
             </Button>
@@ -166,7 +174,7 @@ export default function ProfilePage() {
                 navigate("/login");
               }}
               variant="danger"
-              className="font-bold"
+              className="font-bold text-sm"
             >
               Log out
             </Button>
@@ -174,22 +182,22 @@ export default function ProfilePage() {
         </div>
 
         {/* User Info */}
-        <div className="mb-3">
-          <h2 className="text-xl font-bold text-white">{user?.username}</h2>
-          <p className="text-[15px] text-neutral-500">
+        <div className="mb-2">
+          <h2 className="text-lg font-bold text-white">{user?.username}</h2>
+          <p className="text-sm text-neutral-500">
             @{user?.username?.toLowerCase()}
           </p>
         </div>
 
         {/* Bio */}
         {user?.bio && (
-          <div className="mb-3">
-            <p className="text-[15px] text-white">{user.bio}</p>
+          <div className="mb-2">
+            <p className="text-sm text-white">{user.bio}</p>
           </div>
         )}
 
         {/* Metadata */}
-        <div className="flex flex-wrap items-center gap-3 mb-3 text-neutral-500 text-[15px]">
+        <div className="flex flex-wrap items-center gap-3 mb-2 text-neutral-500 text-sm">
           {/* Location (if available) */}
           {/* <div className="flex items-center space-x-1">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -222,7 +230,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Following/Followers */}
-        <div className="flex items-center space-x-5 mb-4">
+        <div className="flex items-center space-x-5 mb-3">
           <button className="hover:underline">
             <span className="font-bold text-white">
               {formatNumber(followingCount)}
@@ -237,6 +245,9 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+
+      {/* Posts Section Divider */}
+      <div className="border-b border-neutral-800"></div>
 
       {/* Posts */}
       <div>
@@ -253,29 +264,33 @@ export default function ProfilePage() {
           </div>
         )}
         {!isLoading && !error && posts.length === 0 && (
-          <div className="p-8 text-center">
-            <h3 className="text-3xl font-bold text-white mb-2">No posts yet</h3>
+          <div className="p-8 text-center border-t border-neutral-800">
+            <h3 className="text-3xl font-bold text-white mb-2">Nothing yet</h3>
             <p className="text-neutral-500 mb-4">
-              When you post, it'll show up here.
+              When you share something, it'll show up here.
             </p>
             <Button
               onClick={() => navigate("/post")}
               className="bg-black hover:bg-neutral-900 text-white font-bold border border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              Post now
+              Share now
             </Button>
           </div>
         )}
         {!isLoading &&
           !error &&
-          posts.map((post) => (
-            <PostCard
+          posts.map((post, index) => (
+            <div
               key={post.id}
-              post={post}
-              onLike={() => handleLike(post.id)}
-              onDelete={handleDelete}
-              onUpdate={handleUpdate}
-            />
+              className={index === 0 ? "border-t border-neutral-800" : ""}
+            >
+              <PostCard
+                post={post}
+                onLike={() => handleLike(post.id)}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}
+              />
+            </div>
           ))}
       </div>
     </div>

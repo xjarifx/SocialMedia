@@ -206,3 +206,19 @@ export const getFollowing = async (userId: number) => {
   );
   return followingQueryResult.rows;
 };
+
+export const getFollowerCount = async (userId: number): Promise<number> => {
+  const result = await connectionPool.query(
+    "SELECT COUNT(*) as count FROM follows WHERE following_id = $1",
+    [userId]
+  );
+  return parseInt(result.rows[0]?.count || "0", 10);
+};
+
+export const getFollowingCount = async (userId: number): Promise<number> => {
+  const result = await connectionPool.query(
+    "SELECT COUNT(*) as count FROM follows WHERE follower_id = $1",
+    [userId]
+  );
+  return parseInt(result.rows[0]?.count || "0", 10);
+};
