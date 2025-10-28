@@ -31,7 +31,7 @@ import {
   handleLikeDeletion,
   handleGetLikeCount,
 } from "../controllers/like-controller.js";
-import { handleSearchByUsername } from "../search.js";
+import { handleSearchByUsername } from "../search-controller.js";
 import { authenticateUserToken } from "../middlewares/auth-middleware.js";
 
 const router = Router();

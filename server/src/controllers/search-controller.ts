@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import connectionPool from "./db/connection.js";
+import connectionPool from "../db/connection.js";
 
 export const handleSearchByUsername = async (req: Request, res: Response) => {
   const username = req.query.username as string;
