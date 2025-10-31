@@ -213,7 +213,7 @@ export default function ProfileEditPage() {
             type="button"
             variant="secondary"
             onClick={() => navigate("/profile")}
-            className="px-4 py-2 text-sm"
+            className="px-4 py-2 text-sm h-10"
           >
             Cancel
           </Button>
@@ -222,7 +222,7 @@ export default function ProfileEditPage() {
             form="profile-form"
             isLoading={isLoading}
             disabled={isLoading}
-            className="px-4 py-2 text-sm"
+            className="px-4 py-2 text-sm font-bold h-10 !bg-white !text-black hover:!bg-gray-100 shadow-lg hover:shadow-xl"
           >
             {isLoading ? "Saving..." : "Save"}
           </Button>
@@ -242,8 +242,8 @@ export default function ProfileEditPage() {
               </div>
             )}
             {showSuccess && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-xl">
-                <p className="text-sm text-green-700 font-medium">
+              <div className="p-3 bg-green-600 border border-green-500 rounded-xl">
+                <p className="text-sm text-white font-medium">
                   Profile updated successfully!
                 </p>
               </div>
@@ -444,13 +444,6 @@ export default function ProfileEditPage() {
                   )}
                 </div>
               </section>
-            </div>
-
-            {/* Submit (mobile) */}
-            <div className="flex justify-end pt-2">
-              <Button type="submit" isLoading={isLoading} disabled={isLoading}>
-                {isLoading ? "Saving..." : "Save Changes"}
-              </Button>
             </div>
           </form>
         </div>
