@@ -6,6 +6,7 @@ import PostCard from "../../components/posts/PostCard";
 import { PostSkeleton } from "../../components/ui/Skeleton";
 import { formatNumber } from "../../utils/format";
 import { api } from "../../utils/api";
+import Avatar from "../../components/ui/Avatar";
 
 interface Post {
   id: number;
@@ -19,6 +20,7 @@ interface Post {
   isReposted: boolean;
   media?: string[];
   views?: number;
+  avatarUrl?: string;
 }
 
 interface User {
@@ -76,6 +78,7 @@ export default function UserProfilePage() {
         type ApiPost = {
           id: number;
           caption?: string;
+          mediaUrl?: string;
           createdAt?: string;
           created_at?: string;
           likeCount?: number;
@@ -93,6 +96,8 @@ export default function UserProfilePage() {
           reposts: 0,
           isLiked: p.isLiked ?? false,
           isReposted: false,
+          media: p.mediaUrl ? [p.mediaUrl] : undefined,
+          avatarUrl: data.user?.avatarUrl,
         }));
         setPosts(mapped);
       } catch (e: unknown) {
@@ -177,13 +182,6 @@ export default function UserProfilePage() {
     } finally {
       setIsFollowLoading(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-    });
   };
 
   if (error && !isLoading) {
@@ -274,11 +272,13 @@ export default function UserProfilePage() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center border-4 border-white"
               >
-                <span className="text-white font-bold text-3xl">
-                  {user?.username?.[0]?.toUpperCase() || "U"}
-                </span>
+                <Avatar
+                  src={user?.avatarUrl}
+                  alt={user?.username}
+                  size="xl"
+                  className="border-4 border-white"
+                />
               </motion.div>
               <div className="mt-1">
                 <Button
@@ -313,28 +313,7 @@ export default function UserProfilePage() {
 
             {/* Metadata */}
             <div className="flex flex-wrap items-center gap-3 mb-2 text-neutral-500 text-sm">
-              {/* Join Date */}
-              <div className="flex items-center space-x-1">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <span>
-                  Joined{" "}
-                  {user?.createdAt
-                    ? formatDate(user.createdAt)
-                    : "January 2024"}
-                </span>
-              </div>
+              {/* Metadata section removed - can add location or other info here */}
             </div>
 
             {/* Following/Followers */}

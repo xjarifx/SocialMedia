@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import connectionPool from "../db/connection.js";
+import { addCloudinaryUrlToUser } from "../services/cloudinary-service.js";
 
 export const handleSearchByUsername = async (req: Request, res: Response) => {
   const username = req.query.username as string;
@@ -28,7 +29,10 @@ export const handleSearchByUsername = async (req: Request, res: Response) => {
       searchPattern,
       username.trim().toLowerCase(),
     ]);
-    return res.status(200).json({ users: result.rows });
+    const usersWithUrls = result.rows.map((user) =>
+      addCloudinaryUrlToUser(user)
+    );
+    return res.status(200).json({ users: usersWithUrls });
   } catch (error) {
     console.error("Error executing search query:", error);
     return res.status(500).json({ error: "Internal server error" });

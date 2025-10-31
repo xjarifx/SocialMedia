@@ -17,10 +17,13 @@ export async function authenticatedFetch(
 ) {
   const token = localStorage.getItem("authToken");
 
+  // Don't set Content-Type for FormData (browser will set it with boundary)
+  const isFormData = options.body instanceof FormData;
+
   const config: RequestInit = {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(!isFormData && { "Content-Type": "application/json" }),
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
@@ -86,17 +89,22 @@ export const api = {
   },
 
   updateProfile: async (
-    profileData: Partial<{
-      username: string;
-      phone: string;
-      bio: string;
-      avatarUrl: string;
-      isPrivate: boolean;
-    }>
+    profileData:
+      | Partial<{
+          username: string;
+          phone: string;
+          bio: string;
+          avatarUrl: string;
+          isPrivate: boolean;
+        }>
+      | FormData
   ) => {
     const response = await authenticatedFetch("/profile", {
       method: "PUT",
-      body: JSON.stringify(profileData),
+      body:
+        profileData instanceof FormData
+          ? profileData
+          : JSON.stringify(profileData),
     });
     return response.json();
   },
@@ -113,10 +121,20 @@ export const api = {
   },
 
   // Post endpoints
-  createPost: async (postData: { caption?: string; mediaUrl?: string }) => {
+  createPost: async (postData: { caption?: string; file?: File }) => {
+    const formData = new FormData();
+
+    if (postData.caption) {
+      formData.append("caption", postData.caption);
+    }
+
+    if (postData.file) {
+      formData.append("media", postData.file);
+    }
+
     const response = await authenticatedFetch("/posts", {
       method: "POST",
-      body: JSON.stringify(postData),
+      body: formData,
     });
     return response.json();
   },
@@ -145,11 +163,21 @@ export const api = {
 
   updatePost: async (
     postId: number,
-    postData: { caption?: string; mediaUrl?: string }
+    postData: { caption?: string; file?: File }
   ) => {
+    const formData = new FormData();
+
+    if (postData.caption) {
+      formData.append("caption", postData.caption);
+    }
+
+    if (postData.file) {
+      formData.append("media", postData.file);
+    }
+
     const response = await authenticatedFetch(`/posts/${postId}`, {
       method: "PUT",
-      body: JSON.stringify(postData),
+      body: formData,
     });
     return response.json();
   },

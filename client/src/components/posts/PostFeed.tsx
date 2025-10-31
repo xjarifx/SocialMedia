@@ -12,6 +12,7 @@ interface Post {
   reposts: number;
   isLiked: boolean;
   isReposted: boolean;
+  avatarUrl?: string;
 }
 
 interface PostFeedProps {
@@ -32,6 +33,7 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           id: number;
           userId?: number | string;
           caption?: string;
+          mediaUrl?: string;
           createdAt?: string;
           created_at?: string;
           likeCount?: number;
@@ -52,6 +54,8 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           reposts: 0,
           isLiked: false,
           isReposted: false,
+          media: p.mediaUrl ? [p.mediaUrl] : undefined,
+          avatarUrl: (p as any).avatarUrl,
         }));
         setPosts(mapped);
       } catch (e: unknown) {

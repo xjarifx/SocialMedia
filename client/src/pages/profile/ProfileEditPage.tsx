@@ -13,9 +13,10 @@ export default function ProfileEditPage() {
     username: user?.username || "",
     phone: user?.phone || "",
     bio: user?.bio || "",
-    avatarUrl: user?.avatarUrl || "",
     isPrivate: user?.isPrivate || false,
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -32,6 +33,51 @@ export default function ProfileEditPage() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!validTypes.includes(file.type)) {
+      setErrors((prev) => ({
+        ...prev,
+        avatar: "Please select a valid image file (JPEG, PNG, GIF, or WebP)",
+      }));
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        avatar: "Image size must be less than 5MB",
+      }));
+      return;
+    }
+
+    setAvatarFile(file);
+    setErrors((prev) => ({ ...prev, avatar: "" }));
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
   };
 
   const validateForm = () => {
@@ -57,15 +103,6 @@ export default function ProfileEditPage() {
       newErrors.bio = "Bio must be 500 characters or less";
     }
 
-    // Avatar URL validation (optional)
-    if (formData.avatarUrl && formData.avatarUrl.length > 0) {
-      try {
-        new URL(formData.avatarUrl);
-      } catch {
-        newErrors.avatarUrl = "Please enter a valid URL";
-      }
-    }
-
     return newErrors;
   };
 
@@ -83,27 +120,45 @@ export default function ProfileEditPage() {
     }
 
     try {
-      // Only send changed fields
-      const updates: Record<string, unknown> = {};
-      if (formData.username !== user?.username)
-        updates.username = formData.username;
-      if (formData.phone !== (user?.phone || ""))
-        updates.phone = formData.phone || null;
-      if (formData.bio !== (user?.bio || ""))
-        updates.bio = formData.bio || null;
-      if (formData.avatarUrl !== (user?.avatarUrl || ""))
-        updates.avatarUrl = formData.avatarUrl || null;
-      if (formData.isPrivate !== (user?.isPrivate || false))
-        updates.isPrivate = formData.isPrivate;
+      // Check if we have file upload or regular updates
+      if (avatarFile) {
+        // Use FormData for file upload
+        const formDataToSend = new FormData();
+        formDataToSend.append("avatar", avatarFile);
 
-      if (Object.keys(updates).length > 0) {
-        await updateProfile(updates);
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          navigate("/profile"); // Navigate back to profile after successful update
-        }, 2000);
+        // Add other fields
+        if (formData.username !== user?.username)
+          formDataToSend.append("username", formData.username);
+        if (formData.phone !== (user?.phone || ""))
+          formDataToSend.append("phone", formData.phone || "");
+        if (formData.bio !== (user?.bio || ""))
+          formDataToSend.append("bio", formData.bio || "");
+        if (formData.isPrivate !== (user?.isPrivate || false))
+          formDataToSend.append("isPrivate", String(formData.isPrivate));
+
+        await updateProfile(formDataToSend);
+      } else {
+        // Regular JSON update
+        const updates: Record<string, unknown> = {};
+        if (formData.username !== user?.username)
+          updates.username = formData.username;
+        if (formData.phone !== (user?.phone || ""))
+          updates.phone = formData.phone || null;
+        if (formData.bio !== (user?.bio || ""))
+          updates.bio = formData.bio || null;
+        if (formData.isPrivate !== (user?.isPrivate || false))
+          updates.isPrivate = formData.isPrivate;
+
+        if (Object.keys(updates).length > 0) {
+          await updateProfile(updates);
+        }
       }
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        navigate("/profile");
+      }, 2000);
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 409) {
@@ -201,26 +256,66 @@ export default function ProfileEditPage() {
                 <h2 className="text-sm font-semibold tracking-wide text-neutral-300 uppercase">
                   Profile Identity
                 </h2>
-                <div className="flex flex-col md:flex-row md:items-center gap-5">
-                  <Avatar
-                    src={formData.avatarUrl || user?.avatarUrl}
-                    size="xl"
-                    className="ring-2 ring-neutral-800"
-                  />
-                  <div className="flex-1 space-y-4">
-                    <div>
-                      <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wide">
-                        Avatar URL
+                <div className="flex flex-col md:flex-row md:items-start gap-5">
+                  <div className="flex flex-col items-center gap-3">
+                    <Avatar
+                      src={avatarPreview || user?.avatarUrl}
+                      size="xl"
+                      className="ring-2 ring-neutral-800"
+                    />
+                    <div className="flex gap-2">
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                        <span className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary-400 bg-primary-400/10 hover:bg-primary-400/20 rounded-lg transition-colors">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Upload
+                        </span>
                       </label>
-                      <Input
-                        name="avatarUrl"
-                        type="url"
-                        value={formData.avatarUrl}
-                        onChange={handleChange}
-                        error={errors.avatarUrl}
-                        placeholder="https://..."
-                      />
+                      {(avatarPreview || user?.avatarUrl) && (
+                        <button
+                          type="button"
+                          onClick={removeAvatar}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-400 bg-red-400/10 hover:bg-red-400/20 rounded-lg transition-colors"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                          Remove
+                        </button>
+                      )}
                     </div>
+                    {errors.avatar && (
+                      <p className="text-xs text-red-500">{errors.avatar}</p>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Input

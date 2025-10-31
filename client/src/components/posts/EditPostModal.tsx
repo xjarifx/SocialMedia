@@ -10,6 +10,7 @@ interface EditPostModalProps {
   post: {
     id: number;
     content: string;
+    mediaUrl?: string;
   };
   onUpdate: (postId: number, newContent: string) => void;
 }
@@ -23,7 +24,10 @@ export default function EditPostModal({
   const { showToast } = useToast();
   const [content, setContent] = useState(post.content);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string>(post.mediaUrl || "");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const maxLength = 280;
   const remainingChars = maxLength - content.length;
@@ -33,8 +37,10 @@ export default function EditPostModal({
   useEffect(() => {
     if (isOpen) {
       setContent(post.content);
+      setMediaPreview(post.mediaUrl || "");
+      setMediaFile(null);
     }
-  }, [isOpen, post.content]);
+  }, [isOpen, post.content, post.mediaUrl]);
 
   // Auto-expand textarea
   useEffect(() => {
@@ -53,13 +59,56 @@ export default function EditPostModal({
     }
   }, [isOpen]);
 
+  const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!validTypes.includes(file.type)) {
+      showToast("Please select a valid image file", "warning");
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showToast("Image must be less than 5MB", "warning");
+      return;
+    }
+
+    setMediaFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setMediaPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeMedia = () => {
+    setMediaFile(null);
+    setMediaPreview("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || isOverLimit || content === post.content) return;
+    if (!content.trim() || isOverLimit) return;
+    if (content === post.content && !mediaFile) return;
 
     setIsUpdating(true);
     try {
-      await api.updatePost(post.id, { caption: content });
+      await api.updatePost(post.id, {
+        caption: content,
+        file: mediaFile || undefined,
+      });
       onUpdate(post.id, content);
       showToast("Post updated successfully", "success");
       onClose();
@@ -147,9 +196,75 @@ export default function EditPostModal({
                 maxLength={maxLength + 50}
               />
 
-              {/* Character Count */}
+              {/* Media Preview */}
+              {mediaPreview && (
+                <div className="mt-4">
+                  <div className="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all duration-200">
+                    <img
+                      src={mediaPreview}
+                      alt="Post media"
+                      className="w-full h-64 object-cover"
+                    />
+                    <button
+                      onClick={removeMedia}
+                      className="absolute top-2 right-2 bg-black/80 hover:bg-black rounded-full p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
+                      type="button"
+                    >
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Character Count and Media Upload */}
               <div className="flex items-center justify-between pt-4 border-t border-neutral-800 mt-4">
-                <div className="flex-1" />
+                <div className="flex items-center">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleMediaSelect}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={!!mediaFile}
+                    className="p-2.5 text-primary-500 hover:bg-primary-500/10 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                    title="Add media"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
+                  {mediaFile && (
+                    <span className="ml-2 text-sm text-neutral-400">
+                      New image selected
+                    </span>
+                  )}
+                </div>
                 {content.length > 0 && (
                   <div className="relative flex items-center justify-center">
                     <svg className="w-9 h-9 transform -rotate-90">

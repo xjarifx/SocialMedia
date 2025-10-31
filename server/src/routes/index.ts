@@ -31,8 +31,9 @@ import {
   handleLikeDeletion,
   handleGetLikeCount,
 } from "../controllers/like-controller.js";
-import { handleSearchByUsername } from "../search-controller.js";
+import { handleSearchByUsername } from "../controllers/search-controller.js";
 import { authenticateUserToken } from "../middlewares/auth-middleware.js";
+import { uploadMiddleware } from "../middlewares/upload-middleware.js";
 
 const router = Router();
 
@@ -47,7 +48,12 @@ router.post("/login", handleUserLogin);
 
 // PROFILE ROUTES (protected)
 router.get("/profile", authenticateUserToken, handleUserProfileGet);
-router.put("/profile", authenticateUserToken, handleUserProfileUpdate);
+router.put(
+  "/profile",
+  authenticateUserToken,
+  uploadMiddleware.single("avatar"),
+  handleUserProfileUpdate
+);
 router.put("/password", authenticateUserToken, handleChangePassword);
 
 // FOLLOW ROUTES (protected)
@@ -66,12 +72,22 @@ router.delete(
 );
 
 // POST ROUTES (protected)
-router.post("/posts", authenticateUserToken, handlePostCreation);
+router.post(
+  "/posts",
+  authenticateUserToken,
+  uploadMiddleware.single("media"),
+  handlePostCreation
+);
 router.get("/posts/for-you", authenticateUserToken, handleGetForYouPosts);
 router.get("/posts/following", authenticateUserToken, handleGetFollowingPosts);
 router.get("/posts/mine", authenticateUserToken, handleGetOwnPosts);
 router.get("/posts/:username", authenticateUserToken, handleGetPostsByUsername);
-router.put("/posts/:postId", authenticateUserToken, handlePostUpdate);
+router.put(
+  "/posts/:postId",
+  authenticateUserToken,
+  uploadMiddleware.single("media"),
+  handlePostUpdate
+);
 router.delete("/posts/:postId", authenticateUserToken, handlePostDeletion);
 
 // COMMENT ROUTES (protected)

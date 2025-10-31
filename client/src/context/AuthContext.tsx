@@ -11,8 +11,8 @@ interface User {
   avatarUrl?: string;
   isVerified?: boolean;
   isPrivate?: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
@@ -27,7 +27,7 @@ interface AuthContextType {
     password: string;
   }) => Promise<void>;
   logout: () => void;
-  updateProfile: (profileData: Partial<User>) => Promise<void>;
+  updateProfile: (profileData: Partial<User> | FormData) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("user");
   };
 
-  const updateProfile = async (profileData: Partial<User>) => {
+  const updateProfile = async (profileData: Partial<User> | FormData) => {
     const response = await api.updateProfile(profileData);
     setUser(response.user);
     localStorage.setItem("user", JSON.stringify(response.user));

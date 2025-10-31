@@ -34,14 +34,14 @@ export const insertUser = async (
 ) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   return connectionPool.query(
-    "INSERT INTO users (email, username, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, username, created_at AS createdAt, updated_at AS updatedAt",
+    'INSERT INTO users (email, username, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, username, created_at AS "createdAt", updated_at AS "updatedAt"',
     [email, username, hashedPassword, new Date(), new Date()]
   );
 };
 
 export const getUserByEmail = async (email: string) => {
   const userQueryResult = await connectionPool.query(
-    "SELECT id, email, username, password, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE email = $1",
+    'SELECT id, email, username, password, phone, bio, avatar_url AS "avatarUrl", is_verified AS "isVerified", is_private AS "isPrivate", status, created_at AS "createdAt", updated_at AS "updatedAt", last_login AS "lastLogin" FROM users WHERE email = $1',
     [email]
   );
   return userQueryResult.rows.length > 0 ? userQueryResult.rows[0] : null;
@@ -49,7 +49,7 @@ export const getUserByEmail = async (email: string) => {
 
 export const getUserById = async (userId: number) => {
   const userByIdResult = await connectionPool.query(
-    "SELECT id, email, username, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE id = $1",
+    'SELECT id, email, username, phone, bio, avatar_url AS "avatarUrl", is_verified AS "isVerified", is_private AS "isPrivate", status, created_at AS "createdAt", updated_at AS "updatedAt", last_login AS "lastLogin" FROM users WHERE id = $1',
     [userId]
   );
   return userByIdResult.rows.length > 0 ? userByIdResult.rows[0] : null;
@@ -57,7 +57,7 @@ export const getUserById = async (userId: number) => {
 
 export const getUserByIdWithPassword = async (userId: number) => {
   const userWithPasswordResult = await connectionPool.query(
-    "SELECT id, email, username, password, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE id = $1",
+    'SELECT id, email, username, password, phone, bio, avatar_url AS "avatarUrl", is_verified AS "isVerified", is_private AS "isPrivate", status, created_at AS "createdAt", updated_at AS "updatedAt", last_login AS "lastLogin" FROM users WHERE id = $1',
     [userId]
   );
   return userWithPasswordResult.rows.length > 0
@@ -121,13 +121,13 @@ export const updateUserProfile = async (
       username, 
       phone, 
       bio, 
-      avatar_url AS avatarUrl, 
-      is_verified AS isVerified, 
-      is_private AS isPrivate, 
+      avatar_url AS "avatarUrl", 
+      is_verified AS "isVerified", 
+      is_private AS "isPrivate", 
       status, 
-      created_at AS createdAt, 
-      updated_at AS updatedAt, 
-      last_login AS lastLogin
+      created_at AS "createdAt", 
+      updated_at AS "updatedAt", 
+      last_login AS "lastLogin"
   `;
 
   const profileUpdateResult = await connectionPool.query(query, values);
@@ -142,7 +142,7 @@ export const updateUserPassword = async (
 ) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   const passwordUpdateResult = await connectionPool.query(
-    "UPDATE users SET password = $1, updated_at = $2 WHERE id = $3 RETURNING id, email, username, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin",
+    'UPDATE users SET password = $1, updated_at = $2 WHERE id = $3 RETURNING id, email, username, phone, bio, avatar_url AS "avatarUrl", is_verified AS "isVerified", is_private AS "isPrivate", status, created_at AS "createdAt", updated_at AS "updatedAt", last_login AS "lastLogin"',
     [hashedPassword, new Date(), userId]
   );
   return passwordUpdateResult.rows.length > 0
@@ -152,7 +152,7 @@ export const updateUserPassword = async (
 
 export const getUserByUsername = async (username: string) => {
   const userByUsernameResult = await connectionPool.query(
-    "SELECT id, email, username, phone, bio, avatar_url AS avatarUrl, is_verified AS isVerified, is_private AS isPrivate, status, created_at AS createdAt, updated_at AS updatedAt, last_login AS lastLogin FROM users WHERE username = $1",
+    'SELECT id, email, username, phone, bio, avatar_url AS "avatarUrl", is_verified AS "isVerified", is_private AS "isPrivate", status, created_at AS "createdAt", updated_at AS "updatedAt", last_login AS "lastLogin" FROM users WHERE username = $1',
     [username]
   );
   return userByUsernameResult.rows.length > 0

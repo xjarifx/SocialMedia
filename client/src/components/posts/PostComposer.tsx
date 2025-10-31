@@ -7,8 +7,8 @@ export default function PostComposer() {
   const { showToast } = useToast();
   const [content, setContent] = useState("");
   const [isPosting, setIsPosting] = useState(false);
-  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,45 +25,72 @@ export default function PostComposer() {
   }, [content]);
 
   const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length + mediaFiles.length > 4) {
-      showToast("You can only upload up to 4 images", "warning");
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!validTypes.includes(file.type)) {
+      showToast(
+        "Please select a valid image file (JPEG, PNG, GIF, or WebP)",
+        "warning"
+      );
       return;
     }
 
-    const newFiles = files.slice(0, 4 - mediaFiles.length);
-    setMediaFiles([...mediaFiles, ...newFiles]);
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      showToast("Image must be less than 5MB", "warning");
+      return;
+    }
 
-    // Create previews
-    newFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setMediaPreviews((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
+    setMediaFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setMediaPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const removeMedia = (index: number) => {
-    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
-    setMediaPreviews((prev) => prev.filter((_, i) => i !== index));
+  const removeMedia = () => {
+    setMediaFile(null);
+    setMediaPreview("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || isOverLimit) return;
+    if ((!content.trim() && !mediaFile) || isOverLimit) return;
 
     setIsPosting(true);
     try {
-      await api.createPost({ caption: content });
+      await api.createPost({
+        caption: content.trim() || undefined,
+        file: mediaFile || undefined,
+      });
       setContent("");
-      setMediaFiles([]);
-      setMediaPreviews([]);
+      setMediaFile(null);
+      setMediaPreview("");
       showToast("Post created successfully!", "success");
 
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
+      }
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     } catch (error) {
       console.error("Error creating post:", error);
@@ -74,45 +101,36 @@ export default function PostComposer() {
   };
 
   const renderMediaPreviews = () => {
-    if (mediaPreviews.length === 0) return null;
+    if (!mediaPreview) return null;
 
     return (
-      <div
-        className={`mt-4 grid gap-3 ${
-          mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
-        }`}
-      >
-        {mediaPreviews.map((preview, index) => (
-          <div
-            key={index}
-            className="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all duration-200"
+      <div className="mt-4">
+        <div className="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all duration-200">
+          <img
+            src={mediaPreview}
+            alt="Upload preview"
+            className="w-full h-64 object-cover"
+          />
+          <button
+            onClick={removeMedia}
+            className="absolute top-2 right-2 bg-black/80 hover:bg-black rounded-full p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
+            type="button"
           >
-            <img
-              src={preview}
-              alt={`Upload ${index + 1}`}
-              className="w-full h-48 object-cover"
-            />
-            <button
-              onClick={() => removeMedia(index)}
-              className="absolute top-2 right-2 bg-black/80 hover:bg-black rounded-full p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
-              type="button"
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
             >
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        ))}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     );
   };
@@ -145,14 +163,13 @@ export default function PostComposer() {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  multiple
                   onChange={handleMediaSelect}
                   className="hidden"
                 />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={mediaFiles.length >= 4}
+                  disabled={!!mediaFile}
                   className="p-2.5 text-primary-500 hover:bg-primary-500/10 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
                   title="Add media"
                 >
@@ -170,10 +187,9 @@ export default function PostComposer() {
                     />
                   </svg>
                 </button>
-                {mediaFiles.length > 0 && (
+                {mediaFile && (
                   <span className="ml-2 text-sm text-neutral-400">
-                    {mediaFiles.length}/4{" "}
-                    {mediaFiles.length === 1 ? "image" : "images"}
+                    1 image selected
                   </span>
                 )}
               </div>
@@ -232,7 +248,7 @@ export default function PostComposer() {
                 <Button
                   type="submit"
                   isLoading={isPosting}
-                  disabled={!content.trim() || isOverLimit}
+                  disabled={(!content.trim() && !mediaFile) || isOverLimit}
                   className="bg-black hover:bg-neutral-900 text-white font-bold px-8 py-2.5 rounded-xl border border-neutral-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
                 >
                   {isPosting ? "Posting..." : "Post"}

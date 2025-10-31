@@ -24,6 +24,12 @@ import {
 } from "../utils/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  generateAvatarPublicId,
+  addCloudinaryUrlToUser,
+} from "../services/cloudinary-service.js";
 
 export const handleUserRegistration = async (req: Request, res: Response) => {
   const { email, username, password } = req.body as {
@@ -77,14 +83,21 @@ export const handleUserRegistration = async (req: Request, res: Response) => {
 
     const userInsertResult = await insertUser(email, username, password);
     const newUser = userInsertResult.rows[0];
+
+    const userWithAvatarUrl = addCloudinaryUrlToUser(newUser);
+
     return res.status(201).json({
       message: "User created successfully",
       user: {
-        id: newUser.id,
-        email: newUser.email,
-        username: newUser.username,
-        createdAt: newUser.createdAt,
-        updatedAt: newUser.updatedAt,
+        id: userWithAvatarUrl.id,
+        email: userWithAvatarUrl.email,
+        username: userWithAvatarUrl.username,
+        avatarUrl: userWithAvatarUrl.avatarUrl,
+        bio: userWithAvatarUrl.bio,
+        phone: userWithAvatarUrl.phone,
+        isPrivate: userWithAvatarUrl.isPrivate,
+        createdAt: userWithAvatarUrl.createdAt,
+        updatedAt: userWithAvatarUrl.updatedAt,
       },
     });
   } catch (userRegistrationError) {
@@ -146,14 +159,20 @@ export const handleUserLogin = async (req: Request, res: Response) => {
       }
     );
 
+    const userWithAvatarUrl = addCloudinaryUrlToUser(authenticatedUser);
+
     return res.status(200).json({
       message: "Login successful",
       user: {
-        id: authenticatedUser.id,
-        email: authenticatedUser.email,
-        username: authenticatedUser.username,
-        createdAt: authenticatedUser.createdAt,
-        updatedAt: authenticatedUser.updatedAt,
+        id: userWithAvatarUrl.id,
+        email: userWithAvatarUrl.email,
+        username: userWithAvatarUrl.username,
+        avatarUrl: userWithAvatarUrl.avatarUrl,
+        bio: userWithAvatarUrl.bio,
+        phone: userWithAvatarUrl.phone,
+        isPrivate: userWithAvatarUrl.isPrivate,
+        createdAt: userWithAvatarUrl.createdAt,
+        updatedAt: userWithAvatarUrl.updatedAt,
       },
       token: authenticationToken,
     });
@@ -178,9 +197,13 @@ export const handleUserProfileGet = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    console.log("Raw user profile from DB:", userProfile);
+    const userWithAvatarUrl = addCloudinaryUrlToUser(userProfile);
+    console.log("User profile with Cloudinary URL:", userWithAvatarUrl);
+
     return res.status(200).json({
       message: "Profile retrieved successfully",
-      user: userProfile,
+      user: userWithAvatarUrl,
     });
   } catch (profileGetError) {
     console.error("Profile get error:", profileGetError);
@@ -194,13 +217,14 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { username, phone, bio, avatarUrl, isPrivate } = req.body as {
+  const { username, phone, bio, isPrivate } = req.body as {
     username?: string;
     phone?: string;
     bio?: string;
-    avatarUrl?: string;
     isPrivate?: boolean;
   };
+
+  const file = req.file; // Avatar file from multer
 
   const currentUser = await getUserById(userId);
 
@@ -247,15 +271,6 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
     }
   }
 
-  if (avatarUrl !== undefined && avatarUrl !== null) {
-    if (typeof avatarUrl !== "string" || avatarUrl.length > 500) {
-      return res.status(400).json({
-        message:
-          "Avatar URL must be a valid string with maximum 500 characters",
-      });
-    }
-  }
-
   if (isPrivate !== undefined && typeof isPrivate !== "boolean") {
     return res.status(400).json({
       message: "isPrivate must be a boolean value",
@@ -274,8 +289,24 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
     if (username !== undefined) updateData.username = username;
     if (phone !== undefined) updateData.phone = phone;
     if (bio !== undefined) updateData.bio = bio;
-    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
     if (isPrivate !== undefined) updateData.isPrivate = isPrivate;
+
+    // Handle avatar upload
+    if (file) {
+      // Delete old avatar from Cloudinary if exists
+      if (currentUser?.avatarUrl) {
+        await deleteFromCloudinary(currentUser.avatarUrl, "avatars");
+      }
+
+      // Upload new avatar
+      const customPublicId = generateAvatarPublicId(userId);
+      const avatarPublicId = await uploadToCloudinary(
+        file.buffer,
+        "avatars",
+        customPublicId
+      );
+      updateData.avatarUrl = avatarPublicId;
+    }
 
     const profileUpdateResult = await updateUserProfile(userId, updateData);
 
@@ -283,9 +314,13 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    console.log("Profile update result from DB:", profileUpdateResult);
+    const userWithAvatarUrl = addCloudinaryUrlToUser(profileUpdateResult);
+    console.log("Profile update with Cloudinary URL:", userWithAvatarUrl);
+
     return res.status(200).json({
       message: "Profile updated successfully",
-      user: profileUpdateResult,
+      user: userWithAvatarUrl,
     });
   } catch (profileUpdateError) {
     console.error("Profile update error:", profileUpdateError);
@@ -449,7 +484,10 @@ export const handleGetFollowers = async (req: Request, res: Response) => {
   }
   try {
     const followers = await getFollowers(userId);
-    return res.status(200).json(followers);
+    const followersWithUrls = followers.map((follower) =>
+      addCloudinaryUrlToUser(follower)
+    );
+    return res.status(200).json(followersWithUrls);
   } catch (getFollowersError) {
     console.error("Get followers error:", getFollowersError);
     return res.status(500).json({ message: "Internal server error" });
@@ -463,7 +501,10 @@ export const handleGetFollowing = async (req: Request, res: Response) => {
   }
   try {
     const following = await getFollowing(userId);
-    return res.status(200).json(following);
+    const followingWithUrls = following.map((user) =>
+      addCloudinaryUrlToUser(user)
+    );
+    return res.status(200).json(followingWithUrls);
   } catch (getFollowingError) {
     console.error("Get following error:", getFollowingError);
     return res.status(500).json({ message: "Internal server error" });

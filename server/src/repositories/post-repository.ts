@@ -67,6 +67,7 @@ export const getPostsByUserId = async (
     id: number;
     userId: number;
     username: string;
+    avatarUrl?: string;
     caption?: string;
     mediaUrl?: string;
     createdAt: Date;
@@ -81,6 +82,7 @@ export const getPostsByUserId = async (
        p.id, 
        p.user_id AS "userId",
        u.username,
+       u.avatar_url AS "avatarUrl",
        p.caption, 
        p.media_url AS "mediaUrl", 
        p.created_at AS "createdAt", 
@@ -117,6 +119,7 @@ export const getForYouPosts = async (
     id: number;
     userId: number;
     username: string;
+    avatarUrl?: string;
     caption?: string;
     mediaUrl?: string;
     createdAt: Date;
@@ -131,6 +134,7 @@ export const getForYouPosts = async (
        p.id,
        p.user_id AS "userId",
        u.username,
+       u.avatar_url AS "avatarUrl",
        p.caption,
        p.media_url AS "mediaUrl",
        p.created_at AS "createdAt",
@@ -165,6 +169,7 @@ export const getFollowingPosts = async (
     id: number;
     userId: number;
     username: string;
+    avatarUrl?: string;
     caption?: string;
     mediaUrl?: string;
     createdAt: Date;
@@ -179,6 +184,7 @@ export const getFollowingPosts = async (
        p.id,
        p.user_id AS "userId",
        u.username,
+       u.avatar_url AS "avatarUrl",
        p.caption,
        p.media_url AS "mediaUrl",
        p.created_at AS "createdAt",

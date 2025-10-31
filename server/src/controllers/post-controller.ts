@@ -13,27 +13,60 @@ import {
   getFollowerCount,
   getFollowingCount,
 } from "../repositories/user-repository.js";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  generatePostPublicId,
+  addCloudinaryUrlsToPosts,
+  addCloudinaryUrlToUser,
+} from "../services/cloudinary-service.js";
 
 // create post
 export const handlePostCreation = async (req: Request, res: Response) => {
-  const userId = req.user?.id; // const userId = req.user ? req.user.id : undefined;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { caption, mediaUrl } = req.body as {
-    caption?: string;
-    mediaUrl?: string;
-  };
-  if (!caption && !mediaUrl) {
+  const { caption } = req.body as { caption?: string };
+  const file = req.file;
+
+  if (!caption && !file) {
     return res.status(400).json({ message: "Caption or media is required" });
   }
 
   try {
-    const createdPost = await insertPost(userId, caption || "", mediaUrl || "");
-    return res
-      .status(201)
-      .json({ message: "Post created successfully", post: createdPost });
+    // Step 1: Create post in DB with empty mediaUrl to get postId
+    const createdPost = await insertPost(userId, caption || "", "");
+
+    let mediaPublicId = "";
+
+    // Step 2: If media provided, upload to Cloudinary
+    if (file) {
+      const customPublicId = generatePostPublicId(userId, createdPost.id);
+      mediaPublicId = await uploadToCloudinary(
+        file.buffer,
+        "posts",
+        customPublicId
+      );
+
+      // Step 3: Update post with public_id
+      const updatedPost = await updatePostById(
+        createdPost.id,
+        caption || "",
+        mediaPublicId
+      );
+
+      return res.status(201).json({
+        message: "Post created successfully",
+        post: updatedPost,
+      });
+    }
+
+    return res.status(201).json({
+      message: "Post created successfully",
+      post: createdPost,
+    });
   } catch (postCreationError) {
     console.error("Post creation error:", postCreationError);
     return res.status(500).json({ message: "Internal server error" });
@@ -82,22 +115,42 @@ export const handlePostUpdate = async (req: Request, res: Response) => {
     return res.status(403).json({ message: "Forbidden" });
   }
 
-  const { caption, mediaUrl } = req.body as {
-    caption?: string;
-    mediaUrl?: string;
-  };
-  if (!caption && !mediaUrl) {
+  const { caption } = req.body as { caption?: string };
+  const file = req.file;
+
+  if (!caption && !file) {
     return res.status(400).json({ message: "Caption or media is required" });
   }
+
   try {
+    let mediaPublicId = existingPost.mediaUrl || "";
+
+    // If new media is uploaded
+    if (file) {
+      // Delete old media from Cloudinary if exists
+      if (existingPost.mediaUrl) {
+        await deleteFromCloudinary(existingPost.mediaUrl, "posts");
+      }
+
+      // Upload new media
+      const customPublicId = generatePostPublicId(userId, postIdNumber);
+      mediaPublicId = await uploadToCloudinary(
+        file.buffer,
+        "posts",
+        customPublicId
+      );
+    }
+
     const updatedPost = await updatePostById(
       postIdNumber,
-      caption || "",
-      mediaUrl || ""
+      caption || existingPost.caption || "",
+      mediaPublicId
     );
-    return res
-      .status(200)
-      .json({ message: "Post updated successfully", post: updatedPost });
+
+    return res.status(200).json({
+      message: "Post updated successfully",
+      post: updatedPost,
+    });
   } catch (postUpdateError) {
     console.error("Post update error:", postUpdateError);
     return res.status(500).json({ message: "Internal server error" });
@@ -144,6 +197,11 @@ export const handlePostDeletion = async (req: Request, res: Response) => {
   }
 
   try {
+    // Delete media from Cloudinary if exists
+    if (existingPost.mediaUrl) {
+      await deleteFromCloudinary(existingPost.mediaUrl, "posts");
+    }
+
     await deletePostById(postIdNumber);
     return res.status(204).send();
   } catch (postDeletionError) {
@@ -163,8 +221,11 @@ export const handleGetOwnPosts = async (req: Request, res: Response) => {
     const followerCount = await getFollowerCount(userId);
     const followingCount = await getFollowingCount(userId);
 
+    // Convert public_ids to Cloudinary URLs
+    const postsWithUrls = addCloudinaryUrlsToPosts(posts);
+
     return res.status(200).json({
-      posts,
+      posts: postsWithUrls,
       followerCount,
       followingCount,
     });
@@ -183,7 +244,8 @@ export const handleGetForYouPosts = async (req: Request, res: Response) => {
 
   try {
     const posts = await getForYouPosts(userId);
-    return res.status(200).json({ posts });
+    const postsWithUrls = addCloudinaryUrlsToPosts(posts);
+    return res.status(200).json({ posts: postsWithUrls });
   } catch (error) {
     console.error("Error fetching 'For You' posts:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -198,7 +260,8 @@ export const handleGetFollowingPosts = async (req: Request, res: Response) => {
   }
   try {
     const posts = await getFollowingPosts(userId);
-    return res.status(200).json({ posts });
+    const postsWithUrls = addCloudinaryUrlsToPosts(posts);
+    return res.status(200).json({ posts: postsWithUrls });
   } catch (error) {
     console.error("Error fetching following posts:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -223,10 +286,13 @@ export const handleGetPostsByUsername = async (req: Request, res: Response) => {
     const followerCount = await getFollowerCount(user.id);
     const followingCount = await getFollowingCount(user.id);
 
+    const postsWithUrls = addCloudinaryUrlsToPosts(posts);
+    const userWithUrl = addCloudinaryUrlToUser(user);
+
     return res.status(200).json({
-      posts,
+      posts: postsWithUrls,
       user: {
-        ...user,
+        ...userWithUrl,
         followerCount,
         followingCount,
       },

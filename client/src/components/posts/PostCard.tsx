@@ -9,6 +9,7 @@ import { useToast } from "../ui/Toast";
 import ConfirmDialog from "../ui/ConfirmDialog";
 import EditPostModal from "./EditPostModal";
 import CommentModal from "./CommentModal";
+import Avatar from "../ui/Avatar";
 
 interface Post {
   id: number;
@@ -22,6 +23,7 @@ interface Post {
   isReposted: boolean;
   media?: string[];
   views?: number;
+  avatarUrl?: string;
 }
 
 interface PostCardProps {
@@ -213,11 +215,9 @@ export default function PostCard({
         <div className="flex-shrink-0">
           <div
             onClick={handleUsernameClick}
-            className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+            className="cursor-pointer hover:opacity-90 transition-opacity"
           >
-            <span className="text-white font-bold text-sm">
-              {post.username[0].toUpperCase()}
-            </span>
+            <Avatar src={post.avatarUrl} alt={post.username} size="md" />
           </div>
         </div>
 
@@ -391,7 +391,11 @@ export default function PostCard({
       <EditPostModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
-        post={{ id: post.id, content: post.content }}
+        post={{
+          id: post.id,
+          content: post.content,
+          mediaUrl: post.media?.[0],
+        }}
         onUpdate={handleUpdatePost}
       />
 
