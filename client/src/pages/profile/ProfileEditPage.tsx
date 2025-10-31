@@ -5,10 +5,12 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Avatar from "../../components/ui/Avatar";
 import { ApiError } from "../../utils/api";
+import { useToast } from "../../components/ui/Toast";
 
 export default function ProfileEditPage() {
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     username: user?.username || "",
     phone: user?.phone || "",
@@ -19,7 +21,6 @@ export default function ProfileEditPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -110,7 +111,6 @@ export default function ProfileEditPage() {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
-    setShowSuccess(false);
 
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -154,11 +154,10 @@ export default function ProfileEditPage() {
         }
       }
 
-      setShowSuccess(true);
+      showToast("Profile updated successfully!", "success");
       setTimeout(() => {
-        setShowSuccess(false);
         navigate("/profile");
-      }, 2000);
+      }, 1500);
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 409) {
@@ -238,13 +237,6 @@ export default function ProfileEditPage() {
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
                 <p className="text-sm text-red-700 font-medium">
                   {errors.form}
-                </p>
-              </div>
-            )}
-            {showSuccess && (
-              <div className="p-3 bg-green-600 border border-green-500 rounded-xl">
-                <p className="text-sm text-white font-medium">
-                  Profile updated successfully!
                 </p>
               </div>
             )}
