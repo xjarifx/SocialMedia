@@ -1,8 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import Avatar from "../ui/Avatar";
 
 export default function BottomNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   const navItems = [
     {
@@ -80,6 +83,15 @@ export default function BottomNavigation() {
         </svg>
       ),
       label: "Messages",
+    },
+    {
+      path: "/profile",
+      icon: (active: boolean) => (
+        <div className={`${active ? "ring-2 ring-white" : ""} rounded-full`}>
+          <Avatar src={user?.avatarUrl} alt={user?.username} size="sm" />
+        </div>
+      ),
+      label: "Profile",
     },
   ];
 

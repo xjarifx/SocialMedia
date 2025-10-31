@@ -2,6 +2,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
+import Avatar from "../ui/Avatar";
 
 interface SidebarItem {
   icon: ReactNode;
@@ -174,11 +175,7 @@ export default function Sidebar() {
           onClick={() => setShowMenu(!showMenu)}
           className="w-full flex items-center space-x-3 px-3 py-2 rounded-full hover:bg-neutral-900 transition-colors"
         >
-          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-sm">
-              {user?.username?.[0]?.toUpperCase() || "U"}
-            </span>
-          </div>
+          <Avatar src={user?.avatarUrl} alt={user?.username} size="md" />
           <div className="flex-1 text-left">
             <p className="font-bold text-sm text-white truncate">
               {user?.username}
