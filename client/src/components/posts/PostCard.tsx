@@ -22,6 +22,7 @@ interface Post {
   isLiked: boolean;
   isReposted: boolean;
   media?: string[];
+  mediaVideoUrl?: string; // Video URL if the media is a video
   views?: number;
   avatarUrl?: string;
 }
@@ -137,6 +138,37 @@ export default function PostCard({
     }
   };
 
+  // Helper component to render media (image or video)
+  // Using useMemo to prevent unnecessary rerenders of video elements
+  const MediaItem = ({
+    url,
+    videoUrl,
+    alt,
+    className,
+  }: {
+    url: string;
+    videoUrl?: string;
+    alt: string;
+    className: string;
+  }) => {
+    // If we have a videoUrl, render video directly
+    if (videoUrl) {
+      return (
+        <video
+          src={videoUrl}
+          controls
+          className={`${className} bg-black`}
+          preload="metadata"
+        >
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    // Otherwise render image
+    return <img src={url} alt={alt} className={className} />;
+  };
+
   const renderMediaGrid = () => {
     if (!post.media || post.media.length === 0) return null;
 
@@ -145,8 +177,9 @@ export default function PostCard({
     if (mediaCount === 1) {
       return (
         <div className="mt-3 rounded-2xl overflow-hidden border border-neutral-700">
-          <img
-            src={post.media[0]}
+          <MediaItem
+            url={post.media[0]}
+            videoUrl={post.mediaVideoUrl}
             alt="Post media"
             className="w-full max-h-[500px] object-cover"
           />
@@ -158,9 +191,10 @@ export default function PostCard({
       return (
         <div className="mt-3 grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden border border-neutral-700">
           {post.media.map((url, i) => (
-            <img
+            <MediaItem
               key={i}
-              src={url}
+              url={url}
+              videoUrl={i === 0 ? post.mediaVideoUrl : undefined}
               alt={`Post media ${i + 1}`}
               className="w-full h-[280px] object-cover"
             />
@@ -172,18 +206,19 @@ export default function PostCard({
     if (mediaCount === 3) {
       return (
         <div className="mt-3 grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden border border-neutral-700">
-          <img
-            src={post.media[0]}
+          <MediaItem
+            url={post.media[0]}
+            videoUrl={post.mediaVideoUrl}
             alt="Post media 1"
             className="w-full row-span-2 h-full object-cover"
           />
-          <img
-            src={post.media[1]}
+          <MediaItem
+            url={post.media[1]}
             alt="Post media 2"
             className="w-full h-[140px] object-cover"
           />
-          <img
-            src={post.media[2]}
+          <MediaItem
+            url={post.media[2]}
             alt="Post media 3"
             className="w-full h-[140px] object-cover"
           />
@@ -194,9 +229,10 @@ export default function PostCard({
     return (
       <div className="mt-3 grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden border border-neutral-700">
         {post.media.slice(0, 4).map((url, i) => (
-          <img
+          <MediaItem
             key={i}
-            src={url}
+            url={url}
+            videoUrl={i === 0 ? post.mediaVideoUrl : undefined}
             alt={`Post media ${i + 1}`}
             className="w-full h-[140px] object-cover"
           />
@@ -240,6 +276,7 @@ export default function PostCard({
             {isOwner && (
               <div className="relative" ref={menuRef}>
                 <button
+                  type="button"
                   onClick={handleMenuToggle}
                   className="p-1 rounded-full hover:bg-primary-500/10 transition-colors group"
                 >
@@ -262,6 +299,7 @@ export default function PostCard({
                 {showMenu && (
                   <div className="absolute right-0 mt-1 w-48 bg-black border border-neutral-800 rounded-xl shadow-lg overflow-hidden z-10">
                     <button
+                      type="button"
                       onClick={handleEdit}
                       className="w-full px-4 py-3 text-left text-white hover:bg-neutral-900 transition-colors flex items-center space-x-3"
                     >
@@ -281,6 +319,7 @@ export default function PostCard({
                       <span>Edit post</span>
                     </button>
                     <button
+                      type="button"
                       onClick={handleDeleteClick}
                       disabled={isDeleting}
                       className="w-full px-4 py-3 text-left text-red-500 hover:bg-neutral-900 transition-colors flex items-center space-x-3 disabled:opacity-50"
@@ -318,6 +357,7 @@ export default function PostCard({
           <div className="flex items-center gap-12 -ml-2 mt-3">
             {/* Like */}
             <button
+              type="button"
               onClick={handleLike}
               className="flex items-center space-x-1 group relative"
             >
@@ -359,6 +399,7 @@ export default function PostCard({
 
             {/* Comment */}
             <button
+              type="button"
               onClick={handleCommentClick}
               className="flex items-center space-x-1 group"
             >

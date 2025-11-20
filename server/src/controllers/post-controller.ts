@@ -47,7 +47,8 @@ export const handlePostCreation = async (req: Request, res: Response) => {
       mediaPublicId = await uploadToCloudinary(
         file.buffer,
         "posts",
-        customPublicId
+        customPublicId,
+        file.mimetype
       );
 
       // Step 3: Update post with public_id
@@ -137,7 +138,8 @@ export const handlePostUpdate = async (req: Request, res: Response) => {
       mediaPublicId = await uploadToCloudinary(
         file.buffer,
         "posts",
-        customPublicId
+        customPublicId,
+        file.mimetype
       );
     }
 

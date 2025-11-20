@@ -29,25 +29,40 @@ export default function PostComposer() {
     if (!file) return;
 
     // Validate file type
-    const validTypes = [
+    const validImageTypes = [
       "image/jpeg",
       "image/jpg",
       "image/png",
       "image/gif",
       "image/webp",
     ];
-    if (!validTypes.includes(file.type)) {
+    const validVideoTypes = [
+      "video/mp4",
+      "video/webm",
+      "video/quicktime",
+      "video/x-msvideo",
+    ];
+    const allValidTypes = [...validImageTypes, ...validVideoTypes];
+
+    if (!allValidTypes.includes(file.type)) {
       showToast(
-        "Please select a valid image file (JPEG, PNG, GIF, or WebP)",
+        "Please select a valid image (JPEG, PNG, GIF, WebP) or video (MP4, WebM, MOV, AVI) file",
         "warning"
       );
       return;
     }
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size
+    const isVideo = validVideoTypes.includes(file.type);
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024; // 50MB for videos, 5MB for images
+
     if (file.size > maxSize) {
-      showToast("Image must be less than 5MB", "warning");
+      showToast(
+        isVideo
+          ? "Video must be less than 50MB"
+          : "Image must be less than 5MB",
+        "warning"
+      );
       return;
     }
 
@@ -101,16 +116,28 @@ export default function PostComposer() {
   };
 
   const renderMediaPreviews = () => {
-    if (!mediaPreview) return null;
+    if (!mediaPreview || !mediaFile) return null;
+
+    const isVideo = mediaFile.type.startsWith("video/");
 
     return (
       <div className="mt-4">
         <div className="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all duration-200">
-          <img
-            src={mediaPreview}
-            alt="Upload preview"
-            className="w-full h-64 object-cover"
-          />
+          {isVideo ? (
+            <video
+              src={mediaPreview}
+              controls
+              className="w-full h-64 object-cover bg-black"
+            >
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <img
+              src={mediaPreview}
+              alt="Upload preview"
+              className="w-full h-64 object-cover"
+            />
+          )}
           <button
             onClick={removeMedia}
             className="absolute top-2 right-2 bg-black/80 hover:bg-black rounded-full p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
@@ -162,7 +189,7 @@ export default function PostComposer() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   onChange={handleMediaSelect}
                   className="hidden"
                 />
@@ -189,7 +216,10 @@ export default function PostComposer() {
                 </button>
                 {mediaFile && (
                   <span className="ml-2 text-sm text-neutral-400">
-                    1 image selected
+                    {mediaFile.type.startsWith("video/")
+                      ? "1 video"
+                      : "1 image"}{" "}
+                    selected
                   </span>
                 )}
               </div>

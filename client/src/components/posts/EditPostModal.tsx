@@ -63,21 +63,39 @@ export default function EditPostModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const validTypes = [
+    const validImageTypes = [
       "image/jpeg",
       "image/jpg",
       "image/png",
       "image/gif",
       "image/webp",
     ];
-    if (!validTypes.includes(file.type)) {
-      showToast("Please select a valid image file", "warning");
+    const validVideoTypes = [
+      "video/mp4",
+      "video/webm",
+      "video/quicktime",
+      "video/x-msvideo",
+    ];
+    const allValidTypes = [...validImageTypes, ...validVideoTypes];
+
+    if (!allValidTypes.includes(file.type)) {
+      showToast(
+        "Please select a valid image (JPEG, PNG, GIF, WebP) or video (MP4, WebM, MOV, AVI) file",
+        "warning"
+      );
       return;
     }
 
-    const maxSize = 5 * 1024 * 1024;
+    const isVideo = validVideoTypes.includes(file.type);
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+
     if (file.size > maxSize) {
-      showToast("Image must be less than 5MB", "warning");
+      showToast(
+        isVideo
+          ? "Video must be less than 50MB"
+          : "Image must be less than 5MB",
+        "warning"
+      );
       return;
     }
 
@@ -153,6 +171,7 @@ export default function EditPostModal({
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800">
               <div className="flex items-center space-x-3">
                 <button
+                  type="button"
                   onClick={onClose}
                   className="p-2 rounded-full hover:bg-neutral-800 transition-colors"
                 >
@@ -200,11 +219,21 @@ export default function EditPostModal({
               {mediaPreview && (
                 <div className="mt-4">
                   <div className="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all duration-200">
-                    <img
-                      src={mediaPreview}
-                      alt="Post media"
-                      className="w-full h-64 object-cover"
-                    />
+                    {mediaFile && mediaFile.type.startsWith("video/") ? (
+                      <video
+                        src={mediaPreview}
+                        controls
+                        className="w-full h-64 object-cover bg-black"
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img
+                        src={mediaPreview}
+                        alt="Post media"
+                        className="w-full h-64 object-cover"
+                      />
+                    )}
                     <button
                       onClick={removeMedia}
                       className="absolute top-2 right-2 bg-black/80 hover:bg-black rounded-full p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
@@ -234,7 +263,7 @@ export default function EditPostModal({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     onChange={handleMediaSelect}
                     className="hidden"
                   />
@@ -261,7 +290,9 @@ export default function EditPostModal({
                   </button>
                   {mediaFile && (
                     <span className="ml-2 text-sm text-neutral-400">
-                      New image selected
+                      New{" "}
+                      {mediaFile.type.startsWith("video/") ? "video" : "image"}{" "}
+                      selected
                     </span>
                   )}
                 </div>

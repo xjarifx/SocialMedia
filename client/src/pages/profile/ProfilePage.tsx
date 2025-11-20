@@ -44,6 +44,7 @@ export default function ProfilePage() {
           id: number;
           caption?: string;
           mediaUrl?: string;
+          mediaVideoUrl?: string;
           createdAt?: string;
           created_at?: string;
           likeCount?: number;
@@ -62,6 +63,7 @@ export default function ProfilePage() {
           isLiked: p.isLiked ?? false,
           isReposted: false,
           media: p.mediaUrl ? [p.mediaUrl] : undefined,
+          mediaVideoUrl: p.mediaVideoUrl,
           avatarUrl: user.avatarUrl,
         }));
         setPosts(mapped);

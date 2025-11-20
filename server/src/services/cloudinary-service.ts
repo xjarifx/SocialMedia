@@ -10,23 +10,31 @@ export interface CloudinaryUploadResult {
 }
 
 /**
- * Upload image to Cloudinary with custom public_id
+ * Upload image or video to Cloudinary with custom public_id
  * @param buffer - File buffer from multer
  * @param folder - Cloudinary folder ('posts' or 'avatars')
  * @param customPublicId - Custom public_id (e.g., '123p456')
+ * @param mimeType - File mime type to determine resource type
  * @returns The custom public_id (without folder)
  */
 export const uploadToCloudinary = async (
   buffer: Buffer,
   folder: string,
-  customPublicId: string
+  customPublicId: string,
+  mimeType?: string
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
+    // Determine resource type based on mime type
+    let resourceType: "image" | "video" | "auto" = "image";
+    if (mimeType?.startsWith("video/")) {
+      resourceType = "video";
+    }
+
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: folder,
         public_id: customPublicId,
-        resource_type: "image",
+        resource_type: resourceType,
         overwrite: true,
         invalidate: true,
       },
@@ -48,17 +56,32 @@ export const uploadToCloudinary = async (
 };
 
 /**
- * Delete image from Cloudinary
+ * Delete image or video from Cloudinary
  * @param publicId - Custom public_id (e.g., '123p456')
  * @param folder - Folder name ('posts' or 'avatars')
+ * @param resourceType - Resource type ('image' or 'video')
  */
 export const deleteFromCloudinary = async (
   publicId: string,
-  folder: string
+  folder: string,
+  resourceType: "image" | "video" = "image"
 ): Promise<void> => {
   try {
     const fullPublicId = `${folder}/${publicId}`;
-    await cloudinary.uploader.destroy(fullPublicId, { resource_type: "image" });
+    await cloudinary.uploader.destroy(fullPublicId, {
+      resource_type: resourceType,
+    });
+
+    // Try to delete as video if image deletion fails and resourceType was image
+    if (resourceType === "image") {
+      try {
+        await cloudinary.uploader.destroy(fullPublicId, {
+          resource_type: "video",
+        });
+      } catch (videoError) {
+        // Ignore error if it doesn't exist as video
+      }
+    }
   } catch (error) {
     console.error("Cloudinary deletion error:", error);
     throw error;
@@ -89,17 +112,19 @@ export const generateAvatarPublicId = (userId: number): string => {
  * @param publicId - Custom public_id from database (e.g., '123p456' or '123a')
  * @param folder - Folder name ('posts' or 'avatars')
  * @param transformations - Optional Cloudinary transformations (e.g., 'w_500,h_500,c_fill')
+ * @param resourceType - Resource type ('image' or 'video')
  * @returns Full Cloudinary URL
  */
 export const getCloudinaryUrl = (
   publicId: string,
   folder: string = "posts",
-  transformations: string = ""
+  transformations: string = "",
+  resourceType: "image" | "video" = "image"
 ): string => {
   if (!publicId) return "";
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const baseUrl = `https://res.cloudinary.com/${cloudName}/image/upload`;
+  const baseUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/upload`;
 
   if (transformations) {
     return `${baseUrl}/${transformations}/${folder}/${publicId}`;
@@ -110,13 +135,22 @@ export const getCloudinaryUrl = (
 
 /**
  * Add Cloudinary URLs to a single post
+ * For media, we'll provide both image and video URLs since we don't store the type in DB
+ * The client can determine which one to use
  */
 export const addCloudinaryUrlToPost = (post: any): any => {
   const result = { ...post };
 
   // Add media URL if exists
   if (post.mediaUrl) {
-    result.mediaUrl = getCloudinaryUrl(post.mediaUrl, "posts");
+    // Generate both image and video URLs
+    const imageUrl = getCloudinaryUrl(post.mediaUrl, "posts", "", "image");
+    const videoUrl = getCloudinaryUrl(post.mediaUrl, "posts", "", "video");
+
+    // For backward compatibility, keep mediaUrl as image URL
+    result.mediaUrl = imageUrl;
+    // Add video URL as well
+    result.mediaVideoUrl = videoUrl;
   }
 
   // Add avatar URL if exists

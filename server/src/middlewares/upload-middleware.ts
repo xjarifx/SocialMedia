@@ -12,13 +12,19 @@ const fileFilter = (
     "image/png",
     "image/gif",
     "image/webp",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime", // .mov
+    "video/x-msvideo", // .avi
   ];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(
-      new Error("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.")
+      new Error(
+        "Invalid file type. Only images (JPEG, PNG, GIF, WebP) and videos (MP4, WebM, MOV, AVI) are allowed."
+      )
     );
   }
 };
@@ -29,6 +35,6 @@ export const uploadMiddleware = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB max
+    fileSize: 50 * 1024 * 1024, // 50MB max (increased for videos)
   },
 });

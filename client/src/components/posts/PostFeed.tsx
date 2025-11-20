@@ -34,10 +34,12 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           userId?: number | string;
           caption?: string;
           mediaUrl?: string;
+          mediaVideoUrl?: string;
           createdAt?: string;
           created_at?: string;
           likeCount?: number;
           commentCount?: number;
+          isLiked?: boolean;
         };
         const data =
           activeTab === "for-you"
@@ -52,9 +54,10 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           likes: p.likeCount ?? 0,
           comments: p.commentCount ?? 0,
           reposts: 0,
-          isLiked: false,
+          isLiked: p.isLiked ?? false,
           isReposted: false,
           media: p.mediaUrl ? [p.mediaUrl] : undefined,
+          mediaVideoUrl: p.mediaVideoUrl,
           avatarUrl: (p as any).avatarUrl,
         }));
         setPosts(mapped);
@@ -71,7 +74,8 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
     loadPosts();
   }, [activeTab]);
 
-  const handleLike = (postId: number) => {
+  const handleLike = async (postId: number) => {
+    // Optimistically update UI
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -83,6 +87,30 @@ export default function PostFeed({ activeTab }: PostFeedProps) {
           : post
       )
     );
+
+    // Call the API
+    try {
+      const post = posts.find((p) => p.id === postId);
+      if (post?.isLiked) {
+        await api.unlikePost(postId);
+      } else {
+        await api.likePost(postId);
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      // Revert optimistic update on error
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                isLiked: !post.isLiked,
+                likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+              }
+            : post
+        )
+      );
+    }
   };
 
   const handleDelete = (postId: number) => {

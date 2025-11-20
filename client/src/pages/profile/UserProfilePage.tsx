@@ -79,6 +79,7 @@ export default function UserProfilePage() {
           id: number;
           caption?: string;
           mediaUrl?: string;
+          mediaVideoUrl?: string;
           createdAt?: string;
           created_at?: string;
           likeCount?: number;
@@ -97,6 +98,7 @@ export default function UserProfilePage() {
           isLiked: p.isLiked ?? false,
           isReposted: false,
           media: p.mediaUrl ? [p.mediaUrl] : undefined,
+          mediaVideoUrl: p.mediaVideoUrl,
           avatarUrl: data.user?.avatarUrl,
         }));
         setPosts(mapped);
