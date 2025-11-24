@@ -31,6 +31,7 @@ import {
   generateAvatarPublicId,
   addCloudinaryUrlToUser,
 } from "../services/cloudinary-service.js";
+import DOMPurify from "isomorphic-dompurify";
 
 const registerSchema = z.object({
   email: z
@@ -61,31 +62,60 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email format").trim().toLowerCase(),
-  password: z.string().min(1, "Password is required").max(128, "Invalid password length"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .max(128, "Invalid password length"),
 });
 
-const profileUpdateSchema = z.object({
-  username: z.string()
-    .min(3)
-    .max(50)
-    .regex(/^[a-zA-Z0-9_]+$/)
-    .trim()
-    .optional(),
-  phone: z.string()
-    .regex(/^(\+?\d{1,3}[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{4}$/)
-    .or(z.literal(""))
-    .optional(),
-  bio: z.string()
-    .max(500, "Bio must not exceed 500 characters")
-    .trim()
-    .transform(val => val.replace(/<[^>]*>/g, "")) // Strip HTML tags
-    .optional(),
-  isPrivate: z.boolean().optional(),
-  avatar: z.string()
-    .url("Invalid avatar URL")
-    .max(500)
-    .optional()
-}).strict(); // Reject unknown fields
+const profileUpdateSchema = z
+  .object({
+    username: z
+      .string()
+      .min(3)
+      .max(50)
+      .regex(/^[a-zA-Z0-9_]+$/)
+      .trim()
+      .optional(),
+    phone: z
+      .string()
+      .regex(/^(\+?\d{1,3}[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{4}$/)
+      .or(z.literal(""))
+      .optional(),
+    bio: z
+      .string()
+      .max(500, "Bio must not exceed 500 characters")
+      .trim()
+      .transform((val) => val.replace(/<[^>]*>/g, "")) // Strip HTML tags
+      .optional(),
+    isPrivate: z.boolean().optional(),
+    avatar: z.string().url("Invalid avatar URL").max(500).optional(),
+  })
+  .strict(); // Reject unknown fields
+
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required").max(128),
+    newPassword: z
+      .string()
+      .min(8)
+      .max(128)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/),
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: "New password must be different from current password",
+    path: ["newPassword"],
+  });
+
+const createPostSchema = z.object({
+  content: z
+    .string()
+    .min(1, "Post content is required")
+    .max(5000, "Post content must not exceed 5000 characters")
+    .transform((val) => DOMPurify.sanitize(val.trim())),
+  mediaUrl: z.string().url("Invalid media URL").max(500).optional(),
+  mediaType: z.enum(["image", "video", "none"]).optional().default("none"),
+});
 
 export const handleUserRegistration = async (req: Request, res: Response) => {
   try {
@@ -312,10 +342,7 @@ export const handleProfileUpdate = async (req: Request, res: Response) => {
 
     console.error("Profile update error:", error);
 
-    if (
-      error instanceof Error &&
-      error.message.includes("duplicate key")
-    ) {
+    if (error instanceof Error && error.message.includes("duplicate key")) {
       if (error.message.includes("username")) {
         return res.status(409).json({ message: "Username already exists" });
       }
@@ -324,61 +351,6 @@ export const handleProfileUpdate = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-export const handleChangePassword = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const { currentPassword, newPassword } = req.body as {
-    currentPassword: string;
-    newPassword: string;
-  };
-
-  if (!currentPassword || !newPassword) {
-    return res
-      .status(400)
-      .json({ message: "Current password and new password are required" });
-  }
-
-  if (typeof currentPassword !== "string" || typeof newPassword !== "string") {
-    return res.status(400).json({ message: "Passwords must be strings" });
-  }
-
-  if (!isValidPassword(newPassword)) {
-    return res.status(400).json({
-      message:
-        "New password must be at least 8 characters long and contain uppercase, lowercase, number, and special character",
-    });
-  }
-
-  try {
-    const currentUserWithPassword = await getUserByIdWithPassword(userId);
-    if (!currentUserWithPassword) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const isCurrentPasswordValid = await bcrypt.compare(
-      currentPassword,
-      currentUserWithPassword.password
-    );
-    if (!isCurrentPasswordValid) {
-      return res.status(401).json({ message: "Current password is incorrect" });
-    }
-
-    await updateUserPassword(userId, newPassword);
-    return res.status(200).json({ message: "Password changed successfully" });
-  } catch (changePasswordError) {
-    console.error(
-      "Change password error:",
-      changePasswordError instanceof Error
-        ? changePasswordError.message
-        : changePasswordError
-    );
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -519,6 +491,102 @@ export const handleCheckFollowStatus = async (req: Request, res: Response) => {
     return res.status(200).json({ isFollowing });
   } catch (error) {
     console.error("Check follow status error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// export const handleChangePassword = async (req: Request, res: Response) => {
+//   const userId = req.user?.id;
+//   if (!userId) {
+//     return res.status(401).json({ message: "Unauthorized" });
+//   }
+
+//   const { currentPassword, newPassword } = req.body as {
+//     currentPassword: string;
+//     newPassword: string;
+//   };
+
+//   if (!currentPassword || !newPassword) {
+//     return res
+//       .status(400)
+//       .json({ message: "Current password and new password are required" });
+//   }
+
+//   if (typeof currentPassword !== "string" || typeof newPassword !== "string") {
+//     return res.status(400).json({ message: "Passwords must be strings" });
+//   }
+
+//   if (!isValidPassword(newPassword)) {
+//     return res.status(400).json({
+//       message:
+//         "New password must be at least 8 characters long and contain uppercase, lowercase, number, and special character",
+//     });
+//   }
+
+//   try {
+//     const currentUserWithPassword = await getUserByIdWithPassword(userId);
+//     if (!currentUserWithPassword) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     const isCurrentPasswordValid = await bcrypt.compare(
+//       currentPassword,
+//       currentUserWithPassword.password
+//     );
+//     if (!isCurrentPasswordValid) {
+//       return res.status(401).json({ message: "Current password is incorrect" });
+//     }
+
+//     await updateUserPassword(userId, newPassword);
+//     return res.status(200).json({ message: "Password changed successfully" });
+//   } catch (changePasswordError) {
+//     console.error(
+//       "Change password error:",
+//       changePasswordError instanceof Error
+//         ? changePasswordError.message
+//         : changePasswordError
+//     );
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
+export const handlePasswordChange = async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = changePasswordSchema.parse(
+      req.body
+    );
+
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const currentUserWithPassword = await getUserByIdWithPassword(userId);
+    if (!currentUserWithPassword) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      currentUserWithPassword.password
+    );
+    if (!isCurrentPasswordValid) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    await updateUserPassword(userId, newPassword);
+    return res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues,
+      });
+    }
+    console.error(
+      "Change password error:",
+      error instanceof Error ? error.message : error
+    );
     return res.status(500).json({ message: "Internal server error" });
   }
 };
