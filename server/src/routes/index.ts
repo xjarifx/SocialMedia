@@ -3,14 +3,14 @@ import {
   handleUserLogin,
   handleUserRegistration,
   handleUserProfileGet,
-  handleUserProfileUpdate,
-  handleChangePassword,
+  handleProfileUpdate,
+  handlePasswordChange,
   handleGetFollowing,
   handleGetFollowers,
   handleUnfollowUser,
   handleFollowUser,
   handleCheckFollowStatus,
-} from "../controllers/user-controller.js";
+} from "../controllers/user/index.js";
 import {
   handlePostCreation,
   handlePostUpdate,
@@ -19,21 +19,21 @@ import {
   handleGetFollowingPosts,
   handleGetOwnPosts,
   handleGetPostsByUsername,
-} from "../controllers/post-controller.js";
+} from "../controllers/post.controller.js";
 import {
   handleCreateComment,
   handleUpdateComment,
   handleDeleteComment,
   handleGetCommentsByPost,
-} from "../controllers/comment-controller.js";
+} from "../controllers/comment.controller.js";
 import {
   handleLikeCreation,
   handleLikeDeletion,
   handleGetLikeCount,
-} from "../controllers/like-controller.js";
-import { handleSearchByUsername } from "../controllers/search-controller.js";
-import { authenticateUserToken } from "../middlewares/auth-middleware.js";
-import { uploadMiddleware } from "../middlewares/upload-middleware.js";
+} from "../controllers/like.controller.js";
+import { handleSearchByUsername } from "../controllers/search.controller.js";
+import { authenticateUserToken } from "../middlewares/auth.middleware.js";
+import { uploadMiddleware } from "../middlewares/upload.middleware.js";
 
 const router = Router();
 
@@ -52,9 +52,9 @@ router.put(
   "/profile",
   authenticateUserToken,
   uploadMiddleware.single("avatar"),
-  handleUserProfileUpdate
+  handleProfileUpdate
 );
-router.put("/password", authenticateUserToken, handleChangePassword);
+router.put("/password", authenticateUserToken, handlePasswordChange);
 
 // FOLLOW ROUTES (protected)
 router.post("/:targetUsername/follow", authenticateUserToken, handleFollowUser);

@@ -7,19 +7,19 @@ import {
   getPostsByUserId,
   getForYouPosts,
   getFollowingPosts, // added
-} from "../repositories/post-repository.js";
+} from "../repositories/post.repository.js";
 import {
   getUserByUsername,
   getFollowerCount,
   getFollowingCount,
-} from "../repositories/user-repository.js";
+} from "../repositories/user.repository.js";
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
   generatePostPublicId,
   addCloudinaryUrlsToPosts,
   addCloudinaryUrlToUser,
-} from "../services/cloudinary-service.js";
+} from "../services/cloudinary.service.js";
 
 // create post
 export const handlePostCreation = async (req: Request, res: Response) => {

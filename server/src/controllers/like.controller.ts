@@ -4,7 +4,7 @@ import {
   insertLike,
   deleteLike,
   getLikeCount,
-} from "../repositories/like-repository.js";
+} from "../repositories/like.repository.js";
 
 // like
 export const handleLikeCreation = async (req: Request, res: Response) => {

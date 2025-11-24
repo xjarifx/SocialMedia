@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import connectionPool from "../db/connection.js";
-import { addCloudinaryUrlToUser } from "../services/cloudinary-service.js";
+import { addCloudinaryUrlToUser } from "../services/cloudinary.service.js";
 
 export const handleSearchByUsername = async (req: Request, res: Response) => {
   const username = req.query.username as string;

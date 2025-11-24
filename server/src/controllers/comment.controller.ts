@@ -4,7 +4,7 @@ import {
   updateComment,
   deleteComment,
   getCommentsByPostId,
-} from "../repositories/comment-repository.js";
+} from "../repositories/comment.repository.js";
 
 // Add comments to posts
 export const handleCreateComment = async (req: Request, res: Response) => {

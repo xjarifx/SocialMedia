@@ -116,8 +116,8 @@ SocialMedia/
 │
 ├── docs/                  # Documentation
 │   ├── backend-overview.md
-│   ├── database-schema.md
-│   └── simple-credentials.md
+│   ├── database.schema.md
+│   └── simple.credentials.md
 │
 └── readme.md             # This file
 ```
@@ -169,10 +169,10 @@ CREATE DATABASE socialmedia;
 Run the database schema:
 
 ```bash
-psql -U your_username -d socialmedia -f docs/database-schema.sql
+psql -U your_username -d socialmedia -f docs/database.schema.sql
 ```
 
-Or manually create tables using the schema in `docs/database-schema.md`.
+Or manually create tables using the schema in `docs/database.schema.md`.
 
 #### 4. Configure Environment Variables
 
@@ -231,7 +231,7 @@ http://localhost:5173
 
 ### Quick Test Credentials
 
-See `docs/simple-credentials.md` for test accounts.
+See `docs/simple.credentials.md` for test accounts.
 
 ---
 
@@ -390,7 +390,7 @@ WHERE p.user_id IN (
 ORDER BY p.created_at DESC;
 ```
 
-For complete schema details, see `docs/database-schema.md`.
+For complete schema details, see `docs/database.schema.md`.
 
 ---
 
@@ -601,9 +601,9 @@ chore: Maintenance tasks
 ## 📝 Additional Documentation
 
 - **Backend Overview**: `docs/backend-overview.md` - Comprehensive backend documentation
-- **Database Schema**: `docs/database-schema.md` - Complete database structure
-- **Frontend Plan**: `client/FRONTEND-PLAN.md` - Frontend roadmap and design system
-- **Test Credentials**: `docs/simple-credentials.md` - Development test accounts
+- **Database Schema**: `docs/database.schema.md` - Complete database structure
+- **Frontend Plan**: `client/FRONTEND.PLAN.md` - Frontend roadmap and design system
+- **Test Credentials**: `docs/simple.credentials.md` - Development test accounts
 
 ---
 

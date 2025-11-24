@@ -16,7 +16,7 @@ import {
   deleteFollower,
   getFollowers,
   getFollowing,
-} from "../repositories/user-repository.js";
+} from "../repositories/user.repository.js";
 import {
   isValidEmail,
   isValidPassword,
@@ -30,7 +30,7 @@ import {
   deleteFromCloudinary,
   generateAvatarPublicId,
   addCloudinaryUrlToUser,
-} from "../services/cloudinary-service.js";
+} from "../services/cloudinary.service.js";
 import DOMPurify from "isomorphic-dompurify";
 
 const registerSchema = z.object({
