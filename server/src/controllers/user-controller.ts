@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Request, Response } from "express";
 import {
   checkEmailExists,
@@ -31,48 +32,66 @@ import {
   addCloudinaryUrlToUser,
 } from "../services/cloudinary-service.js";
 
+const registerSchema = z.object({
+  email: z
+    .string()
+    .email("Invalid email format")
+    .min(5, "Email must be at least 5 characters")
+    .max(255, "Email must not exceed 255 characters")
+    .trim()
+    .toLowerCase(),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(50, "Username must not exceed 50 characters")
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores"
+    )
+    .trim(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password must not exceed 128 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/,
+      "Password must contain uppercase, lowercase, number, and special character"
+    ),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email format").trim().toLowerCase(),
+  password: z.string().min(1, "Password is required").max(128, "Invalid password length"),
+});
+
+const profileUpdateSchema = z.object({
+  username: z.string()
+    .min(3)
+    .max(50)
+    .regex(/^[a-zA-Z0-9_]+$/)
+    .trim()
+    .optional(),
+  phone: z.string()
+    .regex(/^(\+?\d{1,3}[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{4}$/)
+    .or(z.literal(""))
+    .optional(),
+  bio: z.string()
+    .max(500, "Bio must not exceed 500 characters")
+    .trim()
+    .transform(val => val.replace(/<[^>]*>/g, "")) // Strip HTML tags
+    .optional(),
+  isPrivate: z.boolean().optional(),
+  avatar: z.string()
+    .url("Invalid avatar URL")
+    .max(500)
+    .optional()
+}).strict(); // Reject unknown fields
+
 export const handleUserRegistration = async (req: Request, res: Response) => {
-  const { email, username, password } = req.body as {
-    email: string;
-    username: string;
-    password: string;
-  };
-
-  if (!email || !username || !password) {
-    return res
-      .status(400)
-      .json({ message: "Please provide email, username, and password" });
-  }
-
-  if (
-    typeof email !== "string" ||
-    typeof username !== "string" ||
-    typeof password !== "string"
-  ) {
-    return res
-      .status(400)
-      .json({ message: "Email, username, and password must be strings" });
-  }
-
-  if (!isValidEmail(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
-  }
-
-  if (!isValidUsername(username)) {
-    return res.status(400).json({
-      message:
-        "Username must be 3-50 characters long and contain only letters, numbers, and underscores",
-    });
-  }
-
-  if (!isValidPassword(password)) {
-    return res.status(400).json({
-      message:
-        "Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character",
-    });
-  }
-
   try {
+    const validatedData = registerSchema.parse(req.body);
+    const { email, username, password } = validatedData;
+
     if (await checkEmailExists(email)) {
       return res.status(409).json({ message: "Email already exists" });
     }
@@ -100,51 +119,50 @@ export const handleUserRegistration = async (req: Request, res: Response) => {
         updatedAt: userWithAvatarUrl.updatedAt,
       },
     });
-  } catch (userRegistrationError) {
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues,
+      });
+    }
     console.error(
       "Registration error:",
-      userRegistrationError instanceof Error
-        ? userRegistrationError.message
-        : userRegistrationError
+      error instanceof Error ? error.message : error
     );
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
 export const handleUserLogin = async (req: Request, res: Response) => {
-  const { email, password } = req.body as {
-    email: string;
-    password: string;
-  };
-
-  if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Please provide both email and password" });
-  }
-
-  if (typeof email !== "string" || typeof password !== "string") {
-    return res
-      .status(400)
-      .json({ message: "Email and password must be strings" });
-  }
-
-  if (!isValidEmail(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
-  }
-
   try {
-    const authenticatedUser = await getUserByEmail(email);
-    if (!authenticatedUser) {
-      return res.status(401).json({ message: "Invalid email or password" });
+    const { email, password } = loginSchema.parse(req.body);
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Please provide both email and password" });
     }
 
+    if (typeof email !== "string" || typeof password !== "string") {
+      return res
+        .status(400)
+        .json({ message: "Email and password must be strings" });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    const authenticatedUser = await getUserByEmail(email);
     const isPasswordValid = await bcrypt.compare(
       password,
-      authenticatedUser.password
+      authenticatedUser?.password || ""
     );
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid email or password" });
+
+    // Always return same error message to prevent timing attacks
+    if (!authenticatedUser || !isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const authenticationToken = jwt.sign(
@@ -211,73 +229,34 @@ export const handleUserProfileGet = async (req: Request, res: Response) => {
   }
 };
 
-export const handleUserProfileUpdate = async (req: Request, res: Response) => {
+export const handleProfileUpdate = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { username, phone, bio, isPrivate } = req.body as {
-    username?: string;
-    phone?: string;
-    bio?: string;
-    isPrivate?: boolean;
-  };
-
-  const file = req.file; // Avatar file from multer
-
-  const currentUser = await getUserById(userId);
-
-  if (username !== undefined) {
-    if (typeof username !== "string" || !isValidUsername(username)) {
-      return res.status(400).json({
-        message:
-          "Username must be 3-50 characters long and contain only letters, numbers, and underscores",
-      });
-    }
-
-    if (
-      currentUser?.username !== username &&
-      (await checkUsernameExists(username))
-    ) {
-      return res.status(409).json({ message: "Username already exists" });
-    }
-  }
-
-  if (phone !== undefined && phone !== null) {
-    if (
-      typeof phone !== "string" ||
-      (phone.length > 0 && !isValidPhoneNumber(phone))
-    ) {
-      return res.status(400).json({
-        message: "Invalid phone number format",
-      });
-    }
-
-    if (
-      phone.length > 0 &&
-      currentUser?.phone !== phone &&
-      (await checkPhoneExists(phone))
-    ) {
-      return res.status(409).json({ message: "Phone number already exists" });
-    }
-  }
-
-  if (bio !== undefined && bio !== null) {
-    if (typeof bio !== "string" || bio.length > 500) {
-      return res.status(400).json({
-        message: "Bio must be a string with maximum 500 characters",
-      });
-    }
-  }
-
-  if (isPrivate !== undefined && typeof isPrivate !== "boolean") {
-    return res.status(400).json({
-      message: "isPrivate must be a boolean value",
-    });
-  }
-
   try {
+    // Validate request body with Zod schema
+    const validatedData = profileUpdateSchema.parse(req.body);
+    const { username, phone, bio, isPrivate } = validatedData;
+
+    const file = req.file; // Avatar file from multer
+    const currentUser = await getUserById(userId);
+
+    // Check username uniqueness if changed
+    if (username !== undefined && currentUser?.username !== username) {
+      if (await checkUsernameExists(username)) {
+        return res.status(409).json({ message: "Username already exists" });
+      }
+    }
+
+    // Check phone uniqueness if changed
+    if (phone !== undefined && phone !== "" && currentUser?.phone !== phone) {
+      if (await checkPhoneExists(phone)) {
+        return res.status(409).json({ message: "Phone number already exists" });
+      }
+    }
+
     const updateData: {
       username?: string;
       phone?: string;
@@ -287,7 +266,7 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
     } = {};
 
     if (username !== undefined) updateData.username = username;
-    if (phone !== undefined) updateData.phone = phone;
+    if (phone !== undefined) updateData.phone = phone === "" ? "" : phone;
     if (bio !== undefined) updateData.bio = bio;
     if (isPrivate !== undefined) updateData.isPrivate = isPrivate;
 
@@ -322,17 +301,25 @@ export const handleUserProfileUpdate = async (req: Request, res: Response) => {
       message: "Profile updated successfully",
       user: userWithAvatarUrl,
     });
-  } catch (profileUpdateError) {
-    console.error("Profile update error:", profileUpdateError);
+  } catch (error) {
+    // Handle Zod validation errors
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues,
+      });
+    }
+
+    console.error("Profile update error:", error);
 
     if (
-      profileUpdateError instanceof Error &&
-      profileUpdateError.message.includes("duplicate key")
+      error instanceof Error &&
+      error.message.includes("duplicate key")
     ) {
-      if (profileUpdateError.message.includes("username")) {
+      if (error.message.includes("username")) {
         return res.status(409).json({ message: "Username already exists" });
       }
-      if (profileUpdateError.message.includes("phone")) {
+      if (error.message.includes("phone")) {
         return res.status(409).json({ message: "Phone number already exists" });
       }
     }
