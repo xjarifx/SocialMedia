@@ -3,7 +3,7 @@ import {
   handleUserProfileGet,
   handleProfileUpdate,
   handlePasswordChange,
-} from "../controllers/user/index.js";
+} from "../controllers/profile.controller.js";
 import { authenticateUserToken } from "../middlewares/auth.middleware.js";
 import { uploadMiddleware } from "../middlewares/upload.middleware.js";
 

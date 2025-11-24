@@ -1,4 +1,4 @@
-import connectionPool from "../db/connection.js";
+import connectionPool from "../db/connection.db.js";
 
 export const insertLike = async (
   userId: number,

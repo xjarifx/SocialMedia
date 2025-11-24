@@ -5,7 +5,7 @@ import {
   handleUnfollowUser,
   handleFollowUser,
   handleCheckFollowStatus,
-} from "../controllers/user/index.js";
+} from "../controllers/follow.controller.js";
 import { authenticateUserToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();

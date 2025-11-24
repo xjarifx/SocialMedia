@@ -1,4 +1,4 @@
-import connectionPool from "../db/connection.js";
+import connectionPool from "../db/connection.db.js";
 import bcrypt from "bcrypt";
 
 export const checkEmailExists = async (email: string): Promise<boolean> => {
