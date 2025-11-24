@@ -7,9 +7,9 @@ import {
   checkUsernameExists,
   insertUser,
   getUserByEmail,
-} from "../../repositories/user.repository.js";
-import { isValidEmail } from "../../utils/index.js";
-import { addCloudinaryUrlToUser } from "../../services/cloudinary.service.js";
+} from "../repositories/auth.repository.js";
+import { isValidEmail } from "../utils/index.js";
+import { addCloudinaryUrlToUser } from "../services/cloudinary.service.js";
 
 // Validation schemas
 export const registerSchema = z.object({

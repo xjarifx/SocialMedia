@@ -8,13 +8,13 @@ import {
   getUserByIdWithPassword,
   updateUserProfile,
   updateUserPassword,
-} from "../../repositories/user.repository.js";
+} from "../repositories/profile.repository.js";
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
   generateAvatarPublicId,
   addCloudinaryUrlToUser,
-} from "../../services/cloudinary.service.js";
+} from "../services/cloudinary.service.js";
 
 // Validation schemas
 export const profileUpdateSchema = z

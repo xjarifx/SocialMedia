@@ -6,8 +6,8 @@ import {
   deleteFollower,
   getFollowers,
   getFollowing,
-} from "../../repositories/user.repository.js";
-import { addCloudinaryUrlToUser } from "../../services/cloudinary.service.js";
+} from "../repositories/follow.repository.js";
+import { addCloudinaryUrlToUser } from "../services/cloudinary.service.js";
 
 /**
  * Follow a user

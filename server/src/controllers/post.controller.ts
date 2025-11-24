@@ -12,7 +12,7 @@ import {
   getUserByUsername,
   getFollowerCount,
   getFollowingCount,
-} from "../repositories/user.repository.js";
+} from "../repositories/follow.repository.js";
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
