@@ -1,19 +1,21 @@
-import "dotenv/config";
+import "./config/env.config.js";
 import express from "express";
-import cors from "cors";
-import authRoutes from "./routes/auth.routes.js";
-import profileRoutes from "./routes/profile.routes.js";
-import followRoutes from "./routes/follow.routes.js";
-import postsRoutes from "./routes/posts.routes.js";
-import commentsRoutes from "./routes/comments.routes.js";
-import likesRoutes from "./routes/likes.routes.js";
-import searchRoutes from "./routes/search.routes.js";
+import { corsConfig } from "./config/cors.config.js";
+import { errorHandler } from "./shared/middleware/error.middleware.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+import userRoutes from "./modules/users/user.routes.js";
+import followRoutes from "./modules/follows/follow.routes.js";
+import postRoutes from "./modules/posts/post.routes.js";
+import commentRoutes from "./modules/comments/comment.routes.js";
+import likeRoutes from "./modules/likes/like.routes.js";
+import searchRoutes from "./modules/search/search.routes.js";
+import { env } from "./config/env.config.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.port;
 
 // CORS configuration
-app.use(cors());
+app.use(corsConfig);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,12 +27,15 @@ app.get("/api", (req, res) => {
 
 // Mount route modules with /api prefix
 app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes);
+app.use("/api/profile", userRoutes);
 app.use("/api/follow", followRoutes);
-app.use("/api/posts", postsRoutes);
-app.use("/api/comments", commentsRoutes);
-app.use("/api/likes", likesRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/likes", likeRoutes);
 app.use("/api/search", searchRoutes);
+
+// Global error handler (must be last)
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
