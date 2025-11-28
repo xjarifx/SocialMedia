@@ -1,3 +1,5 @@
+import { createPostSchema, updatePostSchema } from "./post.validators.js";
+import { z } from "zod";
 import type { Request, Response } from "express";
 import {
   insertPost,
@@ -28,7 +30,27 @@ export const handlePostCreation = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { caption } = req.body as { caption?: string };
+  // const { caption } = req.body as { caption?: string };
+
+  let caption: string | undefined = undefined;
+
+  try {
+    if (req.body.caption) {
+      const validatedData = createPostSchema.parse(req.body);
+      caption = validatedData.caption;
+      req.body.caption = caption;
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res
+        .status(400)
+        .json({ message: "Validation failed", errors: error.issues });
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+
+  // ---
+
   const file = req.file;
 
   if (!caption && !file) {

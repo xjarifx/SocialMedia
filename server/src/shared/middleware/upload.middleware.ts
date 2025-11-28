@@ -1,7 +1,7 @@
 import multer from "multer";
 import type { Request } from "express";
 import path from "path";
-import sanitize from "sanitize-filename"; // npm install sanitize-filename
+import sanitize from "sanitize-filename";
 
 const fileFilter = (
   req: Request,
