@@ -1,4 +1,5 @@
 import { z } from "zod";
+import DOMPurify from "isomorphic-dompurify";
 
 export const createPostSchema = z.object({
   caption: z
@@ -6,8 +7,8 @@ export const createPostSchema = z.object({
     .min(1, "Caption cannot be empty")
     .max(2000, "Caption must not exceed 2000 characters")
     .trim()
-    .transform((val) => val.replace(/<[^>]*>/g, "")) // Strip HTML tags
-    .transform((val) => val.replace(/\s+/g, " ")) // Normalize whitespace
+    .transform((val) => DOMPurify.sanitize(val, { ALLOWED_TAGS: [] })) // Better XSS protection
+    .transform((val) => val.replace(/\s+/g, " "))
     .refine((val) => val.length > 0, {
       message: "Caption cannot be only whitespace",
     })
@@ -20,7 +21,7 @@ export const updatePostSchema = z.object({
     .min(1, "Caption cannot be empty")
     .max(2000, "Caption must not exceed 2000 characters")
     .trim()
-    .transform((val) => val.replace(/<[^>]*>/g, ""))
+    .transform((val) => DOMPurify.sanitize(val, { ALLOWED_TAGS: [] })) // Better XSS protection
     .transform((val) => val.replace(/\s+/g, " "))
     .refine((val) => val.length > 0, {
       message: "Caption cannot be only whitespace",
