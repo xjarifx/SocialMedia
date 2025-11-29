@@ -33,7 +33,13 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email format").trim().toLowerCase(),
+  email: z
+    .string()
+    .email("Invalid email format")
+    .min(5, "Email must be at least 5 characters")
+    .max(255, "Email must not exceed 255 characters")
+    .trim()
+    .toLowerCase(),
   password: z
     .string()
     .min(1, "Password is required")
