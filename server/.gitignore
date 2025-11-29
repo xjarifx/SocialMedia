@@ -1,3 +1,12 @@
 node_modules
 .env
+.env.test
 dist
+
+# Test coverage
+coverage
+*.lcov
+
+# Test results
+test-results
+junit.xml
