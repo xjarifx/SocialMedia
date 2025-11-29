@@ -3,6 +3,8 @@ import type { Request } from "express";
 import path from "path";
 import sanitize from "sanitize-filename";
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 const fileFilter = (
   req: Request,
   file: Express.Multer.File,
@@ -69,13 +71,27 @@ const fileFilter = (
 
 const storage = multer.memoryStorage();
 
-export const uploadMiddleware = multer({
-  storage: storage,
-  fileFilter: fileFilter,
+export const upload = multer({
+  storage,
+  fileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB max
-    files: 10, // Maximum 10 files per request
-    fieldSize: 1024 * 1024, // 1MB max field size
-    fieldNameSize: 100, // Max field name size
+    fileSize: MAX_FILE_SIZE,
+    files: 1,
   },
 });
+
+// Error handler for multer
+export const handleMulterError = (
+  err: any,
+  req: Request,
+  res: any,
+  next: any
+) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({ message: "File too large (max 10MB)" });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  next(err);
+};
