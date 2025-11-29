@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+// Define username regex as a constant
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,50}$/;
+const USERNAME_ERROR_MESSAGE =
+  "Username must be 3-50 characters and contain only letters, numbers, and underscores";
+
 // Define password regex as a constant for consistency
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#+\-_.])[A-Za-z\d@$!%*?&#+\-_.]{8,}$/;
@@ -18,10 +23,7 @@ export const registerSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters")
     .max(50, "Username must not exceed 50 characters")
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers, and underscores"
-    )
+    .regex(USERNAME_REGEX, USERNAME_ERROR_MESSAGE)
     .trim(),
   password: z
     .string()
@@ -39,4 +41,9 @@ export const loginSchema = z.object({
 });
 
 // Export for reuse in other validators
-export { PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE };
+export {
+  USERNAME_REGEX,
+  USERNAME_ERROR_MESSAGE,
+  PASSWORD_REGEX,
+  PASSWORD_ERROR_MESSAGE,
+};

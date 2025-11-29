@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { USERNAME_REGEX, USERNAME_ERROR_MESSAGE } from "./auth.validators.js";
 
 // Validation schemas
 export const profileUpdateSchema = z
@@ -7,7 +8,7 @@ export const profileUpdateSchema = z
       .string()
       .min(3)
       .max(50)
-      .regex(/^[a-zA-Z0-9_]+$/)
+      .regex(USERNAME_REGEX, USERNAME_ERROR_MESSAGE)
       .trim()
       .optional(),
     phone: z
