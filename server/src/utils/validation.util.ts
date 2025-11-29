@@ -11,7 +11,6 @@ export function isValidEmail(email: string): boolean {
   });
 }
 
-
 export function isValidUsername(username: string): boolean {
   const usernameRegex = /^[a-zA-Z0-9_]{3,50}$/;
   return usernameRegex.test(username);
@@ -22,4 +21,31 @@ export function isValidPhoneNumber(phone: string): boolean {
   // example: +1234567890, (123) 456-7890, 123-456-7890, 123 456 7890
   const phoneRegex = /^(\+?\d{1,3}[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{4}$/;
   return phoneRegex.test(phone);
+}
+
+export function validatePostId(postId: string | undefined): {
+  isValid: boolean;
+  id?: number;
+  error?: string;
+} {
+  if (!postId) {
+    return { isValid: false, error: "Post ID is required" };
+  }
+
+  const postIdNumber = parseInt(postId, 10);
+  if (isNaN(postIdNumber) || postIdNumber <= 0) {
+    return { isValid: false, error: "Invalid post ID" };
+  }
+
+  return { isValid: true, id: postIdNumber };
+}
+
+export function validateUserId(userId: number | undefined): {
+  isValid: boolean;
+  error?: string;
+} {
+  if (!userId || userId <= 0) {
+    return { isValid: false, error: "Unauthorized" };
+  }
+  return { isValid: true };
 }
