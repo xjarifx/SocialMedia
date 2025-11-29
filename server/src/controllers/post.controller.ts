@@ -33,16 +33,19 @@ export const handlePostCreation = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // const { caption } = req.body as { caption?: string };
+  const { caption } = req.body as { caption?: string };
+  const file = req.file;
 
-  let caption: string | undefined = undefined;
+  // Validate that at least caption or media is provided
+  if (!caption && !file) {
+    return res.status(400).json({ 
+      message: "Caption or media is required" 
+    });
+  }
 
   try {
-    if (req.body.caption) {
-      const validatedData = createPostSchema.parse(req.body);
-      caption = validatedData.caption;
-      req.body.caption = caption;
-    }
+    const validatedData = createPostSchema.parse({ caption });
+    req.body.caption = validatedData.caption;
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res
@@ -53,12 +56,6 @@ export const handlePostCreation = async (req: Request, res: Response) => {
   }
 
   // ---
-
-  const file = req.file;
-
-  if (!caption && !file) {
-    return res.status(400).json({ message: "Caption or media is required" });
-  }
 
   try {
     // Step 1: Create post in DB with empty mediaUrl to get postId
