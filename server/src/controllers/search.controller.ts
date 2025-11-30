@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { z } from "zod";
 import { searchUsersByUsername } from "../repositories/search.repository.js";
 import { addCloudinaryUrlToUser } from "../services/cloudinary.service.js";
 import { HTTP_STATUS } from "../constants/http-status.js";
@@ -6,20 +7,29 @@ import { ERROR_MESSAGES } from "../constants/error-messages.js";
 import { searchQuerySchema } from "../validations/common.validators.js";
 
 export const handleSearchByUsername = async (req: Request, res: Response) => {
-  const username = req.query.username as string;
-
-  if (!username) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      error: ERROR_MESSAGES.USERNAME_REQUIRED,
-    });
-  }
-
   try {
+    // Validate search query with proper length and sanitization
+    const usernameSchema = z.object({
+      username: z
+        .string()
+        .min(1, "Username query cannot be empty")
+        .max(50, "Username query too long")
+        .trim(),
+    });
+
+    const { username } = usernameSchema.parse(req.query);
+
     const users = await searchUsersByUsername(username);
     const usersWithUrls = users.map((user) => addCloudinaryUrlToUser(user));
 
     return res.status(HTTP_STATUS.OK).json({ users: usersWithUrls });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        message: "Validation failed",
+        errors: error.issues,
+      });
+    }
     console.error("Error executing search query:", error);
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       error: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,

@@ -50,6 +50,7 @@ export const changePasswordSchema = z
       .max(128, "Password must not exceed 128 characters")
       .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE),
   })
+  .strict() // Reject unknown fields
   .refine((data) => data.currentPassword !== data.newPassword, {
     message: "New password must be different from current password",
     path: ["newPassword"],

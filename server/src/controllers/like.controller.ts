@@ -46,7 +46,7 @@ export const handleLikeDeletion = async (req: Request, res: Response) => {
   }
 
   const postId = parseInt(postIdParam, 10);
-  if (isNaN(postId)) {
+  if (isNaN(postId) || postId <= 0) {
     return res.status(400).json({ message: "Invalid post ID" });
   }
 
@@ -68,7 +68,7 @@ export const handleGetLikeCount = async (req: Request, res: Response) => {
   }
 
   const postId = parseInt(postIdParam, 10);
-  if (isNaN(postId)) {
+  if (isNaN(postId) || postId <= 0) {
     return res.status(400).json({ message: "Invalid post ID" });
   }
 

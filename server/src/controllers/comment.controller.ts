@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
+import { z } from "zod";
 import {
   insertComment,
   updateComment,
   deleteComment,
   getCommentsByPostId,
 } from "../repositories/comment.repository.js";
+import {
+  createCommentSchema,
+  updateCommentSchema,
+} from "../validations/comment.validators.js";
 
 // Add comments to posts
 export const handleCreateComment = async (req: Request, res: Response) => {
@@ -12,6 +17,7 @@ export const handleCreateComment = async (req: Request, res: Response) => {
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
+
   const { postId } = req.params as { postId: string };
   if (!postId) {
     return res.status(400).json({ message: "Post ID is required" });
@@ -22,19 +28,26 @@ export const handleCreateComment = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid Post ID" });
   }
 
-  const { comment } = req.body as { comment: string };
-  if (!comment) {
-    return res.status(400).json({ message: "Comment text is required" });
-  }
-
   try {
-    const createdComment = await insertComment(userId, postIdNumber, comment);
-    return res.status(201).json({
-      message: "Comment created successfully",
-      comment: createdComment,
+    // Use Zod validation
+    const { content } = createCommentSchema.parse({
+      content: req.body.comment,
+      postId: postIdNumber,
     });
-  } catch (commentCreationError) {
-    return res.status(500).json({ message: "Failed to create comment" });
+
+    const createdComment = await insertComment(userId, postIdNumber, content);
+    return res
+      .status(201)
+      .json({ message: "Comment created", comment: createdComment });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues,
+      });
+    }
+    console.error("Comment creation error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -51,17 +64,17 @@ export const handleUpdateComment = async (req: Request, res: Response) => {
   }
 
   const commentIdNumber = parseInt(commentId, 10);
-  if (isNaN(commentIdNumber)) {
+  if (isNaN(commentIdNumber) || commentIdNumber <= 0) {
     return res.status(400).json({ message: "Invalid Comment ID" });
   }
 
-  const { comment } = req.body as { comment: string };
-  if (!comment) {
-    return res.status(400).json({ message: "Comment text is required" });
-  }
-
   try {
-    const updatedComment = await updateComment(commentIdNumber, comment);
+    // Use Zod validation for comment content
+    const { content } = updateCommentSchema.parse({
+      content: req.body.comment,
+    });
+
+    const updatedComment = await updateComment(commentIdNumber, content);
     if (!updatedComment) {
       return res.status(404).json({ message: "Comment not found" });
     }
@@ -69,7 +82,14 @@ export const handleUpdateComment = async (req: Request, res: Response) => {
       message: "Comment updated successfully",
       comment: updatedComment,
     });
-  } catch (commentUpdateError) {
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues,
+      });
+    }
+    console.error("Comment update error:", error);
     return res.status(500).json({ message: "Failed to update comment" });
   }
 };
@@ -87,7 +107,7 @@ export const handleDeleteComment = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Comment ID is required" });
   }
   const commentIdNumber = parseInt(commentId, 10);
-  if (isNaN(commentIdNumber)) {
+  if (isNaN(commentIdNumber) || commentIdNumber <= 0) {
     return res.status(400).json({ message: "Invalid Comment ID" });
   }
   try {

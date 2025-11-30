@@ -21,8 +21,19 @@ export const handleFollowUser = async (req: Request, res: Response) => {
 
   const targetUsername = req.params.targetUsername;
 
-  if (!targetUsername || typeof targetUsername !== "string") {
+  if (
+    !targetUsername ||
+    typeof targetUsername !== "string" ||
+    targetUsername.trim().length === 0
+  ) {
     return res.status(400).json({ message: "Invalid target username" });
+  }
+
+  // Validate username format and length
+  if (targetUsername.length > 50 || targetUsername.length < 3) {
+    return res
+      .status(400)
+      .json({ message: "Username must be between 3 and 50 characters" });
   }
 
   try {
@@ -65,8 +76,19 @@ export const handleUnfollowUser = async (req: Request, res: Response) => {
 
   const targetUsername = req.params.targetUsername;
 
-  if (!targetUsername || typeof targetUsername !== "string") {
+  if (
+    !targetUsername ||
+    typeof targetUsername !== "string" ||
+    targetUsername.trim().length === 0
+  ) {
     return res.status(400).json({ message: "Invalid target username" });
+  }
+
+  // Validate username format and length
+  if (targetUsername.length > 50 || targetUsername.length < 3) {
+    return res
+      .status(400)
+      .json({ message: "Username must be between 3 and 50 characters" });
   }
 
   try {
@@ -150,8 +172,19 @@ export const handleCheckFollowStatus = async (req: Request, res: Response) => {
   }
 
   const targetUsername = req.params.targetUsername;
-  if (!targetUsername || typeof targetUsername !== "string") {
+  if (
+    !targetUsername ||
+    typeof targetUsername !== "string" ||
+    targetUsername.trim().length === 0
+  ) {
     return res.status(400).json({ message: "Invalid target username" });
+  }
+
+  // Validate username format and length
+  if (targetUsername.length > 50 || targetUsername.length < 3) {
+    return res
+      .status(400)
+      .json({ message: "Username must be between 3 and 50 characters" });
   }
 
   try {

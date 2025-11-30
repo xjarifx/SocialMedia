@@ -38,8 +38,8 @@ export const handlePostCreation = async (req: Request, res: Response) => {
 
   // Validate that at least caption or media is provided
   if (!caption && !file) {
-    return res.status(400).json({ 
-      message: "Caption or media is required" 
+    return res.status(400).json({
+      message: "Caption or media is required",
     });
   }
 
@@ -194,7 +194,7 @@ export const handlePostDeletion = async (req: Request, res: Response) => {
   }
 
   const postIdNumber = parseInt(postId, 10);
-  if (isNaN(postIdNumber)) {
+  if (isNaN(postIdNumber) || postIdNumber <= 0) {
     return res.status(400).json({ message: "Invalid post ID" });
   }
 
@@ -295,8 +295,17 @@ export const handleGetFollowingPosts = async (req: Request, res: Response) => {
 // get posts by username
 export const handleGetPostsByUsername = async (req: Request, res: Response) => {
   const { username } = req.params;
-  if (!username) {
-    return res.status(400).json({ message: "Username is required" });
+  if (
+    !username ||
+    typeof username !== "string" ||
+    username.trim().length === 0
+  ) {
+    return res.status(400).json({ message: "Valid username is required" });
+  }
+
+  // Validate username format
+  if (username.length > 50) {
+    return res.status(400).json({ message: "Username too long" });
   }
 
   try {
