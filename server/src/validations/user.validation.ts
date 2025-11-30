@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { USERNAME_REGEX, USERNAME_ERROR_MESSAGE } from "./auth.validators.js";
+import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
+import { USERNAME_REGEX, USERNAME_ERROR_MESSAGE, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE } from "./auth.validators.js";
 
 // Validation schemas
 export const profileUpdateSchema = z
@@ -13,8 +14,15 @@ export const profileUpdateSchema = z
       .optional(),
     phone: z
       .string()
-      .regex(/^(\+?\d{1,3}[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{4}$/)
-      .or(z.literal(""))
+      .refine(
+        (val) => {
+          if (!val || val === "") return true;
+          return isValidPhoneNumber(val);
+        },
+        {
+          message: "Invalid phone number format",
+        }
+      )
       .optional(),
     bio: z
       .string()
@@ -32,9 +40,9 @@ export const changePasswordSchema = z
     currentPassword: z.string().min(1, "Current password is required").max(128),
     newPassword: z
       .string()
-      .min(8)
-      .max(128)
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/),
+      .min(8, "Password must be at least 8 characters")
+      .max(128, "Password must not exceed 128 characters")
+      .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE),
   })
   .refine((data) => data.currentPassword !== data.newPassword, {
     message: "New password must be different from current password",
