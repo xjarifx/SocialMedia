@@ -5,12 +5,28 @@ import {
   handleGetLikeCount,
 } from "../controllers/like.controller.js";
 import { authenticateUserToken } from "../middleware/auth.middleware.js";
+import { apiLimiter } from "../middleware/rate-limit.middleware.js";
 
 const router = Router();
 
 // LIKE ROUTES (protected)
-router.post("/:postId/likes", authenticateUserToken, handleLikeCreation);
-router.get("/:postId/likes", authenticateUserToken, handleGetLikeCount);
-router.delete("/:postId/likes", authenticateUserToken, handleLikeDeletion);
+router.post(
+  "/:postId/likes",
+  apiLimiter,
+  authenticateUserToken,
+  handleLikeCreation
+);
+router.get(
+  "/:postId/likes",
+  apiLimiter,
+  authenticateUserToken,
+  handleGetLikeCount
+);
+router.delete(
+  "/:postId/likes",
+  apiLimiter,
+  authenticateUserToken,
+  handleLikeDeletion
+);
 
 export default router;
