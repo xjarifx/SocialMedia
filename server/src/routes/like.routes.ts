@@ -12,20 +12,20 @@ const router = Router();
 // LIKE ROUTES (protected)
 router.post(
   "/:postId/likes",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleLikeCreation
 );
 router.get(
   "/:postId/likes",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleGetLikeCount
 );
 router.delete(
   "/:postId/likes",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleLikeDeletion
 );
 

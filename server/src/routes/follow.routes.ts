@@ -14,22 +14,22 @@ const router = Router();
 // FOLLOW ROUTES (protected)
 router.post(
   "/:targetUsername/follow",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleFollowUser
 );
 router.get(
   "/:targetUsername/follow-status",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleCheckFollowStatus
 );
-router.get("/followers", apiLimiter, authenticateUserToken, handleGetFollowers);
-router.get("/following", apiLimiter, authenticateUserToken, handleGetFollowing);
+router.get("/followers", authenticateUserToken, apiLimiter, handleGetFollowers);
+router.get("/following", authenticateUserToken, apiLimiter, handleGetFollowing);
 router.delete(
   "/:targetUsername/unfollow",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleUnfollowUser
 );
 

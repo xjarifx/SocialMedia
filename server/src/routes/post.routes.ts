@@ -20,36 +20,36 @@ const router = Router();
 // POST ROUTES (protected)
 router.post(
   "/",
-  uploadLimiter,
   authenticateUserToken,
+  uploadLimiter,
   uploadMiddleware.single("media"),
   handlePostCreation
 );
-router.get("/for-you", apiLimiter, authenticateUserToken, handleGetForYouPosts);
+router.get("/for-you", authenticateUserToken, apiLimiter, handleGetForYouPosts);
 router.get(
   "/following",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleGetFollowingPosts
 );
-router.get("/mine", apiLimiter, authenticateUserToken, handleGetOwnPosts);
+router.get("/mine", authenticateUserToken, apiLimiter, handleGetOwnPosts);
 router.get(
   "/:username",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleGetPostsByUsername
 );
 router.put(
   "/:postId",
-  uploadLimiter,
   authenticateUserToken,
+  uploadLimiter,
   uploadMiddleware.single("media"),
   handlePostUpdate
 );
 router.delete(
   "/:postId",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handlePostDeletion
 );
 

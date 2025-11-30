@@ -13,26 +13,26 @@ const router = Router();
 // COMMENT ROUTES (protected)
 router.post(
   "/:postId/comments",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleCreateComment
 );
 router.get(
   "/:postId/comments",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleGetCommentsByPost
 );
 router.put(
   "/:commentId",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleUpdateComment
 );
 router.delete(
   "/:commentId",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handleDeleteComment
 );
 

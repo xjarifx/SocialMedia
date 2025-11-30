@@ -14,18 +14,18 @@ import {
 const router = Router();
 
 // PROFILE ROUTES (protected)
-router.get("/", apiLimiter, authenticateUserToken, handleUserProfileGet);
+router.get("/", authenticateUserToken, apiLimiter, handleUserProfileGet);
 router.put(
   "/",
-  uploadLimiter,
   authenticateUserToken,
+  uploadLimiter,
   uploadMiddleware.single("avatar"),
   handleProfileUpdate
 );
 router.put(
   "/password",
-  apiLimiter,
   authenticateUserToken,
+  apiLimiter,
   handlePasswordChange
 );
 

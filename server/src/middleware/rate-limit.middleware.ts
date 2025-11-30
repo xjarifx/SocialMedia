@@ -4,11 +4,6 @@ import rateLimit from "express-rate-limit";
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 requests per window
-  message: {
-    success: false,
-    error:
-      "Too many authentication attempts, please try again after 15 minutes",
-  },
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: false,
@@ -28,10 +23,6 @@ export const authLimiter = rateLimit({
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // 100 requests per window
-  message: {
-    success: false,
-    error: "Too many requests, please try again after 15 minutes",
-  },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => process.env.NODE_ENV === "test",
@@ -47,10 +38,6 @@ export const apiLimiter = rateLimit({
 export const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // 20 uploads per window
-  message: {
-    success: false,
-    error: "Too many upload requests, please try again later",
-  },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => process.env.NODE_ENV === "test",
@@ -66,10 +53,6 @@ export const uploadLimiter = rateLimit({
 export const searchLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50, // 50 searches per window
-  message: {
-    success: false,
-    error: "Too many search requests, please try again later",
-  },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => process.env.NODE_ENV === "test",
