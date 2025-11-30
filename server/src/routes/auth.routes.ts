@@ -1,13 +1,10 @@
 import { Router } from "express";
-import {
-  handleUserLogin,
-  handleUserRegistration,
-} from "../controllers/auth.controller.js";
+import { handleUserRegistration, handleUserLogin } from "../controllers/auth.controller.js";
+import { authLimiter } from "../middleware/rate-limit.middleware.js";
 
 const router = Router();
 
-// AUTH ROUTES (public)
-router.post("/register", handleUserRegistration);
-router.post("/login", handleUserLogin);
+router.post("/register", authLimiter, handleUserRegistration);
+router.post("/login", authLimiter, handleUserLogin);
 
 export default router;
