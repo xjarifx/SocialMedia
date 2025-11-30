@@ -6,7 +6,7 @@ import sanitize from "sanitize-filename";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const fileFilter = (
-  req: Request,
+  _req: Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
@@ -71,7 +71,7 @@ const fileFilter = (
 
 const storage = multer.memoryStorage();
 
-export const upload = multer({
+const upload = multer({
   storage,
   fileFilter,
   limits: {
@@ -83,7 +83,7 @@ export const upload = multer({
 // Error handler for multer
 export const handleMulterError = (
   err: any,
-  req: Request,
+  _req: Request,
   res: any,
   next: any
 ) => {
@@ -95,3 +95,5 @@ export const handleMulterError = (
   }
   next(err);
 };
+
+export default upload;

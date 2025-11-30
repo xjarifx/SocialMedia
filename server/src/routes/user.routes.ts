@@ -5,7 +5,7 @@ import {
   handlePasswordChange,
 } from "../controllers/user.controller.js";
 import { authenticateUserToken } from "../middleware/auth.middleware.js";
-import { uploadMiddleware } from "../middleware/upload.middleware.js";
+import uploadMiddleware from "../middleware/upload.middleware.js";
 
 const router = Router();
 
