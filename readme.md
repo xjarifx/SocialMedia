@@ -7,10 +7,13 @@ A modern, full-stack social media application built with React, TypeScript, Node
 ![TypeScript](https://img.shields.io/badge/typescript-%5E5.8.3-blue.svg)
 ![React](https://img.shields.io/badge/react-%5E19.1.1-61dafb.svg)
 
+[![Planning Board](https://img.shields.io/badge/Planning%20Board-Canva-00C4CC?logo=canva&logoColor=white)](https://www.canva.com/design/DAG9u1X_suA/JBJZmOcKuZ1fnjCRCOGd-g/edit?utm_content=DAG9u1X_suA&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
 ---
 
 ## 📑 Table of Contents
 
+- [Project Links](#-project-links)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
@@ -22,6 +25,14 @@ A modern, full-stack social media application built with React, TypeScript, Node
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
 - [License](#-license)
+
+---
+
+## 🔗 Project Links
+
+| Resource              | Link                                                                                                                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 📋 **Planning Board** | [View on Canva](https://www.canva.com/design/DAG9u1X_suA/JBJZmOcKuZ1fnjCRCOGd-g/edit?utm_content=DAG9u1X_suA&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) |
 
 ---
 
