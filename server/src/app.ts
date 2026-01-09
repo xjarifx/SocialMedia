@@ -1,13 +1,15 @@
 import express from "express";
 import { corsConfig } from "./config/cors.config.js";
-import { errorHandler } from "./middleware/error.middleware.js";
-import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import followRoutes from "./routes/follow.routes.js";
-import postRoutes from "./routes/post.routes.js";
-import commentRoutes from "./routes/comment.routes.js";
-import likeRoutes from "./routes/like.routes.js";
-import searchRoutes from "./routes/search.routes.js";
+import { errorHandler } from "./shared/middleware/error.middleware.js";
+
+// Import routes from services
+import { authRoutes } from "./services/auth/auth.module.js";
+import { userRoutes } from "./services/user/user.module.js";
+import { followRoutes } from "./services/follow/follow.module.js";
+import { postRoutes } from "./services/post/post.module.js";
+import { commentRoutes } from "./services/comment/comment.module.js";
+import { likeRoutes } from "./services/like/like.module.js";
+import { searchRoutes } from "./services/search/search.module.js";
 
 const app = express();
 
