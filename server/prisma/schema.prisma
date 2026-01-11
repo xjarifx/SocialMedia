@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model blocks {
+  id                             BigInt    @id @default(autoincrement())
+  blocker_id                     BigInt
+  blocked_id                     BigInt
+  created_at                     DateTime? @default(now()) @db.Timestamp(6)
+  users_blocks_blocked_idTousers users     @relation("blocks_blocked_idTousers", fields: [blocked_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_blocks_blocker_idTousers users     @relation("blocks_blocker_idTousers", fields: [blocker_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([blocker_id, blocked_id], map: "unique_block")
+}
+
+model comments {
+  id         BigInt    @id @default(autoincrement())
+  post_id    BigInt
+  user_id    BigInt
+  comment    String
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  posts      posts     @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([post_id], map: "idx_comments_post_id")
+  @@index([user_id], map: "idx_comments_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model follows {
+  id                                BigInt    @id @default(autoincrement())
+  follower_id                       BigInt
+  following_id                      BigInt
+  created_at                        DateTime? @default(now()) @db.Timestamp(6)
+  users_follows_follower_idTousers  users     @relation("follows_follower_idTousers", fields: [follower_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_follows_following_idTousers users     @relation("follows_following_idTousers", fields: [following_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([follower_id, following_id], map: "unique_follow")
+  @@index([follower_id], map: "idx_follows_follower_id")
+  @@index([following_id], map: "idx_follows_following_id")
+}
+
+model post_likes {
+  id         BigInt    @id(map: "likes_pkey") @default(autoincrement())
+  user_id    BigInt
+  post_id    BigInt?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  posts      posts?    @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "likes_post_id_fkey")
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "likes_user_id_fkey")
+
+  @@unique([user_id, post_id], map: "unique_like")
+  @@index([user_id], map: "idx_likes_user_id")
+}
+
+model posts {
+  id         BigInt       @id @default(autoincrement())
+  user_id    BigInt
+  caption    String?
+  media_url  String?      @db.VarChar(500)
+  created_at DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at DateTime?    @default(now()) @db.Timestamp(6)
+  comments   comments[]
+  post_likes post_likes[]
+  users      users        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_posts_user_id")
+}
+
+model users {
+  id                                  BigInt       @id @default(autoincrement())
+  username                            String       @unique @db.VarChar(50)
+  email                               String       @unique @db.VarChar(255)
+  phone                               String?      @unique @db.VarChar(20)
+  password                            String       @db.VarChar(255)
+  bio                                 String?
+  avatar_url                          String?      @db.VarChar(500)
+  is_verified                         Boolean?     @default(false)
+  is_private                          Boolean?     @default(false)
+  status                              String?      @default("active") @db.VarChar(20)
+  created_at                          DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at                          DateTime?    @default(now()) @db.Timestamp(6)
+  last_login                          DateTime?    @db.Timestamp(6)
+  blocks_blocks_blocked_idTousers     blocks[]     @relation("blocks_blocked_idTousers")
+  blocks_blocks_blocker_idTousers     blocks[]     @relation("blocks_blocker_idTousers")
+  comments                            comments[]
+  follows_follows_follower_idTousers  follows[]    @relation("follows_follower_idTousers")
+  follows_follows_following_idTousers follows[]    @relation("follows_following_idTousers")
+  post_likes                          post_likes[]
+  posts                               posts[]
+
+  @@index([email], map: "idx_users_email")
+  @@index([username], map: "idx_users_username")
+}
