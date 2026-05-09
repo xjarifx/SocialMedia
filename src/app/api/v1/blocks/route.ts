@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
-import { blockUser, unblockUser, getBlockedUsers } from "@/services/blocks.service";
+import { blockUser, unblockUser, getBlockedUsers } from "@/lib/services/blocks.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const blockSchema = z.object({

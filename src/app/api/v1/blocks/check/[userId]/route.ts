@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth";
-import { checkBlockStatus } from "@/services/blocks.service";
+import { checkBlockStatus } from "@/lib/services/blocks.service";
 import { successResponse, handleApiError } from "@/lib/errors";
 
 export async function GET(

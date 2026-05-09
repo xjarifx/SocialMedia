@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth";
-import { getUserFollowing } from "@/services/user.service";
+import { getUserFollowing } from "@/lib/services/user.service";
 import { successResponse, handleApiError } from "@/lib/errors";
 
 export async function GET(

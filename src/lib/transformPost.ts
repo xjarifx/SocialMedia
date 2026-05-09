@@ -1,5 +1,5 @@
-import type { Post } from "@/services/api";
-import { API_ROOT_URL } from "@/services/api";
+import type { Post } from "@/lib/services/api";
+import { API_ROOT_URL } from "@/lib/services/api";
 import type { PostProps } from "@/components";
 
 /**

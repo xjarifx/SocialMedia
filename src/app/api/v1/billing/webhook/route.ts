@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { handleStripeWebhook } from "@/services/billing.service";
+import { handleStripeWebhook } from "@/lib/services/billing.service";
 import { successResponse, handleApiError } from "@/lib/errors";
 
 export async function POST(request: NextRequest) {

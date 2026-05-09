@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
-import { createPost, getFeed } from "@/services/posts.service";
+import { createPost, getFeed } from "@/lib/services/posts.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const createPostSchema = z.object({

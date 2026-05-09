@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Home, Bell, Search, User, LogOut, MoreHorizontal, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/lib/context/AuthContext";
 import { cn } from "@/lib/utils";
 import {
   Dialog,

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { billingAPI } from "@/services/api";
-import type { BillingStatus } from "@/services/api";
+import { billingAPI } from "@/lib/services/api";
+import type { BillingStatus } from "@/lib/services/api";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles, RefreshCw } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/lib/context/AuthContext";
 
 // ---------------------------------------------------------------------------
 // Main billing page - redirects to Stripe Checkout

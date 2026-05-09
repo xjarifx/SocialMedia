@@ -2,12 +2,12 @@
 import { PostCard } from "@/components/PostCard";
 import type { PostProps } from "@/components/PostCard";
 import { ProBadge } from "@/components/ProBadge";
-import type { Comment as ApiComment } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
+import type { Comment as ApiComment } from "@/lib/services/api";
+import { useAuth } from "@/lib/context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { UseCommentsReturn } from "@/hooks/useComments";
+import type { UseCommentsReturn } from "@/lib/hooks/useComments";
 import { Heart, MessageCircle } from "lucide-react";
 
 interface CommentsModalProps {

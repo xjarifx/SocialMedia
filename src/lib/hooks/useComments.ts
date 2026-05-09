@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { commentsAPI } from "@/services/api";
-import type { Comment as ApiComment } from "@/services/api";
+import { commentsAPI } from "@/lib/services/api";
+import type { Comment as ApiComment } from "@/lib/services/api";
 
 interface CommentMeta {
   total: number;

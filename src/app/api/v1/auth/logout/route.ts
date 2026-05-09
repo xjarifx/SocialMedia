@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { logout } from "@/services/auth.service";
+import { logout } from "@/lib/services/auth.service";
 import { successResponse, handleApiError } from "@/lib/errors";
 
 const logoutSchema = z.object({

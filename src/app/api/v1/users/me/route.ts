@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
-import { getCurrentProfile, updateProfile } from "@/services/user.service";
+import { getCurrentProfile, updateProfile } from "@/lib/services/user.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const updateSchema = z.object({

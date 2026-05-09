@@ -8,14 +8,14 @@ import {
   followsAPI,
   likesAPI,
   postsAPI,
-} from "@/services/api";
-import type { User, Follower } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
-import { useBlocks } from "@/context/BlockContext";
+} from "@/lib/services/api";
+import type { User, Follower } from "@/lib/services/api";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useBlocks } from "@/lib/context/BlockContext";
 import { Feed, CommentsModal, EditPostModal, ProBadge } from "@/components";
 import type { PostProps } from "@/components";
-import { useComments } from "@/hooks";
-import { transformPost } from "@/utils";
+import { useComments } from "@/lib/hooks";
+import { transformPost } from "@/lib/transformPost";
 import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {

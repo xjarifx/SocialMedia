@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
-import { updateComment, deleteComment } from "@/services/comments.service";
+import { updateComment, deleteComment } from "@/lib/services/comments.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const updateCommentSchema = z.object({

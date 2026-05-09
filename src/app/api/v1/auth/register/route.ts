@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { register } from "@/services/auth.service";
+import { register } from "@/lib/services/auth.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const registerSchema = z.object({

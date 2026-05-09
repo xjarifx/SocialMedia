@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notificationsAPI } from "@/services/api";
-import type { Notification } from "@/services/api";
+import { notificationsAPI } from "@/lib/services/api";
+import type { Notification } from "@/lib/services/api";
 import { Bell, RefreshCw } from "lucide-react";
 import {
   LoadingSkeleton,

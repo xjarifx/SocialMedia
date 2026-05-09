@@ -1,8 +1,8 @@
 "use client";
 import { useState, useCallback } from "react";
-import { postsAPI } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
-import { useDraft } from "@/hooks/useDraft";
+import { postsAPI } from "@/lib/services/api";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useDraft } from "@/lib/hooks/useDraft";
 import {
   Avatar,
   MediaUpload,

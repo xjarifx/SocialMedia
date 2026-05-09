@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth";
-import { createCheckoutSession } from "@/services/billing.service";
+import { createCheckoutSession } from "@/lib/services/billing.service";
 import { successResponse, handleApiError } from "@/lib/errors";
 
 export async function POST(request: NextRequest) {

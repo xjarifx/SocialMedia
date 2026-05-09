@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Image, Globe, Lock } from "lucide-react";
-import { postsAPI, likesAPI, followsAPI } from "@/services/api";
+import { postsAPI, likesAPI, followsAPI } from "@/lib/services/api";
 import { Feed, CommentsModal } from "@/components";
 import type { PostProps } from "@/components";
-import { useAuth } from "@/context/AuthContext";
-import { useBlocks } from "@/context/BlockContext";
-import { useComments, useDraft } from "@/hooks";
-import { transformPost } from "@/utils";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useBlocks } from "@/lib/context/BlockContext";
+import { useComments, useDraft } from "@/lib/hooks";
+import { transformPost } from "@/lib/transformPost";
 import { Button } from "@/components/ui/button";
 
 type FeedTab = "following" | "forYou";

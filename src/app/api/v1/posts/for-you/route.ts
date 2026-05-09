@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth";
-import { getForYouFeed } from "@/services/posts.service";
+import { getForYouFeed } from "@/lib/services/posts.service";
 import { successResponse, handleApiError } from "@/lib/errors";
 
 export async function GET(request: NextRequest) {

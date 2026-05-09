@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { refreshTokens } from "@/services/auth.service";
+import { refreshTokens } from "@/lib/services/auth.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const refreshSchema = z.object({

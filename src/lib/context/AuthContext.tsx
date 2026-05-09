@@ -6,8 +6,8 @@ import {
   setTokens,
   clearTokens,
   getAccessToken,
-} from "@/services/api";
-import type { User } from "@/services/api";
+} from "@/lib/services/api";
+  import type { User } from "@/lib/services/api";
 
 interface AuthContextType {
   user: User | null;

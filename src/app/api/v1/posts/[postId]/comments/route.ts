@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
-import { createComment, getComments } from "@/services/comments.service";
+import { createComment, getComments } from "@/lib/services/comments.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const createCommentSchema = z.object({

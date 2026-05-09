@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
-import { getNotification, updateNotification, deleteNotification } from "@/services/notifications.service";
+import { getNotification, updateNotification, deleteNotification } from "@/lib/services/notifications.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
 
 const updateNotificationSchema = z.object({

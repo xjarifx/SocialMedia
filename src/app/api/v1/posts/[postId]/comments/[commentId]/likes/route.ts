@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth";
-import { likeComment, unlikeComment } from "@/services/comments.service";
+import { likeComment, unlikeComment } from "@/lib/services/comments.service";
 import { successResponse, handleApiError } from "@/lib/errors";
 
 export async function POST(

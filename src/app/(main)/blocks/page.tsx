@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { blocksAPI } from "@/services/api";
-import type { BlockedUser } from "@/services/api";
+import { blocksAPI } from "@/lib/services/api";
+import type { BlockedUser } from "@/lib/services/api";
 import { ShieldOff } from "lucide-react";
 
 export default function BlocksPage() {

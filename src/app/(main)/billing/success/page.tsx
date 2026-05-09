@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { billingAPI } from "@/services/api";
+import { billingAPI } from "@/lib/services/api";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/lib/context/AuthContext";
 
 export default function BillingSuccessPage() {
   const searchParams = useSearchParams();

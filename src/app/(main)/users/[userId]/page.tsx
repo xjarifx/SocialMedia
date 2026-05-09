@@ -2,14 +2,14 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { usersAPI, followsAPI, likesAPI, blocksAPI } from "@/services/api";
-import type { User, Follower } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
-import { useBlocks } from "@/context/BlockContext";
+import { usersAPI, followsAPI, likesAPI, blocksAPI } from "@/lib/services/api";
+import type { User, Follower } from "@/lib/services/api";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useBlocks } from "@/lib/context/BlockContext";
 import { Feed, CommentsModal, ProBadge } from "@/components";
 import type { PostProps } from "@/components";
-import { useComments } from "@/hooks";
-import { transformPost } from "@/utils";
+import { useComments } from "@/lib/hooks";
+import { transformPost } from "@/lib/transformPost";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ShieldOff } from "lucide-react";

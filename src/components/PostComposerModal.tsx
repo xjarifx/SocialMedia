@@ -2,9 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Image } from "lucide-react";
 import { toast } from "sonner";
-import { postsAPI } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
-import { useDraft } from "@/hooks/useDraft";
+import { postsAPI } from "@/lib/services/api";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useDraft } from "@/lib/hooks/useDraft";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";

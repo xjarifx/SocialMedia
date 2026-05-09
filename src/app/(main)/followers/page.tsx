@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { followsAPI, type Follower } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
+import { followsAPI, type Follower } from "@/lib/services/api";
+import { useAuth } from "@/lib/context/AuthContext";
 import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
