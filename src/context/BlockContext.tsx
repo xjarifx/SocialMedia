@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { blocksAPI } from "@/services/api";
 import type { BlockedUser } from "@/services/api";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 
 interface BlockContextType {
   blockedUsers: BlockedUser[];

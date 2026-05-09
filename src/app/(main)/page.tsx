@@ -5,7 +5,7 @@ import { Image, Globe, Lock } from "lucide-react";
 import { postsAPI, likesAPI, followsAPI } from "@/services/api";
 import { Feed, CommentsModal } from "@/components";
 import type { PostProps } from "@/components";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 import { useBlocks } from "@/context/BlockContext";
 import { useComments, useDraft } from "@/hooks";
 import { transformPost } from "@/utils";

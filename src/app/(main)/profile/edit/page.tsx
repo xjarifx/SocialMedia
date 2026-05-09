@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ChevronLeft } from "lucide-react";
 import { usersAPI } from "@/services/api";
 import type { User } from "@/services/api";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageTransition } from "@/components/common";

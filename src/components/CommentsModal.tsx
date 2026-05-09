@@ -3,7 +3,7 @@ import { PostCard } from "@/components/PostCard";
 import type { PostProps } from "@/components/PostCard";
 import { ProBadge } from "@/components/ProBadge";
 import type { Comment as ApiComment } from "@/services/api";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

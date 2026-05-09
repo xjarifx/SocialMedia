@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import {
   authAPI,
@@ -8,26 +8,50 @@ import {
   getAccessToken,
 } from "@/services/api";
 import type { User } from "@/services/api";
-import { AuthContext } from "@/context/auth-context";
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: {
+    username: string;
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }) => Promise<void>;
+  logout: () => Promise<void>;
+  clearError: () => void;
+  refreshUserProfile: () => Promise<User | null>;
+  setUserPlan: (plan: User["plan"]) => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if already logged in on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = getAccessToken();
         if (token) {
-          // Try to get current user profile
-          // This will automatically refresh the token if needed
           const currentUser = await usersAPI.getCurrentProfile();
           setUser(currentUser);
         }
       } catch (err) {
-        // Only clear tokens if it's not a network error
         console.error("Failed to restore session:", err);
         const errorMessage = err instanceof Error ? err.message : "";
         if (!errorMessage.includes("Failed to fetch")) {
@@ -95,8 +119,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = () => setError(null);
 
-  // Refresh the user profile from the server
-  // This is useful after plan changes or payment updates
   const refreshUserProfile = async (): Promise<User | null> => {
     try {
       const currentUser = await usersAPI.getCurrentProfile();

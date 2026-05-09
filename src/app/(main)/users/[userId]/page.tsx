@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { usersAPI, followsAPI, likesAPI, blocksAPI } from "@/services/api";
 import type { User, Follower } from "@/services/api";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 import { useBlocks } from "@/context/BlockContext";
 import { Feed, CommentsModal, ProBadge } from "@/components";
 import type { PostProps } from "@/components";

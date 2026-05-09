@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { billingAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 
 export default function BillingSuccessPage() {
   const searchParams = useSearchParams();

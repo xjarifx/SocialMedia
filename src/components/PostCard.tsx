@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { followsAPI } from "@/services/api";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 import { useBlocks } from "@/context/BlockContext";
 import { ProBadge } from "@/components/ProBadge";
 import { toast } from "sonner";

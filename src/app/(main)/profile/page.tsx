@@ -10,7 +10,7 @@ import {
   postsAPI,
 } from "@/services/api";
 import type { User, Follower } from "@/services/api";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 import { useBlocks } from "@/context/BlockContext";
 import { Feed, CommentsModal, EditPostModal, ProBadge } from "@/components";
 import type { PostProps } from "@/components";
