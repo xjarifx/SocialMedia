@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
-import { Plan, PostVisibility, type User } from "../src/generated/prisma/index.js";
+import { Plan, PostVisibility, type User } from "../generated/prisma/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -302,10 +302,10 @@ const generateUsername = (
   return variations[index % variations.length];
 };
 
-let prismaClient: typeof import("../src/lib/prisma.js").prisma | null = null;
+let prismaClient: typeof import("../lib/prisma.js").prisma | null = null;
 
 async function main() {
-  const { prisma } = await import("../src/lib/prisma.js");
+  const { prisma } = await import("../lib/prisma.js");
   prismaClient = prisma;
   console.log("🗑️  Cleaning up existing data...");
   await prisma.commentLike.deleteMany();
