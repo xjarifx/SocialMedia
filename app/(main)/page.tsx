@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Image, Globe, Lock } from "lucide-react";
 import { postsAPI, likesAPI, followsAPI } from "@/lib/services/api";
-import { Feed, CommentsModal } from "@/components";
+import { Feed, CommentsModal, Spinner } from "@/components";
 import type { PostProps } from "@/components";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useBlocks } from "@/lib/context/BlockContext";
@@ -535,8 +535,8 @@ export default function HomePage() {
           />
           <div ref={forYouSentinelRef} className="h-6" />
           {isLoadingMore && activeTab === "forYou" && (
-            <div className="text-text-secondary pb-6 text-center text-sm">
-              Loading...
+            <div className="flex justify-center pb-6">
+              <Spinner />
             </div>
           )}
         </div>
@@ -562,8 +562,8 @@ export default function HomePage() {
           />
           <div ref={followingSentinelRef} className="h-6" />
           {isLoadingMore && activeTab === "following" && (
-            <div className="text-text-secondary pb-6 text-center text-sm">
-              Loading...
+            <div className="flex justify-center pb-6">
+              <Spinner />
             </div>
           )}
         </div>

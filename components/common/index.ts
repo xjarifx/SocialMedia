@@ -13,3 +13,4 @@ export { UserCard } from "./UserCard";
 export { TabNavigation } from "./TabNavigation";
 export { StatsCard } from "./StatsCard";
 export { PageTransition } from "./PageTransition";
+export { Spinner } from "./Spinner";

@@ -9,7 +9,7 @@ import type { User } from "@/lib/services/api";
 import { useAuth } from "@/lib/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PageTransition } from "@/components/common";
+import { PageTransition, Spinner } from "@/components/common";
 
 export default function EditProfilePage() {
   const { user } = useAuth();
@@ -95,8 +95,8 @@ export default function EditProfilePage() {
           )}
 
           {isLoading ? (
-            <div className="rounded-2xl border border-border bg-surface p-6">
-              <p className="text-sm text-text-secondary">Loading profile...</p>
+            <div className="flex justify-center rounded-2xl border border-border bg-surface p-6">
+              <Spinner />
             </div>
           ) : (
             <>

@@ -4,6 +4,7 @@ import type { PostProps } from "@/components/PostCard";
 import { ProBadge } from "@/components/ProBadge";
 import type { Comment as ApiComment } from "@/lib/services/api";
 import { useAuth } from "@/lib/context/AuthContext";
+import { Spinner } from "@/components/common";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -221,7 +222,7 @@ export function CommentsModal({
             </div>
 
             {repliesLoading ? (
-              <p className="text-xs text-text-muted">Loading replies...</p>
+              <Spinner size="sm" className="my-1" />
             ) : replies.length > 0 ? (
               replies.map((reply) => renderComment(reply, depth + 1))
             ) : (
@@ -237,7 +238,7 @@ export function CommentsModal({
                   disabled={repliesMoreLoading}
                   className="cursor-pointer text-xs font-medium text-accent hover:underline disabled:opacity-50"
                 >
-                  {repliesMoreLoading ? "Loading..." : "Show more replies"}
+                  {repliesMoreLoading ? <Spinner size="sm" /> : "Show more replies"}
                 </button>
               </div>
             )}
@@ -287,7 +288,7 @@ export function CommentsModal({
 
             <div className="mt-4 space-y-2">
               {isLoading ? (
-                <p className="text-sm text-text-muted">Loading comments...</p>
+                <Spinner size="sm" className="my-1" />
               ) : comments.length > 0 ? (
                 comments.map((comment) => renderComment(comment))
               ) : (
@@ -301,7 +302,7 @@ export function CommentsModal({
                     disabled={isMoreLoading}
                     className="cursor-pointer text-sm font-medium text-accent hover:underline disabled:opacity-50"
                   >
-                    {isMoreLoading ? "Loading..." : "Show more comments"}
+                    {isMoreLoading ? <Spinner size="sm" /> : "Show more comments"}
                   </button>
                 </div>
               )}

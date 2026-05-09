@@ -6,7 +6,7 @@ import { usersAPI, followsAPI, likesAPI, blocksAPI } from "@/lib/services/api";
 import type { User, Follower } from "@/lib/services/api";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useBlocks } from "@/lib/context/BlockContext";
-import { Feed, CommentsModal, ProBadge } from "@/components";
+import { Feed, CommentsModal, ProBadge, Spinner } from "@/components";
 import type { PostProps } from "@/components";
 import { useComments } from "@/lib/hooks";
 import { transformPost } from "@/lib/transformPost";
@@ -300,8 +300,8 @@ export default function UserProfilePage() {
           )}
 
           {!blockedByThem && isLoading ? (
-            <div className="py-6">
-              <p className="text-sm text-text-muted">Loading user...</p>
+            <div className="flex justify-center py-6">
+              <Spinner />
             </div>
           ) : !blockedByThem && (
             <>

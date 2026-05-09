@@ -9,6 +9,7 @@ import {
   LoadingSkeleton,
   UserCard,
   ErrorMessage,
+  Spinner,
 } from "@/components";
 
 export default function SearchPage() {
@@ -149,7 +150,7 @@ export default function SearchPage() {
                 disabled={isLoading}
                 className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-accent-hover disabled:opacity-50"
               >
-                {isLoading ? "Loading..." : "Load more"}
+                {isLoading ? <Spinner size="sm" /> : "Load more"}
               </button>
             )}
           </div>
