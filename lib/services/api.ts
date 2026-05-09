@@ -240,7 +240,14 @@ async function apiRequest<T>(
 
   const contentType = response.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
-    return response.json();
+    const json = await response.json();
+    if (json && typeof json === "object" && "success" in json && "data" in json) {
+      if (!json.success) {
+        throw new Error(json.error || "Request failed");
+      }
+      return json.data as T;
+    }
+    return json as T;
   }
 
   const text = await response.text();
@@ -259,30 +266,20 @@ export const authAPI = {
     firstName: string;
     lastName: string;
   }): Promise<AuthResponse> => {
-    const res = await apiRequest<{
-      success: boolean;
-      data: AuthResponse;
-      error: string | null;
-    }>("/auth/register", {
+    return apiRequest<AuthResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
     });
-    return res.data;
   },
 
   login: async (data: {
     email: string;
     password: string;
   }): Promise<AuthResponse> => {
-    const res = await apiRequest<{
-      success: boolean;
-      data: AuthResponse;
-      error: string | null;
-    }>("/auth/login", {
+    return apiRequest<AuthResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     });
-    return res.data;
   },
 
   logout: async (): Promise<void> => {
