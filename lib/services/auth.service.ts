@@ -6,9 +6,9 @@ import { AppError } from "@/lib/errors";
 
 const SALT_ROUNDS = 10;
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-jwt-secret";
+const JWT_SECRET = process.env.JWT_SECRET || "fallback-jwt-secret";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "5m";
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "dev-refresh-secret";
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "fallback-refresh-secret";
 const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || "30d";
 
 const generateToken = (userId: string): string => {

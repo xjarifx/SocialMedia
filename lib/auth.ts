@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { NextRequest } from "next/server";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-jwt-secret";
+const JWT_SECRET = process.env.JWT_SECRET || "fallback-jwt-secret";
 
 export interface AuthResult {
   userId: string;

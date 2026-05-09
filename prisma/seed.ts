@@ -9,18 +9,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-// Process environment switches before importing prisma
-const shouldUseProd = (switchName: string): boolean => {
-  const value = process.env[switchName]?.toLowerCase().trim();
-  return value === "true" || value === "1" || value === "yes";
-};
-
-const useProdDb = shouldUseProd("USE_PROD_DATABASE");
-const dbUrl = useProdDb ? process.env.DATABASE_URL_PROD : process.env.DATABASE_URL_DEV;
-if (dbUrl) {
-  process.env.DATABASE_URL = dbUrl;
-}
-
 const firstNames = [
   "Alice",
   "Bob",
