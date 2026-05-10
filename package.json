@@ -41,7 +41,7 @@
     "react-dom": "^19.2.6",
     "sonner": "^2.0.7",
     "stripe": "^22.1.1",
-    "swagger-ui-react": "^5.32.5",
+    "swagger-ui-dist": "^5.32.5",
     "tailwind-merge": "^2.5.4",
     "zod": "^4.4.3"
   },
@@ -53,7 +53,7 @@
     "@types/node": "^22",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-    "@types/swagger-ui-react": "^5.18.0",
+    "@types/swagger-ui-dist": "^3.30.6",
     "dotenv": "^17.4.2",
     "prisma": "^7.8.0",
     "tailwindcss": "^4.1.18",
