@@ -17,7 +17,7 @@ export async function uploadMedia(
   const result = await (imagekit as any).upload({
     file: buffer.toString("base64"),
     fileName: file.name,
-    folder: "/social-network/posts",
+    folder: "/better-media/posts",
   });
   return { url: result.url, fileId: result.fileId };
 }

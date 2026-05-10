@@ -3,9 +3,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 export const API_ROOT_URL = API_BASE_URL.startsWith("/")
   ? (typeof window !== "undefined" ? window.location.origin : "")
   : API_BASE_URL.replace(/\/api\/v1\/?$/, "");
+const TOKEN_KEY = "better_media_access_token";
 
-const TOKEN_KEY = "social_access_token";
-const REFRESH_TOKEN_KEY = "social_refresh_token";
+const REFRESH_TOKEN_KEY = "better_media_refresh_token";
 
 interface AuthResponse {
   accessToken: string;
