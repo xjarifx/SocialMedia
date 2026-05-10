@@ -1,6 +1,6 @@
 import { defineConfig } from "prisma/config";
 import { config } from "dotenv";
-import { requireEnv } from "./lib/env";
+import { getEnvWithDefault } from "./lib/env";
 
 config();
 
@@ -9,6 +9,11 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: requireEnv("DATABASE_URL"),
+    // `prisma generate` runs during postinstall on Vercel.
+    // Allow generation to proceed even when DATABASE_URL is not injected yet.
+    url: getEnvWithDefault(
+      "DATABASE_URL",
+      "postgresql://postgres:postgres@localhost:5432/postgres",
+    ),
   },
 });
