@@ -231,7 +231,7 @@ async function apiRequest<T>(
     } catch {
       errorMessage = `API Error: ${response.status}`;
     }
-    throw new Error(errorMessage);
+    throw new Error(`[${response.status}] ${errorMessage}`);
   }
 
   if (response.status === 204 || response.status === 205) {
