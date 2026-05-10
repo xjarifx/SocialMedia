@@ -56,13 +56,16 @@ function mapRefreshTokenPersistenceError(error: unknown): never {
       "Refresh token storage is unavailable. Prisma schema is out of sync with production database.",
       error,
     );
-    throw new AppError(
-      "Authentication service is temporarily unavailable. Please try again later.",
-      503,
-    );
+  } else if (code) {
+    console.error("Refresh token persistence failed with Prisma error code:", code, error);
+  } else {
+    console.error("Refresh token persistence failed with unexpected error:", error);
   }
 
-  throw error;
+  throw new AppError(
+    "Authentication service is temporarily unavailable. Please try again later.",
+    503,
+  );
 }
 
 async function persistRefreshToken(userId: string, token: string) {
@@ -101,123 +104,147 @@ export async function register(data: {
   firstName: string;
   lastName: string;
 }) {
-  const { email, username, password, firstName, lastName } = data;
-  validatePasswordStrength(password);
+  try {
+    const { email, username, password, firstName, lastName } = data;
+    validatePasswordStrength(password);
 
-  const existingEmail = await prisma.user.findUnique({ where: { email } });
-  if (existingEmail) throw new AppError("Email already taken", 409);
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) throw new AppError("Email already taken", 409);
 
-  const existingUsername = await prisma.user.findUnique({ where: { username } });
-  if (existingUsername) throw new AppError("Username already taken", 409);
+    const existingUsername = await prisma.user.findUnique({ where: { username } });
+    if (existingUsername) throw new AppError("Username already taken", 409);
 
-  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-  const user = await prisma.user.create({
-    data: { email, username, password: hashedPassword, firstName, lastName },
-  });
+    const user = await prisma.user.create({
+      data: { email, username, password: hashedPassword, firstName, lastName },
+    });
 
-  const accessToken = generateToken(user.id);
-  const refreshToken = generateRefreshToken(user.id);
+    const accessToken = generateToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
-  await persistRefreshToken(user.id, refreshToken);
+    await persistRefreshToken(user.id, refreshToken);
 
-  return {
-    accessToken,
-    refreshToken,
-    user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      createdAt: user.createdAt,
-      plan: user.plan,
-    },
-  };
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        createdAt: user.createdAt,
+        plan: user.plan,
+      },
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    console.error("Unexpected error during register:", error);
+    throw new AppError("An unexpected error occurred. Please try again.", 500);
+  }
 }
 
 export async function login(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new AppError("Invalid email or password", 401);
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new AppError("Invalid email or password", 401);
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) throw new AppError("Invalid email or password", 401);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) throw new AppError("Invalid email or password", 401);
 
-  const accessToken = generateToken(user.id);
-  const refreshToken = generateRefreshToken(user.id);
+    const accessToken = generateToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
-  await persistRefreshToken(user.id, refreshToken);
+    await persistRefreshToken(user.id, refreshToken);
 
-  return {
-    accessToken,
-    refreshToken,
-    user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      createdAt: user.createdAt,
-      plan: user.plan,
-    },
-  };
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        createdAt: user.createdAt,
+        plan: user.plan,
+      },
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    console.error("Unexpected error during login:", error);
+    throw new AppError("An unexpected error occurred. Please try again.", 500);
+  }
 }
 
 export async function logout(refreshToken: string) {
-  const tokenRecord = await prisma.refreshToken.findUnique({
-    where: { token: refreshToken },
-  });
+  try {
+    const tokenRecord = await prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
+    });
 
-  if (!tokenRecord) throw new AppError("Invalid refresh token", 401);
-  if (tokenRecord.revokedAt) throw new AppError("Token already revoked", 401);
+    if (!tokenRecord) throw new AppError("Invalid refresh token", 401);
+    if (tokenRecord.revokedAt) throw new AppError("Token already revoked", 401);
 
-  await prisma.refreshToken.update({
-    where: { token: refreshToken },
-    data: { revokedAt: new Date() },
-  });
+    await prisma.refreshToken.update({
+      where: { token: refreshToken },
+      data: { revokedAt: new Date() },
+    });
 
-  return { message: "Logged out successfully" };
+    return { message: "Logged out successfully" };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    console.error("Unexpected error during logout:", error);
+    throw new AppError("An unexpected error occurred. Please try again.", 500);
+  }
 }
 
 export async function refreshTokens(refreshToken: string) {
-  const tokenRecord = await prisma.refreshToken.findUnique({
-    where: { token: refreshToken },
-    include: { user: true },
-  });
-
-  if (!tokenRecord) throw new AppError("Invalid refresh token", 401);
-  if (tokenRecord.revokedAt) throw new AppError("Token revoked", 401);
-  if (new Date() > tokenRecord.expiresAt) throw new AppError("Token expired", 401);
-
   try {
-    const { refreshTokenSecret } = getAuthSecrets();
-    jwt.verify(refreshToken, refreshTokenSecret);
+    const tokenRecord = await prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
+      include: { user: true },
+    });
+
+    if (!tokenRecord) throw new AppError("Invalid refresh token", 401);
+    if (tokenRecord.revokedAt) throw new AppError("Token revoked", 401);
+    if (new Date() > tokenRecord.expiresAt) throw new AppError("Token expired", 401);
+
+    try {
+      const { refreshTokenSecret } = getAuthSecrets();
+      jwt.verify(refreshToken, refreshTokenSecret);
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError("Invalid refresh token", 401);
+    }
+
+    const newAccessToken = generateToken(tokenRecord.userId);
+    const newRefreshToken = generateRefreshToken(tokenRecord.userId);
+
+    await prisma.refreshToken.update({
+      where: { token: refreshToken },
+      data: { revokedAt: new Date() },
+    });
+
+    await persistRefreshToken(tokenRecord.userId, newRefreshToken);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: {
+        id: tokenRecord.user.id,
+        username: tokenRecord.user.username,
+        email: tokenRecord.user.email,
+        firstName: tokenRecord.user.firstName,
+        lastName: tokenRecord.user.lastName,
+        createdAt: tokenRecord.user.createdAt,
+        plan: tokenRecord.user.plan,
+      },
+    };
   } catch (error) {
     if (error instanceof AppError) throw error;
-    throw new AppError("Invalid refresh token", 401);
+    console.error("Unexpected error during token refresh:", error);
+    throw new AppError("An unexpected error occurred. Please try again.", 500);
   }
-
-  const newAccessToken = generateToken(tokenRecord.userId);
-  const newRefreshToken = generateRefreshToken(tokenRecord.userId);
-
-  await prisma.refreshToken.update({
-    where: { token: refreshToken },
-    data: { revokedAt: new Date() },
-  });
-
-  await persistRefreshToken(tokenRecord.userId, newRefreshToken);
-
-  return {
-    accessToken: newAccessToken,
-    refreshToken: newRefreshToken,
-    user: {
-      id: tokenRecord.user.id,
-      username: tokenRecord.user.username,
-      email: tokenRecord.user.email,
-      firstName: tokenRecord.user.firstName,
-      lastName: tokenRecord.user.lastName,
-      createdAt: tokenRecord.user.createdAt,
-      plan: tokenRecord.user.plan,
-    },
-  };
 }

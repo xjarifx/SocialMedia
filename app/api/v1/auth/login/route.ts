@@ -18,6 +18,9 @@ export async function POST(request: NextRequest) {
     if (error instanceof z.ZodError) {
       return handleApiError(new AppError(error.issues[0].message));
     }
+    if (error instanceof SyntaxError) {
+      return handleApiError(new AppError("Invalid request body", 400));
+    }
     return handleApiError(error);
   }
 }
