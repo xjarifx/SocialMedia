@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/common/SafeImage";
 import { useAuth } from "@/lib/context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -105,7 +105,7 @@ export default function RegisterPage() {
       {/* Left Panel — Brand */}
       <div className="hidden shrink-0 flex-col items-center justify-center border-r border-border bg-background px-12 lg:flex lg:w-120 xl:w-140">
         <div className="max-w-85 text-center">
-          <Image
+          <SafeImage
             src="/fire.png"
             alt="Social Network logo"
             width={64}
@@ -127,7 +127,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-115">
           {/* Mobile logo */}
           <div className="mb-8 text-center lg:hidden">
-            <Image
+            <SafeImage
               src="/fire.png"
               alt="Social Network logo"
               width={64}
