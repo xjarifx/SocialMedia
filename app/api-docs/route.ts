@@ -24,9 +24,7 @@ export async function GET() {
       deepLinking: true,
       presets: [
         SwaggerUIBundle.presets.apis,
-        SwaggerUIBundle.SwaggerUIStandalonePreset,
       ],
-      layout: "StandaloneLayout",
     });
   </script>
 </body>
