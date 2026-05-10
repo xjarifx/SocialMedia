@@ -3,13 +3,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { randomBytes } from "crypto";
 import { AppError } from "@/lib/errors";
+import { getEnvWithDefault, requireEnv } from "@/lib/env";
 
 const SALT_ROUNDS = 10;
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-jwt-secret";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "5m";
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "fallback-refresh-secret";
-const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || "30d";
+const JWT_SECRET = requireEnv("JWT_SECRET");
+const JWT_EXPIRES_IN = getEnvWithDefault("JWT_EXPIRES_IN", "5m");
+const REFRESH_TOKEN_SECRET = requireEnv("REFRESH_TOKEN_SECRET");
+const REFRESH_TOKEN_EXPIRES_IN = getEnvWithDefault("REFRESH_TOKEN_EXPIRES_IN", "30d");
 
 const generateToken = (userId: string): string => {
   return jwt.sign({ userId }, JWT_SECRET, {
@@ -29,6 +30,21 @@ const getRefreshTokenExpiry = (): Date => {
   return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 };
 
+function validatePasswordStrength(password: string) {
+  if (password.length < 8) {
+    throw new AppError("Password must be at least 8 characters", 400);
+  }
+  if (!/[A-Z]/.test(password)) {
+    throw new AppError("Password must contain an uppercase letter", 400);
+  }
+  if (!/[0-9]/.test(password)) {
+    throw new AppError("Password must contain a number", 400);
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    throw new AppError("Password must contain a special character", 400);
+  }
+}
+
 export async function register(data: {
   email: string;
   username: string;
@@ -37,6 +53,7 @@ export async function register(data: {
   lastName: string;
 }) {
   const { email, username, password, firstName, lastName } = data;
+  validatePasswordStrength(password);
 
   const existingEmail = await prisma.user.findUnique({ where: { email } });
   if (existingEmail) throw new AppError("Email already taken", 409);

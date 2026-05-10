@@ -3,6 +3,7 @@ import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
 import { createComment, getComments } from "@/lib/services/comments.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
+import { parsePaginationParams } from "@/lib/pagination";
 
 const createCommentSchema = z.object({
   content: z.string().min(1).max(500),
@@ -36,8 +37,7 @@ export async function GET(
     authenticateRequest(request);
     const { postId } = await params;
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "5");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const { limit, offset } = parsePaginationParams(searchParams, { limit: 5, offset: 0 });
     const parentId = searchParams.get("parentId");
     const comments = await getComments("", { postId }, { limit, offset, parentId });
     return successResponse(comments);

@@ -2,26 +2,58 @@ import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { cache } from "@/lib/cache";
 import { AppError } from "@/lib/errors";
+import { getEnvWithDefault, requireEnv } from "@/lib/env";
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
-const PRO_AMOUNT_CENTS = Number(process.env.STRIPE_PRO_PRICE_CENTS || 999);
-const PRO_CURRENCY = process.env.STRIPE_PRO_CURRENCY || "usd";
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const STRIPE_SECRET_KEY = requireEnv("STRIPE_SECRET_KEY");
+const STRIPE_WEBHOOK_SECRET = requireEnv("STRIPE_WEBHOOK_SECRET");
+const PRO_AMOUNT_CENTS = Number(getEnvWithDefault("STRIPE_PRO_PRICE_CENTS", "999"));
+const PRO_CURRENCY = getEnvWithDefault("STRIPE_PRO_CURRENCY", "usd");
+const FRONTEND_URL = getEnvWithDefault("FRONTEND_URL", "http://localhost:3000");
 
-let stripe: Stripe | null = null;
-if (STRIPE_SECRET_KEY) {
-  stripe = new Stripe(STRIPE_SECRET_KEY);
-}
+const stripe: Stripe = new Stripe(STRIPE_SECRET_KEY);
 
 function getStripe(): Stripe {
-  if (!stripe) throw new AppError("Stripe is not configured", 500);
   return stripe;
 }
 
 async function invalidateUserPlanCaches(userId: string) {
   await cache.invalidatePattern(`user:${userId}*`);
   await cache.invalidatePattern(`timeline:user:${userId}*`);
+}
+
+async function activateProPlan(
+  userId: string,
+  data: {
+    stripeCustomerId?: string | null;
+    stripeSubscriptionId?: string | null;
+    stripeCurrentPeriodEndAt?: Date | null;
+  },
+) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return null;
+
+  const alreadyActive =
+    user.plan === "PRO" &&
+    user.planStatus === "active" &&
+    (user.stripeSubscriptionId ?? null) === (data.stripeSubscriptionId ?? null);
+  if (alreadyActive) {
+    return user;
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      plan: "PRO",
+      planStatus: "active",
+      planStartedAt: user.plan === "PRO" ? user.planStartedAt ?? new Date() : new Date(),
+      stripeCustomerId: data.stripeCustomerId ?? user.stripeCustomerId,
+      stripeSubscriptionId: data.stripeSubscriptionId ?? user.stripeSubscriptionId,
+      stripeCurrentPeriodEndAt:
+        data.stripeCurrentPeriodEndAt ?? user.stripeCurrentPeriodEndAt,
+    },
+  });
+  await invalidateUserPlanCaches(userId);
+  return updated;
 }
 
 export async function getBillingStatus(userId: string) {
@@ -129,22 +161,12 @@ export async function confirmPayment(
     }
 
     if (session.payment_status === "paid" && session.metadata?.plan === "PRO") {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      if (user && user.plan !== "PRO") {
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            plan: "PRO",
-            planStatus: "active",
-            planStartedAt: new Date(),
-            stripeCustomerId:
-              typeof session.customer === "string"
-                ? session.customer
-                : (session.customer?.id ?? user.stripeCustomerId),
-          },
-        });
-        await invalidateUserPlanCaches(userId);
-      }
+      await activateProPlan(userId, {
+        stripeCustomerId:
+          typeof session.customer === "string" ? session.customer : (session.customer?.id ?? null),
+        stripeSubscriptionId:
+          typeof session.subscription === "string" ? session.subscription : null,
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -171,22 +193,9 @@ export async function confirmPayment(
   }
 
   if (pi.status === "succeeded" && pi.metadata?.plan === "PRO") {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user && user.plan !== "PRO") {
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          plan: "PRO",
-          planStatus: "active",
-          planStartedAt: new Date(),
-          stripeCustomerId:
-            typeof pi.customer === "string"
-              ? pi.customer
-              : (pi.customer?.id ?? user.stripeCustomerId),
-        },
-      });
-      await invalidateUserPlanCaches(userId);
-    }
+    await activateProPlan(userId, {
+      stripeCustomerId: typeof pi.customer === "string" ? pi.customer : (pi.customer?.id ?? null),
+    });
   }
 
   const user = await prisma.user.findUnique({
@@ -259,22 +268,12 @@ export async function handleStripeWebhook(
     const plan = session.metadata?.plan;
 
     if (eventUserId && plan === "PRO") {
-      const user = await prisma.user.findUnique({ where: { id: eventUserId } });
-      if (user) {
-        await prisma.user.update({
-          where: { id: eventUserId },
-          data: {
-            plan: "PRO",
-            planStatus: "active",
-            planStartedAt: new Date(),
-            stripeCustomerId:
-              typeof session.customer === "string"
-                ? session.customer
-                : (session.customer?.id ?? user.stripeCustomerId),
-          },
-        });
-        await invalidateUserPlanCaches(eventUserId);
-      }
+      await activateProPlan(eventUserId, {
+        stripeCustomerId:
+          typeof session.customer === "string" ? session.customer : (session.customer?.id ?? null),
+        stripeSubscriptionId:
+          typeof session.subscription === "string" ? session.subscription : null,
+      });
     }
   }
 
@@ -284,22 +283,9 @@ export async function handleStripeWebhook(
     const plan = pi.metadata?.plan;
 
     if (eventUserId && plan === "PRO") {
-      const user = await prisma.user.findUnique({ where: { id: eventUserId } });
-      if (user) {
-        await prisma.user.update({
-          where: { id: eventUserId },
-          data: {
-            plan: "PRO",
-            planStatus: "active",
-            planStartedAt: new Date(),
-            stripeCustomerId:
-              typeof pi.customer === "string"
-                ? pi.customer
-                : (pi.customer?.id ?? user.stripeCustomerId),
-          },
-        });
-        await invalidateUserPlanCaches(eventUserId);
-      }
+      await activateProPlan(eventUserId, {
+        stripeCustomerId: typeof pi.customer === "string" ? pi.customer : (pi.customer?.id ?? null),
+      });
     }
   }
 

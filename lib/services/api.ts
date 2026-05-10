@@ -225,7 +225,9 @@ async function apiRequest<T>(
           : typeof errorData.error === "object"
             ? JSON.stringify(errorData.error)
             : errorData.message || String(errorData.error);
-    } catch {}
+    } catch {
+      errorMessage = `API Error: ${response.status}`;
+    }
     throw new Error(errorMessage);
   }
 

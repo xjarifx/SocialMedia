@@ -3,6 +3,7 @@ import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
 import { blockUser, unblockUser, getBlockedUsers } from "@/lib/services/blocks.service";
 import { successResponse, handleApiError, AppError } from "@/lib/errors";
+import { parsePaginationParams } from "@/lib/pagination";
 
 const blockSchema = z.object({
   username: z.string().min(1),
@@ -12,8 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     const { userId } = authenticateRequest(request);
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "20");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const { limit, offset } = parsePaginationParams(searchParams, { limit: 20, offset: 0 });
     const result = await getBlockedUsers(userId, limit, offset);
     return successResponse(result);
   } catch (error) {

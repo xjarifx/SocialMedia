@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth";
 import { likePost, unlikePost, getPostLikes } from "@/lib/services/likes.service";
 import { successResponse, handleApiError } from "@/lib/errors";
+import { parsePaginationParams } from "@/lib/pagination";
 
 export async function POST(
   request: NextRequest,
@@ -39,8 +40,7 @@ export async function GET(
     authenticateRequest(request);
     const { postId } = await params;
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "20");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const { limit, offset } = parsePaginationParams(searchParams, { limit: 20, offset: 0 });
     const likes = await getPostLikes({ postId }, { limit, offset });
     return successResponse(likes);
   } catch (error) {
