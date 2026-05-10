@@ -7,21 +7,36 @@ import { getEnvWithDefault, requireEnv } from "@/lib/env";
 
 const SALT_ROUNDS = 10;
 
-const JWT_SECRET = requireEnv("JWT_SECRET");
 const JWT_EXPIRES_IN = getEnvWithDefault("JWT_EXPIRES_IN", "5m");
-const REFRESH_TOKEN_SECRET = requireEnv("REFRESH_TOKEN_SECRET");
 const REFRESH_TOKEN_EXPIRES_IN = getEnvWithDefault("REFRESH_TOKEN_EXPIRES_IN", "30d");
 
+function getAuthSecrets() {
+  try {
+    return {
+      jwtSecret: requireEnv("JWT_SECRET"),
+      refreshTokenSecret: requireEnv("REFRESH_TOKEN_SECRET"),
+    };
+  } catch (error) {
+    console.error("Missing auth environment variables.", error);
+    throw new AppError(
+      "Authentication service is temporarily unavailable. Please try again later.",
+      503,
+    );
+  }
+}
+
 const generateToken = (userId: string): string => {
-  return jwt.sign({ userId }, JWT_SECRET, {
+  const { jwtSecret } = getAuthSecrets();
+  return jwt.sign({ userId }, jwtSecret, {
     expiresIn: JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
   });
 };
 
 const generateRefreshToken = (userId: string): string => {
+  const { refreshTokenSecret } = getAuthSecrets();
   return jwt.sign(
     { userId, jti: randomBytes(16).toString("hex") },
-    REFRESH_TOKEN_SECRET,
+    refreshTokenSecret,
     { expiresIn: REFRESH_TOKEN_EXPIRES_IN as jwt.SignOptions["expiresIn"] },
   );
 };
@@ -29,6 +44,40 @@ const generateRefreshToken = (userId: string): string => {
 const getRefreshTokenExpiry = (): Date => {
   return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 };
+
+function mapRefreshTokenPersistenceError(error: unknown): never {
+  const code =
+    typeof error === "object" && error !== null && "code" in error
+      ? String((error as { code: unknown }).code)
+      : undefined;
+
+  if (code === "P2021" || code === "P2022") {
+    console.error(
+      "Refresh token storage is unavailable. Prisma schema is out of sync with production database.",
+      error,
+    );
+    throw new AppError(
+      "Authentication service is temporarily unavailable. Please try again later.",
+      503,
+    );
+  }
+
+  throw error;
+}
+
+async function persistRefreshToken(userId: string, token: string) {
+  try {
+    await prisma.refreshToken.create({
+      data: {
+        userId,
+        token,
+        expiresAt: getRefreshTokenExpiry(),
+      },
+    });
+  } catch (error) {
+    mapRefreshTokenPersistenceError(error);
+  }
+}
 
 function validatePasswordStrength(password: string) {
   if (password.length < 8) {
@@ -70,13 +119,7 @@ export async function register(data: {
   const accessToken = generateToken(user.id);
   const refreshToken = generateRefreshToken(user.id);
 
-  await prisma.refreshToken.create({
-    data: {
-      userId: user.id,
-      token: refreshToken,
-      expiresAt: getRefreshTokenExpiry(),
-    },
-  });
+  await persistRefreshToken(user.id, refreshToken);
 
   return {
     accessToken,
@@ -103,13 +146,7 @@ export async function login(email: string, password: string) {
   const accessToken = generateToken(user.id);
   const refreshToken = generateRefreshToken(user.id);
 
-  await prisma.refreshToken.create({
-    data: {
-      userId: user.id,
-      token: refreshToken,
-      expiresAt: getRefreshTokenExpiry(),
-    },
-  });
+  await persistRefreshToken(user.id, refreshToken);
 
   return {
     accessToken,
@@ -153,8 +190,10 @@ export async function refreshTokens(refreshToken: string) {
   if (new Date() > tokenRecord.expiresAt) throw new AppError("Token expired", 401);
 
   try {
-    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
-  } catch {
+    const { refreshTokenSecret } = getAuthSecrets();
+    jwt.verify(refreshToken, refreshTokenSecret);
+  } catch (error) {
+    if (error instanceof AppError) throw error;
     throw new AppError("Invalid refresh token", 401);
   }
 
@@ -166,13 +205,7 @@ export async function refreshTokens(refreshToken: string) {
     data: { revokedAt: new Date() },
   });
 
-  await prisma.refreshToken.create({
-    data: {
-      userId: tokenRecord.userId,
-      token: newRefreshToken,
-      expiresAt: getRefreshTokenExpiry(),
-    },
-  });
+  await persistRefreshToken(tokenRecord.userId, newRefreshToken);
 
   return {
     accessToken: newAccessToken,
