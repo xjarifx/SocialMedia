@@ -1,11 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { cache, buildCacheKey } from "@/lib/cache";
 import { AppError } from "@/lib/errors";
+import { syncUserPlanExpiration } from "@/lib/services/billing.service";
 
 const PROFILE_TTL_SECONDS = 120;
 const TIMELINE_TTL_SECONDS = 30;
 
 export async function getProfile(userId: string) {
+  await syncUserPlanExpiration(userId);
+
   const cacheKey = buildCacheKey("user", "public", userId);
   const cached = await cache.get(cacheKey);
   if (cached) return cached;
@@ -30,6 +33,8 @@ export async function getProfile(userId: string) {
 }
 
 export async function getCurrentProfile(userId: string) {
+  await syncUserPlanExpiration(userId);
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {

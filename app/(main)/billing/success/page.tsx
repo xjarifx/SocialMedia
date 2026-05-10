@@ -15,6 +15,7 @@ export default function BillingSuccessPage() {
   const [error, setError] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [plan, setPlan] = useState<string>("FREE");
+  const [unlockExpiresAt, setUnlockExpiresAt] = useState<string | null>(null);
   const hasRunRef = useRef(false);
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function BillingSuccessPage() {
 
         setPaymentStatus(result.paymentStatus);
         setPlan(result.plan);
+        setUnlockExpiresAt(result.unlockExpiresAt);
         if (result.plan === "FREE" || result.plan === "PRO") {
           setUserPlan(result.plan);
         }
@@ -78,6 +80,7 @@ export default function BillingSuccessPage() {
               `    Response - plan: ${retry.plan}, status: ${retry.paymentStatus}`,
             );
             setPlan(retry.plan);
+            setUnlockExpiresAt(retry.unlockExpiresAt);
             if (retry.plan === "FREE" || retry.plan === "PRO") {
               setUserPlan(retry.plan);
             }
@@ -155,7 +158,11 @@ export default function BillingSuccessPage() {
             </h1>
             <p className="mb-6 text-[15px] text-white/70">
               {plan === "PRO"
-                ? "Your subscription is now active. Enjoy all the premium features!"
+                ? `Your subscription is now active. Pro features stay unlocked for 1 minute${
+                    unlockExpiresAt
+                      ? ` (until ${new Date(unlockExpiresAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })})`
+                      : ""
+                  }.`
                 : "Your payment was successful. Your account will be upgraded shortly."}
             </p>
             <Button

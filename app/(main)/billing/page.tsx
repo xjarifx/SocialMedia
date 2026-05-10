@@ -133,6 +133,12 @@ export default function BillingPage() {
   // Use auth context user plan as source of truth when available
   const currentPlan = status?.plan || user?.plan || "FREE";
   const isPro = currentPlan === "PRO";
+  const unlockExpiresAt = status?.stripeCurrentPeriodEndAt
+    ? new Date(status.stripeCurrentPeriodEndAt)
+    : null;
+  const unlockExpiryLabel = unlockExpiresAt
+    ? unlockExpiresAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : null;
 
   return (
     <div>
@@ -234,6 +240,11 @@ export default function BillingPage() {
                 </span>
                 <span className="text-[14px] text-white/60">/month</span>
               </div>
+              {isPro && unlockExpiryLabel && (
+                <p className="mt-2 text-xs text-white/70">
+                  Feature unlock expires at {unlockExpiryLabel}
+                </p>
+              )}
             </div>
 
             <div className="mb-8 space-y-3">

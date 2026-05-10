@@ -4,21 +4,71 @@ import { cache } from "@/lib/cache";
 import { AppError } from "@/lib/errors";
 import { getEnvWithDefault, requireEnv } from "@/lib/env";
 
-const STRIPE_SECRET_KEY = requireEnv("STRIPE_SECRET_KEY");
-const STRIPE_WEBHOOK_SECRET = requireEnv("STRIPE_WEBHOOK_SECRET");
 const PRO_AMOUNT_CENTS = Number(getEnvWithDefault("STRIPE_PRO_PRICE_CENTS", "999"));
 const PRO_CURRENCY = getEnvWithDefault("STRIPE_PRO_CURRENCY", "usd");
-const FRONTEND_URL = getEnvWithDefault("FRONTEND_URL", "http://localhost:3000");
+const PRO_UNLOCK_DURATION_SECONDS = Number(
+  getEnvWithDefault("STRIPE_PRO_UNLOCK_DURATION_SECONDS", "60"),
+);
+const BASE_URL = getEnvWithDefault("PUBLIC_APP_URL", "http://localhost:3000");
 
-const stripe: Stripe = new Stripe(STRIPE_SECRET_KEY);
+let stripeClient: Stripe | null = null;
 
 function getStripe(): Stripe {
-  return stripe;
+  if (!stripeClient) {
+    stripeClient = new Stripe(requireEnv("STRIPE_SECRET_KEY"));
+  }
+  return stripeClient;
 }
 
 async function invalidateUserPlanCaches(userId: string) {
   await cache.invalidatePattern(`user:${userId}*`);
   await cache.invalidatePattern(`timeline:user:${userId}*`);
+}
+
+function getPlanUnlockExpiryDate() {
+  const safeSeconds =
+    Number.isFinite(PRO_UNLOCK_DURATION_SECONDS) && PRO_UNLOCK_DURATION_SECONDS > 0
+      ? PRO_UNLOCK_DURATION_SECONDS
+      : 60;
+  return new Date(Date.now() + safeSeconds * 1000);
+}
+
+async function applyFreePlan(userId: string) {
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      plan: "FREE",
+      planStatus: null,
+      planStartedAt: null,
+      stripeSubscriptionId: null,
+      stripeCurrentPeriodEndAt: null,
+    },
+  });
+  await invalidateUserPlanCaches(userId);
+  return updated;
+}
+
+export async function syncUserPlanExpiration(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      plan: true,
+      stripeCurrentPeriodEndAt: true,
+    },
+  });
+
+  if (!user) return null;
+
+  const isProExpired =
+    user.plan === "PRO" &&
+    (!user.stripeCurrentPeriodEndAt || user.stripeCurrentPeriodEndAt.getTime() <= Date.now());
+
+  if (!isProExpired) {
+    return user;
+  }
+
+  return applyFreePlan(userId);
 }
 
 async function activateProPlan(
@@ -45,11 +95,10 @@ async function activateProPlan(
     data: {
       plan: "PRO",
       planStatus: "active",
-      planStartedAt: user.plan === "PRO" ? user.planStartedAt ?? new Date() : new Date(),
+      planStartedAt: new Date(),
       stripeCustomerId: data.stripeCustomerId ?? user.stripeCustomerId,
       stripeSubscriptionId: data.stripeSubscriptionId ?? user.stripeSubscriptionId,
-      stripeCurrentPeriodEndAt:
-        data.stripeCurrentPeriodEndAt ?? user.stripeCurrentPeriodEndAt,
+      stripeCurrentPeriodEndAt: data.stripeCurrentPeriodEndAt ?? getPlanUnlockExpiryDate(),
     },
   });
   await invalidateUserPlanCaches(userId);
@@ -57,6 +106,8 @@ async function activateProPlan(
 }
 
 export async function getBillingStatus(userId: string) {
+  await syncUserPlanExpiration(userId);
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -110,9 +161,13 @@ export async function createCheckoutSession(userId: string) {
       },
     ],
     mode: "payment",
-    success_url: `${FRONTEND_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${FRONTEND_URL}/billing`,
-    metadata: { userId: user.id, plan: "PRO" },
+    success_url: `${BASE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${BASE_URL}/billing`,
+    metadata: {
+      userId: user.id,
+      plan: "PRO",
+      unlockDurationSeconds: String(PRO_UNLOCK_DURATION_SECONDS),
+    },
   });
 
   return { url: session.url };
@@ -141,7 +196,11 @@ export async function createPaymentIntent(userId: string) {
     amount: PRO_AMOUNT_CENTS,
     currency: PRO_CURRENCY,
     customer: customerId,
-    metadata: { userId: user.id, plan: "PRO" },
+    metadata: {
+      userId: user.id,
+      plan: "PRO",
+      unlockDurationSeconds: String(PRO_UNLOCK_DURATION_SECONDS),
+    },
     automatic_payment_methods: { enabled: true },
   });
 
@@ -153,6 +212,8 @@ export async function confirmPayment(
   sessionId?: string,
   paymentIntentId?: string,
 ) {
+  await syncUserPlanExpiration(userId);
+
   if (sessionId) {
     const session = await getStripe().checkout.sessions.retrieve(sessionId);
 
@@ -171,7 +232,7 @@ export async function confirmPayment(
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { plan: true, planStatus: true },
+      select: { plan: true, planStatus: true, stripeCurrentPeriodEndAt: true },
     });
 
     return {
@@ -179,6 +240,7 @@ export async function confirmPayment(
       amount: session.amount_total,
       currency: session.currency,
       plan: user?.plan ?? "FREE",
+      unlockExpiresAt: user?.stripeCurrentPeriodEndAt ?? null,
     };
   }
 
@@ -200,7 +262,7 @@ export async function confirmPayment(
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { plan: true, planStatus: true },
+    select: { plan: true, planStatus: true, stripeCurrentPeriodEndAt: true },
   });
 
   return {
@@ -208,6 +270,7 @@ export async function confirmPayment(
     amount: pi.amount,
     currency: pi.currency,
     plan: user?.plan ?? "FREE",
+    unlockExpiresAt: user?.stripeCurrentPeriodEndAt ?? null,
   };
 }
 
@@ -224,18 +287,7 @@ export async function downgradePlan(userId: string) {
     }
   }
 
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      plan: "FREE",
-      planStatus: null,
-      planStartedAt: null,
-      stripeSubscriptionId: null,
-      stripeCurrentPeriodEndAt: null,
-    },
-  });
-
-  await invalidateUserPlanCaches(userId);
+  const updated = await applyFreePlan(userId);
 
   return {
     id: updated.id,
@@ -249,14 +301,14 @@ export async function handleStripeWebhook(
   rawBody: string,
   signature: string,
 ) {
-  if (!STRIPE_WEBHOOK_SECRET) throw new AppError("Webhook secret not configured", 500);
+  const stripeWebhookSecret = requireEnv("STRIPE_WEBHOOK_SECRET");
 
   let event: Stripe.Event;
   try {
     event = getStripe().webhooks.constructEvent(
       rawBody,
       signature,
-      STRIPE_WEBHOOK_SECRET,
+      stripeWebhookSecret,
     );
   } catch {
     throw new AppError("Invalid webhook signature", 400);

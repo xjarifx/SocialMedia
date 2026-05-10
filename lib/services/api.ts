@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+const BASE_URL = process.env.PUBLIC_APP_URL || "";
+const API_BASE_URL = BASE_URL
+  ? `${BASE_URL.replace(/\/$/, "")}/api/v1`
+  : "/api/v1";
 
 export const API_ROOT_URL = API_BASE_URL.startsWith("/")
   ? (typeof window !== "undefined" ? window.location.origin : "")
@@ -657,6 +660,7 @@ export const billingAPI = {
     amount: number;
     currency: string;
     plan: string;
+    unlockExpiresAt: string | null;
   }> => {
     const params = new URLSearchParams();
     if (sessionId) params.append("session_id", sessionId);

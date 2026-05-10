@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { cache, buildCacheKey } from "@/lib/cache";
 import { AppError } from "@/lib/errors";
+import { syncUserPlanExpiration } from "@/lib/services/billing.service";
 
 const FEED_TTL_SECONDS = 30;
 const POST_TTL_SECONDS = 60;
@@ -178,6 +179,8 @@ export async function createPost(
   body: { content: string; visibility?: string },
   file?: File | null,
 ) {
+  await syncUserPlanExpiration(userId);
+
   const { content, visibility } = body;
   const authorId = userId;
   const normalizedContent = (content ?? "").trim();
@@ -338,6 +341,8 @@ export async function updatePost(
   params: { postId: string },
   body: { content?: string; visibility?: string },
 ) {
+  await syncUserPlanExpiration(userId);
+
   const { postId } = params;
   const { content, visibility } = body;
 
