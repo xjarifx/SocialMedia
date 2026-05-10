@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
-import { getEnvWithDefault } from "@/lib/env";
 
 export async function GET() {
-  const docsEnabled =
-    process.env.NODE_ENV !== "production" ||
-    getEnvWithDefault("ENABLE_API_DOCS", "false") === "true";
-  if (!docsEnabled) {
-    return NextResponse.json({ error: "Not Found" }, { status: 404 });
-  }
-
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
