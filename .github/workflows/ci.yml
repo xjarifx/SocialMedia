@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    env:
+      CI: true
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/better_media
+      REDIS_URL: redis://localhost:6379
+      PUBLIC_APP_URL: https://example.com
+      JWT_SECRET: ci-jwt-secret
+      JWT_EXPIRES_IN: 15m
+      REFRESH_TOKEN_SECRET: ci-refresh-secret
+      REFRESH_TOKEN_EXPIRES_IN: 7d
+      IMAGEKIT_PUBLIC_KEY: ci-public-key
+      IMAGEKIT_PRIVATE_KEY: ci-private-key
+      IMAGEKIT_URL_ENDPOINT: https://example.com
+      STRIPE_SECRET_KEY: sk_test_ci
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_ci
+      STRIPE_WEBHOOK_SECRET: whsec_ci
+      STRIPE_PRO_PRICE_CENTS: 999
+      STRIPE_PRO_CURRENCY: usd
+      STRIPE_PRO_UNLOCK_DURATION_SECONDS: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
